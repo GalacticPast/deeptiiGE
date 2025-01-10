@@ -6,6 +6,7 @@
 #include "renderer/vulkan/vulkan_shader_utils.h"
 
 #define BUILTIN_SHADER_OBJECT_NAME "Builtin.ObjectShader"
+#define ATTRIBUTE_COUNT 1
 
 b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *out_shader)
 {
@@ -42,14 +43,13 @@ b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *ou
 
     // Attributes
     u32                               offset = 0;
-    const s32                         attribute_count = 1;
-    VkVertexInputAttributeDescription attribute_descriptions[attribute_count];
+    VkVertexInputAttributeDescription attribute_descriptions[ATTRIBUTE_COUNT];
 
     // Position
-    VkFormat formats[attribute_count] = {VK_FORMAT_R32G32B32_SFLOAT};
-    u64      sizes[attribute_count] = {sizeof(vec3)};
+    VkFormat formats[ATTRIBUTE_COUNT] = {VK_FORMAT_R32G32B32_SFLOAT};
+    u64      sizes[ATTRIBUTE_COUNT] = {sizeof(vec3)};
 
-    for (u32 i = 0; i < attribute_count; ++i)
+    for (u32 i = 0; i < ATTRIBUTE_COUNT; ++i)
     {
         attribute_descriptions[i].binding = 0;  // binding index - should match binding desc
         attribute_descriptions[i].location = i; // attrib location
@@ -71,7 +71,7 @@ b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *ou
         stage_create_infos[i] = out_shader->stages[i].shader_stage_create_info;
     }
 
-    if (!vulkan_graphics_pipeline_create(context, &context->main_renderpass, attribute_count, attribute_descriptions, 0,
+    if (!vulkan_graphics_pipeline_create(context, &context->main_renderpass, ATTRIBUTE_COUNT, attribute_descriptions, 0,
                                          0, OBJECT_SHADER_STAGE_COUNT, stage_create_infos, viewport, scissor, false,
                                          &out_shader->pipeline))
     {
@@ -95,4 +95,7 @@ void vulkan_object_shader_destroy(vulkan_context *context, vulkan_object_shader 
 
 void vulkan_object_shader_use(vulkan_context *context, vulkan_object_shader *shader)
 {
+    u32 image_index = context->image_index;
+    vulkan_pipeline_bind(&context->graphics_command_buffers[image_index], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                         &shader->pipeline);
 }

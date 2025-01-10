@@ -1,7 +1,7 @@
 #pragma once
 
 #pragma once
-#include "vulkan_types.inl"
+#include "vulkan_types.h"
 
 b8 vulkan_graphics_pipeline_create(vulkan_context *context, vulkan_renderpass *renderpass, u32 attribute_count,
                                    VkVertexInputAttributeDescription *attributes, u32 descriptor_set_layout_count,

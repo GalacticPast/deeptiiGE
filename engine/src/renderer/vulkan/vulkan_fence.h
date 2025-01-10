@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vulkan_types.inl"
+#include "vulkan_types.h"
 
 void vulkan_fence_create(vulkan_context *context, b8 create_signaled, vulkan_fence *out_fence);
 

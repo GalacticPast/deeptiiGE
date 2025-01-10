@@ -30,7 +30,7 @@
 
 #define VK_USE_PLATFORM_XCB_KHR
 #include "renderer/vulkan/vulkan_platform.h"
-#include "renderer/vulkan/vulkan_types.inl"
+#include "renderer/vulkan/vulkan_types.h"
 #include <vulkan/vulkan.h>
 
 typedef struct internal_state
@@ -567,7 +567,7 @@ keys translate_keycode(u32 wl_keycode)
 // VULKAN
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #include "renderer/vulkan/vulkan_platform.h"
-#include "renderer/vulkan/vulkan_types.inl"
+#include "renderer/vulkan/vulkan_types.h"
 #include <vulkan/vulkan.h>
 
 ///* Shared memory support code */

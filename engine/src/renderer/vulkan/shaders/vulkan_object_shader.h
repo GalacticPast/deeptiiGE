@@ -1,7 +1,7 @@
 #pragma once
 
-#include "renderer/renderer_types.inl"
-#include "renderer/vulkan/vulkan_types.inl"
+#include "renderer/renderer_types.h"
+#include "renderer/vulkan/vulkan_types.h"
 
 b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *out_shader);
 
