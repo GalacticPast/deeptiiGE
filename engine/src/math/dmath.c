@@ -40,7 +40,7 @@ f32 dabs(f32 x)
     return fabsf(x);
 }
 
-i32 drandom()
+s32 drandom()
 {
     if (!rand_seeded)
     {
@@ -50,7 +50,7 @@ i32 drandom()
     return rand();
 }
 
-i32 drandom_in_range(i32 min, i32 max)
+s32 drandom_in_range(s32 min, s32 max)
 {
     if (!rand_seeded)
     {

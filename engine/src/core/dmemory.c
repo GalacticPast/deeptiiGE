@@ -70,7 +70,7 @@ void *dcopy_memory(void *dest, const void *source, u64 size)
     return platform_copy_memory(dest, source, size);
 }
 
-void *dset_memory(void *dest, i32 value, u64 size)
+void *dset_memory(void *dest, s32 value, u64 size)
 {
     return platform_set_memory(dest, value, size);
 }
@@ -109,7 +109,7 @@ char *get_memory_usage_str()
             amount = (float)stats.tagged_allocations[i];
         }
 
-        i32 length = snprintf(buffer + offset, 8000, "  %s: %.2f%s\n", memory_tag_strings[i], amount, unit);
+        s32 length = snprintf(buffer + offset, 8000, "  %s: %.2f%s\n", memory_tag_strings[i], amount, unit);
         offset += length;
     }
     char *out_string = string_duplicate(buffer);

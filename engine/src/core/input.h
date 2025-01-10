@@ -161,8 +161,8 @@ DAPI b8   input_is_button_down(buttons button);
 DAPI b8   input_is_button_up(buttons button);
 DAPI b8   input_was_button_down(buttons button);
 DAPI b8   input_was_button_up(buttons button);
-DAPI void input_get_mouse_position(i32 *x, i32 *y);
-DAPI void input_get_previous_mouse_position(i32 *x, i32 *y);
+DAPI void input_get_mouse_position(s32 *x, s32 *y);
+DAPI void input_get_previous_mouse_position(s32 *x, s32 *y);
 
 void input_process_button(buttons button, b8 pressed);
 void input_process_mouse_move(i16 x, i16 y);

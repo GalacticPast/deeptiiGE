@@ -10,7 +10,7 @@ typedef struct event_context
         u64 u64[2];
         f64 f64[2];
 
-        i32 i32[4];
+        s32 s32[4];
         u32 u32[4];
         f32 f32[4];
 

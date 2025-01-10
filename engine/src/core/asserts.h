@@ -13,7 +13,7 @@
 #define debugBreak() __builtin_trap()
 #endif
 
-DAPI void report_assertion_failure(const char *expression, const char *message, const char *file, i32 line);
+DAPI void report_assertion_failure(const char *expression, const char *message, const char *file, s32 line);
 
 #define DASSERT(expr)                                                                                                  \
     {                                                                                                                  \

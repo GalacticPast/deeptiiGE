@@ -25,7 +25,7 @@ void log_output(log_level level, const char *message, ...)
 
     // Technically imposes a 32k character limit on a single log entry, but...
     // DON'T DO THAT!
-    const i32 msg_length = 32000;
+    const s32 msg_length = 32000;
     char      out_message[msg_length];
     memset(out_message, 0, sizeof(out_message));
 
@@ -52,7 +52,7 @@ void log_output(log_level level, const char *message, ...)
     }
 }
 
-void report_assertion_failure(const char *expression, const char *message, const char *file, i32 line)
+void report_assertion_failure(const char *expression, const char *message, const char *file, s32 line)
 {
     log_output(LOG_LEVEL_FATAL, "Assertion Failure: %s, message: '%s', in file: %s, line: %d\n", expression, message,
                file, line);

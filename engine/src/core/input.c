@@ -184,7 +184,7 @@ b8 input_was_button_up(buttons button)
     return state.mouse_previous.buttons[button] == false;
 }
 
-void input_get_mouse_position(i32 *x, i32 *y)
+void input_get_mouse_position(s32 *x, s32 *y)
 {
     if (!initialized)
     {
@@ -196,7 +196,7 @@ void input_get_mouse_position(i32 *x, i32 *y)
     *y = state.mouse_current.y;
 }
 
-void input_get_previous_mouse_position(i32 *x, i32 *y)
+void input_get_previous_mouse_position(s32 *x, s32 *y)
 {
     if (!initialized)
     {

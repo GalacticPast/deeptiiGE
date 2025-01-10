@@ -46,7 +46,7 @@ typedef struct internal_state
 // Key translation
 keys translate_keycode(u32 wl_keycode);
 
-b8 platform_startup(platform_state *plat_state, const char *application_name, i32 x, i32 y, i32 width, i32 height)
+b8 platform_startup(platform_state *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
 {
     // Create the internal state.
     plat_state->internal_state = malloc(sizeof(internal_state));
@@ -72,8 +72,8 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
 
     // Loop through screens using iterator
     xcb_screen_iterator_t it = xcb_setup_roots_iterator(setup);
-    i32                   screen_p = 0;
-    for (i32 s = screen_p; s > 0; s--)
+    s32                   screen_p = 0;
+    for (s32 s = screen_p; s > 0; s--)
     {
         xcb_screen_next(&it);
     }
@@ -133,7 +133,7 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
     xcb_map_window(state->connection, state->window);
 
     // Flush the stream
-    i32 stream_result = xcb_flush(state->connection);
+    s32 stream_result = xcb_flush(state->connection);
     if (stream_result <= 0)
     {
         DFATAL("An error occurred when flusing the stream: %d", stream_result);
@@ -695,7 +695,7 @@ u32 translate_keycode(u32 key);
 
 // keyboard
 
-static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, u32 format, i32 fd, u32 size)
+static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, u32 format, s32 fd, u32 size)
 {
     // struct internal_state *state = data;
 }
@@ -725,7 +725,7 @@ static void wl_keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard, u
 {
 }
 
-static void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard, i32 rate, i32 delay)
+static void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard, s32 rate, s32 delay)
 {
 }
 
@@ -766,7 +766,7 @@ static void wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name)
 struct wl_seat_listener wl_seat_listener = {.capabilities = wl_seat_capabilites, .name = wl_seat_name};
 
 // actual surface
-static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel, i32 width, i32 height,
+static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel, s32 width, s32 height,
                                    struct wl_array *states)
 {
     if (width == 0 || height == 0)
@@ -838,7 +838,7 @@ static const struct wl_registry_listener wl_registry_listener = {
     .global_remove = registry_global_remove,
 };
 
-b8 platform_startup(platform_state *plat_state, const char *application_name, i32 x, i32 y, i32 width, i32 height)
+b8 platform_startup(platform_state *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
 {
     DINFO("Initializing linux-Wayland platform...");
     plat_state->internal_state = malloc(sizeof(internal_state));
@@ -895,7 +895,7 @@ b8 platform_pump_messages(platform_state *plat_state)
 {
     internal_state *state = (internal_state *)plat_state->internal_state;
 
-    i32 result = wl_display_dispatch(state->wl_display);
+    s32 result = wl_display_dispatch(state->wl_display);
 
     return result == -1 ? false : true;
 }
@@ -1276,7 +1276,7 @@ void *platform_copy_memory(void *dest, const void *source, u64 size)
 {
     return memcpy(dest, source, size);
 }
-void *platform_set_memory(void *dest, i32 value, u64 size)
+void *platform_set_memory(void *dest, s32 value, u64 size)
 {
     return memset(dest, value, size);
 }

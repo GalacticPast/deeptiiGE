@@ -50,8 +50,8 @@ DINLINE b8 is_power_of_2(u64 value)
     return (value != 0) && ((value & (value - 1)) == 0);
 }
 
-DAPI i32 krandom();
-DAPI i32 krandom_in_range(i32 min, i32 max);
+DAPI s32 krandom();
+DAPI s32 krandom_in_range(s32 min, s32 max);
 
 DAPI f32 fkrandom();
 DAPI f32 fkrandom_in_range(f32 min, f32 max);
@@ -772,9 +772,9 @@ DINLINE mat4 mat4_mul(mat4 matrix_0, mat4 matrix_1)
     const f32 *m2_ptr = matrix_1.data;
     f32       *dst_ptr = out_matrix.data;
 
-    for (i32 i = 0; i < 4; ++i)
+    for (s32 i = 0; i < 4; ++i)
     {
-        for (i32 j = 0; j < 4; ++j)
+        for (s32 j = 0; j < 4; ++j)
         {
             *dst_ptr = m1_ptr[0] * m2_ptr[0 + j] + m1_ptr[1] * m2_ptr[4 + j] + m1_ptr[2] * m2_ptr[8 + j] +
                        m1_ptr[3] * m2_ptr[12 + j];

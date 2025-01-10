@@ -19,8 +19,11 @@
 
 #include "platform/platform.h"
 
+// shaders
+#include "shaders/vulkan_object_shader.h"
+
 // static Vulkan context
-static vulkan_context context;
+static vulkan_context context = {};
 static u32            cached_framebuffer_width = 0;
 static u32            cached_framebuffer_height = 0;
 
@@ -29,7 +32,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
                                                  const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
                                                  void                                       *user_data);
 
-i32 find_memory_index(u32 type_filter, u32 property_flags);
+s32 find_memory_index(u32 type_filter, u32 property_flags);
 
 void create_command_buffers(renderer_backend *backend);
 void regenerate_framebuffers(renderer_backend *backend, vulkan_swapchain *swapchain, vulkan_renderpass *renderpass);
@@ -208,6 +211,12 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
         context.images_in_flight[i] = 0;
     }
 
+    if (!vulkan_object_shader_create(&context, &context.object_shader))
+    {
+        DERROR("Error loading built-in basic lightning shader");
+        return false;
+    }
+
     DINFO("Vulkan renderer initialized successfully.");
     return true;
 }
@@ -217,6 +226,7 @@ void vulkan_renderer_backend_shutdown(renderer_backend *backend)
     vkDeviceWaitIdle(context.device.logical_device);
 
     // Destroy in the opposite order of creation.
+    vulkan_object_shader_destroy(&context, &context.object_shader);
 
     // Sync objects
     for (u8 i = 0; i < context.swapchain.max_frames_in_flight; ++i)
@@ -480,7 +490,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlag
     return VK_FALSE;
 }
 
-i32 find_memory_index(u32 type_filter, u32 property_flags)
+s32 find_memory_index(u32 type_filter, u32 property_flags)
 {
     VkPhysicalDeviceMemoryProperties memory_properties;
     vkGetPhysicalDeviceMemoryProperties(context.device.physical_device, &memory_properties);

@@ -37,6 +37,6 @@ DAPI void *dzero_memory(void *block, u64 size);
 
 DAPI void *dcopy_memory(void *dest, const void *source, u64 size);
 
-DAPI void *dset_memory(void *dest, i32 value, u64 size);
+DAPI void *dset_memory(void *dest, s32 value, u64 size);
 
 DAPI char *get_memory_usage_str();

@@ -25,9 +25,9 @@ typedef struct vulkan_device
     VkPhysicalDevice              physical_device;
     VkDevice                      logical_device;
     vulkan_swapchain_support_info swapchain_support;
-    i32                           graphics_queue_index;
-    i32                           present_queue_index;
-    i32                           transfer_queue_index;
+    s32                           graphics_queue_index;
+    s32                           present_queue_index;
+    s32                           transfer_queue_index;
 
     VkQueue graphics_queue;
     VkQueue present_queue;
@@ -120,6 +120,29 @@ typedef struct vulkan_fence
     b8      is_signaled;
 } vulkan_fence;
 
+// vertex and fragment shaders for now
+
+typedef struct vulkan_shader_stage
+{
+    VkShaderModuleCreateInfo        create_info;
+    VkShaderModule                  handle;
+    VkPipelineShaderStageCreateInfo shader_stage_create_info;
+} vulkan_shader_stage;
+
+typedef struct vulkan_pipeline
+{
+    VkPipeline       handle;
+    VkPipelineLayout pipeline_layout;
+} vulkan_pipeline;
+
+#define OBJECT_SHADER_STAGE_COUNT 2
+
+typedef struct vulkan_object_shader
+{
+    vulkan_shader_stage stages[OBJECT_SHADER_STAGE_COUNT];
+    vulkan_pipeline     pipeline;
+} vulkan_object_shader;
+
 typedef struct vulkan_context
 {
 
@@ -170,6 +193,8 @@ typedef struct vulkan_context
 
     b8 recreating_swapchain;
 
-    i32 (*find_memory_index)(u32 type_filter, u32 property_flags);
+    vulkan_object_shader object_shader;
+
+    s32 (*find_memory_index)(u32 type_filter, u32 property_flags);
 
 } vulkan_context;

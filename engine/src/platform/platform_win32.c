@@ -28,7 +28,7 @@ static LARGE_INTEGER start_time;
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
-b8 platform_startup(platform_state *plat_state, const char *application_name, i32 x, i32 y, i32 width, i32 height)
+b8 platform_startup(platform_state *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
 {
     plat_state->internal_state = malloc(sizeof(internal_state));
     internal_state *state = (internal_state *)plat_state->internal_state;
@@ -102,7 +102,7 @@ b8 platform_startup(platform_state *plat_state, const char *application_name, i3
 
     // Show the window
     b32 should_activate = 1; // TODO: if the window should not accept input, this should be false.
-    i32 show_window_command_flags = should_activate ? SW_SHOW : SW_SHOWNOACTIVATE;
+    s32 show_window_command_flags = should_activate ? SW_SHOW : SW_SHOWNOACTIVATE;
     // If initially minimized, use SW_MINIMIZE : SW_SHOWMINNOACTIVE;
     // If initially maximized, use SW_SHOWMAXIMIZED : SW_MAXIMIZE
     ShowWindow(state->hwnd, show_window_command_flags);
@@ -186,7 +186,7 @@ void *platform_copy_memory(void *dest, const void *source, u64 size)
     return memcpy(dest, source, size);
 }
 
-void *platform_set_memory(void *dest, i32 value, u64 size)
+void *platform_set_memory(void *dest, s32 value, u64 size)
 {
     return memset(dest, value, size);
 }
@@ -265,15 +265,15 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         break;
         case WM_MOUSEMOVE: {
             // Mouse move
-            i32 x_position = GET_X_LPARAM(l_param);
-            i32 y_position = GET_Y_LPARAM(l_param);
+            s32 x_position = GET_X_LPARAM(l_param);
+            s32 y_position = GET_Y_LPARAM(l_param);
 
             // Pass over to the input subsystem.
             input_process_mouse_move(x_position, y_position);
         }
         break;
         case WM_MOUSEWHEEL: {
-            i32 z_delta = GET_WHEEL_DELTA_WPARAM(w_param);
+            s32 z_delta = GET_WHEEL_DELTA_WPARAM(w_param);
             if (z_delta != 0)
             {
                 // Flatten the input to an OS-independent (-1, 1)
