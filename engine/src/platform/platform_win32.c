@@ -1,6 +1,5 @@
-#include "platform/platform.h"
-
 #ifdef DPLATFORM_WINDOWS
+#include "platform/platform.h"
 
 #include "containers/darray.h"
 #include "core/event.h"

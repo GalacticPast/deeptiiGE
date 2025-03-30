@@ -8,7 +8,7 @@ echo "cleaning everything..."
 # pushd engine
 # source build.sh
 # popd
-make -f Makefile.engine.linux.mak clean 
+make -f Makefile.library.mak clean 
 
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
@@ -20,7 +20,7 @@ fi
 # source build.sh
 # popd
 
-make -f Makefile.testbed.linux.mak clean 
+make -f Makefile.executable.mak clean 
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
 then

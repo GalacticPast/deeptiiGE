@@ -8,7 +8,7 @@ echo "Building everything..."
 # pushd engine
 # source build.sh
 # popd
-make -f Makefile.engine.linux.mak all
+make -f Makefile.library.mak all
 
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
@@ -20,7 +20,7 @@ fi
 # source build.sh
 # popd
 
-make -f Makefile.testbed.linux.mak all
+make -f Makefile.executable.mak all
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
 then
