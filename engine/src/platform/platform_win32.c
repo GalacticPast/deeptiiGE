@@ -13,6 +13,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>
 
+#include "renderer/vulkan/vulkan_platform.h"
 #include "renderer/vulkan/vulkan_types.h"
 
 typedef struct internal_state
@@ -139,12 +140,12 @@ b8 platform_pump_messages(platform_state *plat_state)
     return true;
 }
 
-void platform_get_specific_surface_extensions(const char ***array)
+void platform_get_required_extension_names(const char ***names_darray)
 {
-    darray_push(*array, &"VK_KHR_win32_surface");
+    darray_push(*names_darray, &"VK_KHR_win32_surface");
 }
 
-b8 platform_create_vk_surface(platform_state *plat_state, vulkan_context *context)
+b8 platform_create_vulkan_surface(struct platform_state *plat_state, struct vulkan_context *context)
 {
     DTRACE("Creating win32 surface...");
 
@@ -158,7 +159,7 @@ b8 platform_create_vk_surface(platform_state *plat_state, vulkan_context *contex
     surface_info.hinstance = state->h_instance;
     surface_info.hwnd = state->hwnd;
 
-    VK_CHECK(vkCreateWin32SurfaceKHR(context->vk_instance, &surface_info, 0, &context->vk_surface));
+    VK_CHECK(vkCreateWin32SurfaceKHR(context->instance, &surface_info, 0, &context->surface));
 
     DINFO("Created win32 surface");
 

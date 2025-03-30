@@ -1,5 +1,5 @@
 obj_dir := obj
-src_dir := engine/src
+src_dir := engine
 bin_dir := bin
 cc := clang
 
@@ -7,18 +7,26 @@ ifeq ($(OS),Windows_NT)
 
 build_platform := windows
 vulkan_sdk := $(shell echo %VULKAN_SDK%)
+DIR := $(subst /,\,${CURDIR})
 
 assembly := engine
 extension := .dll
-defines := -D_DEBUG _DDEXPORT -D_CRT_SECURE_NO_WARNINGS -DPLATFORM_WINDOWS
-includes := -Iengine\src -I$(vulkan_sdk)\Include
-linker_flags := -g -shared -luser32 -lvulkan-1 -L$(VULKAN_SDK)\Lib -L$(OBJ_DIR)\engine
-compiler_flags := -g -fdeclspec -fPIC
+defines := -DDEBUG -DDEXPORT -D_CRT_SECURE_NO_WARNINGS -DDPLATFORM_WINDOWS
+include_flags := -Iengine\src -I$(vulkan_sdk)\Include
+linker_flags := -g -shared -luser32 -lvulkan-1 -L$(VULKAN_SDK)\Lib -L$(obj_dir)\engine
+compiler_flags := -g -fdeclspec 
 
 rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
+
 src_files := $(call rwildcard,$(src_dir)/,*.c)
 directories := $(shell dir src /b /a:d)
 obj_files := $(patsubst %.c, $(obj_dir)/%.o, $(src_files))
+
+src_files:= $(call rwildcard,$(src_dir)/,*.c) # Get all .c files
+directories:= \$(src_dir)\src $(subst $(DIR),,$(shell dir $(src_dir)\src /S /AD /B | findstr /i src)) # Get all directories under src.
+obj_files:= $(src_files:%=$(obj_dir)/%.o) # Get all compiled .c.o objects for engine
+
+
 
 else
 
@@ -28,7 +36,7 @@ ifeq ($(is_linux),Linux)
 
 assembly := engine
 extension := .so
-includes := -Iengine/src -I$(VULKAN_SDK)/include
+include_flags := -Iengine/src -I$(VULKAN_SDK)/include
 compiler_flags := -g -fdeclspec -fPIC
 defines := -D_DEBUG -DDEXPORT 
 
@@ -59,11 +67,11 @@ all: scaffold compile link
 .PHONY: scaffold
 scaffold: 
 ifeq ($(build_platform),windows)
-	@echo scaffolding project structure 
+	@echo Scaffolding folder structure...
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(bin_dir) 2>NUL || cd .
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(obj_dir) 2>NUL || cd .
-	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addsuffix \$(src_dir),$(obj_dir)) 2>NUL || cd .
-	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addprefix $(obj_dir)\$(src_dir)\,$(directories)) 2>NUL || cd .
+	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addprefix $(obj_dir), $(directories)) 2>NUL || cd .
+	@echo Done.
 else
 	@mkdir -p $(obj_dir)
 	@mkdir -p $(bin_dir)
@@ -74,7 +82,7 @@ endif
 .PHONY: link
 link: scaffold $(obj_files)
 	@echo Linking $(assembly)
-	@$(cc) $(obj_files) -o $(bin_dir)/lib$(assembly)$(extension) $(linker_flags) 
+	@$(cc) $(obj_files) -o $(bin_dir)/$(assembly)$(extension) $(linker_flags) 
 
 .PHONY: compile
 compile: #compile .c files
@@ -96,4 +104,4 @@ endif
 
 $(obj_dir)/%.c.o : %.c 
 	@echo $<...
-	@$(cc) $< $(compiler_flags) -c  -o $@ $(defines) $(includes) 
+	@$(cc) $< $(compiler_flags) -c  -o $@ $(defines) $(include_flags) 

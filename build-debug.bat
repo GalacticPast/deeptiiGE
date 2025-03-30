@@ -3,10 +3,11 @@ REM Build Everything
 
 ECHO "Building everything..."
 
-CALL make -f "Makefile.engine.windows.mak" all
+make -f "Makefile.library.mak" all
 IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
 
-CALL make -f "Makefile.testbed.windows.mak" all
+make -f "Makefile.executable.mak" all
 IF %ERRORLEVEL% NEQ 0 (echo Error:%ERRORLEVEL% && exit)
+
 
 ECHO "All assemblies built successfully."
