@@ -39,23 +39,24 @@ extension := .so
 include_flags := -Iengine/src -I$(VULKAN_SDK)/include
 compiler_flags := -g -fdeclspec -fPIC
 defines := -DDEBUG -DDEXPORT 
+linker_flags := -g -shared -lvulkan 
 
 linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 
 ifeq ($(linux_platform),wayland)		
 
 defines += -DDPLATFORM_LINUX_WAYLAND
-linker_flags := -lvulkan -lwayland-client -lm -lc
+linker_flags += -lwayland-client 
 
 else ifeq ($(linux_platform),x11)		
 
 defines += -DDPLATFORM_LINUX_X11
-linker_flags := -lvulkan -lX11 -lxcb -lX11-xcb -L/usr/X11R6/lib -lm
+linker_flags += -lX11 -lxcb -lX11-xcb -L/usr/X11R6/lib
 
 endif
 
-src_files := $(shell find $(assembly) -name *.c)		# .c files
-directories := $(shell find $(assembly) -type d)		# directories with .h files
+src_files := $(shell find $(src_dir) -name *.c)		# .c files
+directories := $(shell find $(src_dir) -type d)		# directories with .h files
 obj_files := $(src_files:%=$(obj_dir)/%.o)	
 
 endif 

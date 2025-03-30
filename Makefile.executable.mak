@@ -34,25 +34,28 @@ linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 
 assembly := learningVulkan
 extension := 
-include_flags := -Iengine/src -I$(VULKAN_SDK)/include
+include_flags := -Iengine/src -Itestbed/src 
 compiler_flags := -Wall -Wextra -g3 -WconINCLUDE_FLAGS version -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function -Wno-sign-conversion -fsanitize=undefined -fsanitize-trap
-linker_flags := -l./$(build_dir)/ -lengine -wl,-rpath,.
+linker_flags := -l./$(bin_dir)/ -lengine -wl,-rpath,.  
+defines := -DDEBUG 
 
 ifeq ($(linux_platform),wayland)		
 
-linker_flags := -lvulkan -lwayland-client -lm
-defines := -DDEBUG -DPLATFORM_LINUX_WAYLAND
+linker_flags += -lvulkan -lwayland-client -lm
+defines += -DPLATFORM_LINUX_WAYLAND
+
 
 else ifeq ($(linux_platform),x11)		
 
-defines := -D_DEBUG -DPLATFORM_LINUX_X11 
-linker_flags := -lvulkan -lX11 -lxcb -lX11-xcb -L/usr/X11R6/lib -lm
+defines += -DPLATFORM_LINUX_X11 
+linker_flags += -lX11 -lxcb -lX11-xcb -L/usr/X11R6/lib 
 
 endif
 
-src_files := $(shell find $(src_dir) -type f -name '*.c')
-dependencies := $(shell find $(src_dir) -type d)
-obj_files := $(patsubst %.c, $(obj_dir)/%.o, $(src_files))
+src_files := $(shell find $(src_dir) -name *.c)		# .c files
+directories := $(shell find $(src_dir) -type d)		# directories with .h files
+obj_files := $(src_files:%=$(obj_dir)/%.o)		# compiled .o objects
+
 
 endif 
 
@@ -68,13 +71,16 @@ ifeq ($(build_platform),windows)
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addsuffix \$(src_dir),$(obj_dir)) 2>NUL || cd .
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addprefix $(obj_dir), $(directories)) 2>NUL || cd .
 else
-	@mkdir -p $(obj_dir)
-	@mkdir -p $(dir $(obj_files))
+	@echo Scaffolding folder structure...
+	@mkdir -p $(addprefix $(obj_dir)/,$(directories))
+	@echo Done.
 endif
 
-$(obj_dir)/%.c.o: %.c # compile .c to .c.o object
+$(obj_dir)/%.c.o: %.c # compile .c to .o object
 	@echo   $<...
 	@clang $< $(compiler_flags) -c -o $@ $(defines) $(include_flags)
+
+-include $(obj_files:.o=.d)
 
 .PHONY: compile
 compile: #compile .c files
@@ -83,7 +89,7 @@ compile: #compile .c files
 .PHONY: link
 link: scaffold $(obj_files)
 	@echo Linking $(assembly)
-	@clang $(obj_files) -o $(bin_dir)\$(assembly)$(extension) $(linker_flags)
+	@clang $(obj_files) -o $(bin_dir)/$(assembly)$(extension) $(linker_flags)
 
 .PHONY: clean
 clean: # clean build directory
