@@ -39,7 +39,7 @@ extension := .so
 include_flags := -Iengine/src -I$(VULKAN_SDK)/include
 compiler_flags := -g -fdeclspec -fPIC
 defines := -DDEBUG -DDEXPORT 
-linker_flags := -g -shared -lvulkan 
+linker_flags :=-Wl,--no-undefined,--no-allow-shlib-undefined -shared -lm -L./$(bind_dir) -g -lvulkan 
 
 linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 
@@ -84,7 +84,11 @@ endif
 link: scaffold $(obj_files)
 	@echo Linking $(assembly)
 	@echo $(defines)
+ifeq ($(build_platform),windows)
 	@$(cc) $(obj_files) -o $(bin_dir)/$(assembly)$(extension) $(linker_flags) 
+else
+	@$(cc) $(obj_files) -o $(bin_dir)/lib$(assembly)$(extension) $(linker_flags) 
+endif
 
 .PHONY: compile
 compile: #compile .c files

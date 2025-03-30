@@ -35,9 +35,17 @@ linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 assembly := learningVulkan
 extension := 
 include_flags := -Iengine/src -Itestbed/src 
-compiler_flags := -Wall -Wextra -g3 -WconINCLUDE_FLAGS version -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function -Wno-sign-conversion -fsanitize=undefined -fsanitize-trap
-linker_flags := -l./$(bin_dir)/ -lengine -wl,-rpath,.  
-defines := -DDEBUG 
+compiler_flags := -g -MD -O0 -fvisibility=hidden -Wall -Wno-error=deprecated-declarations -Wno-error=unused-function -Werror -Wvla -Werror=vla -Wgnu-folding-constant -Wno-missing-braces -fdeclspec -fPIC
+defines := -DDEBUG -DDIMPORT
+linker_flags := -Wl,--no-undefined,--no-allow-shlib-undefined -lengine -L./$(bin_dir) -Wl,-rpath,/home/galacticpast/Documents/projects/deeptige/bin -lm -ldl
+build_platform := linux
+
+# .c files
+src_files := $(shell find $(src_dir) -name *.c)
+# directories with .h files
+directories := $(shell find $(src_dir) -type d)
+
+obj_files := $(src_files:%=$(obj_dir)/%.o)
 
 ifeq ($(linux_platform),wayland)		
 
@@ -51,10 +59,6 @@ defines += -DPLATFORM_LINUX_X11
 linker_flags += -lX11 -lxcb -lX11-xcb -L/usr/X11R6/lib 
 
 endif
-
-src_files := $(shell find $(src_dir) -name *.c)		# .c files
-directories := $(shell find $(src_dir) -type d)		# directories with .h files
-obj_files := $(src_files:%=$(obj_dir)/%.o)		# compiled .o objects
 
 
 endif 
@@ -76,15 +80,11 @@ else
 	@echo Done.
 endif
 
-$(obj_dir)/%.c.o: %.c # compile .c to .o object
-	@echo   $<...
-	@clang $< $(compiler_flags) -c -o $@ $(defines) $(include_flags)
-
--include $(obj_files:.o=.d)
 
 .PHONY: compile
-compile: #compile .c files
-	@echo Compiling...
+compile:
+	@echo --- Performing "$(assembly)" $(build_platform) build ---
+-include $(OBJ_FILES:.o=.d)
 
 .PHONY: link
 link: scaffold $(obj_files)
@@ -101,3 +101,9 @@ else
 	rm -rf $(obj_dir)/$(assembly)
 endif
 
+
+$(obj_dir)/%.c.o: %.c 
+	@echo   $<...
+	@$(cc) $< $(compiler_flags) -c -o $@ $(defines) $(include_flags)
+
+-include $(obj_files:.o=.d)
