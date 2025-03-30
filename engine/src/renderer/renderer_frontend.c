@@ -57,7 +57,7 @@ void renderer_on_resized(u16 width, u16 height)
     }
 }
 
-b8 renderer_draw_frame(render_packet *packet)
+DAPI b8 renderer_draw_frame(render_packet *packet)
 {
     // If the begin frame returned successfully, mid-frame operations may continue.
     if (renderer_begin_frame(packet->delta_time))

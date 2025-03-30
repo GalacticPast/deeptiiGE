@@ -1,5 +1,4 @@
 @ECHO OFF
-REM Build Everything
 
 ECHO "Building everything..."
 

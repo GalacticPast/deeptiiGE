@@ -38,7 +38,7 @@ assembly := engine
 extension := .so
 include_flags := -Iengine/src -I$(VULKAN_SDK)/include
 compiler_flags := -g -fdeclspec -fPIC
-defines := -D_DEBUG -DDEXPORT 
+defines := -DDEBUG -DDEXPORT 
 
 linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 
@@ -82,6 +82,7 @@ endif
 .PHONY: link
 link: scaffold $(obj_files)
 	@echo Linking $(assembly)
+	@echo $(defines)
 	@$(cc) $(obj_files) -o $(bin_dir)/$(assembly)$(extension) $(linker_flags) 
 
 .PHONY: compile

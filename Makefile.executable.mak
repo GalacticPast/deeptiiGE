@@ -11,9 +11,9 @@ DIR := $(subst /,\,${CURDIR})
 
 assembly := learningVulkan
 extension := .exe
-defines := -D_DEBUG -DPLATFORM_WINDOWS
+defines := -DDEBUG -DDPLATFORM_WINDOWS
 include_flags := -Iengine\src -I$(vulkan_sdk)\Include
-LINKER_FLAGS := -g -lengine.lib -L$(obj_dir)\engine -L$(bin_dir) #-Wl,-rpath,.
+linker_flags := -g -lengine -L$(obj_dir)\engine -L$(bin_dir) #-Wl,-rpath,.
 compiler_flags := -Wall -Wextra -g3 -Wconversion -Wdouble-promotion -Wno-unused-parameter -Wno-unused-function -Wno-sign-conversion -fsanitize=undefined -fsanitize-trap
 build_platform := windows
 
@@ -41,7 +41,7 @@ linker_flags := -l./$(build_dir)/ -lengine -wl,-rpath,.
 ifeq ($(linux_platform),wayland)		
 
 linker_flags := -lvulkan -lwayland-client -lm
-defines := -D_DEBUG -DPLATFORM_LINUX_WAYLAND
+defines := -DDEBUG -DPLATFORM_LINUX_WAYLAND
 
 else ifeq ($(linux_platform),x11)		
 

@@ -3,7 +3,7 @@
 
 ECHO "Cleaning everything..."
 
-dir /s /b \obj 
-rmdir /s obj 
+del /s /q bin\*
+del /s /q obj\*
 
 ECHO "All assemblies cleaned successfully."
