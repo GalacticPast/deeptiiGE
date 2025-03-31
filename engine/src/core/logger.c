@@ -7,15 +7,31 @@
 #include <stdio.h>
 #include <string.h>
 
-b8 initialize_logging()
+typedef struct logger_system_state
 {
-    // TODO: create log file.
+    b8 initialized;
+} logger_system_state;
+
+static logger_system_state *logger_state;
+
+b8 initialize_logging(u64 *memory_requirement, void *state)
+{
+    *memory_requirement = sizeof(logger_system_state);
+    if (state == 0)
+    {
+        return true;
+    }
+
+    logger_state = state;
+    logger_state->initialized = true;
+    DINFO("Logging system initalized.");
     return true;
 }
 
-void shutdown_logging()
+void shutdown_logging(void *state)
 {
     // TODO: cleanup logging/write queued entries.
+    logger_state = 0;
 }
 
 void log_output(log_level level, const char *message, ...)
@@ -54,6 +70,5 @@ void log_output(log_level level, const char *message, ...)
 
 void report_assertion_failure(const char *expression, const char *message, const char *file, s32 line)
 {
-    log_output(LOG_LEVEL_FATAL, "Assertion Failure: %s, message: '%s', in file: %s, line: %d\n", expression, message,
-               file, line);
+    log_output(LOG_LEVEL_FATAL, "Assertion Failure: %s, message: '%s', in file: %s, line: %d\n", expression, message, file, line);
 }
