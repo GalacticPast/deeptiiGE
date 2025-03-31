@@ -30,10 +30,8 @@ static vulkan_context context = {};
 static u32            cached_framebuffer_width = 0;
 static u32            cached_framebuffer_height = 0;
 
-VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
-                                                 VkDebugUtilsMessageTypeFlagsEXT             message_types,
-                                                 const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
-                                                 void                                       *user_data);
+VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_types, const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
+                                                 void *user_data);
 
 s32 find_memory_index(u32 type_filter, u32 property_flags);
 
@@ -42,8 +40,7 @@ void regenerate_framebuffers(renderer_backend *backend, vulkan_swapchain *swapch
 b8   recreate_swapchain(renderer_backend *backend);
 b8   create_buffers(vulkan_context *context);
 
-void upload_data_range(vulkan_context *context, VkCommandPool pool, VkFence fence, VkQueue queue, vulkan_buffer *buffer,
-                       u64 offset, u64 size, void *data)
+void upload_data_range(vulkan_context *context, VkCommandPool pool, VkFence fence, VkQueue queue, vulkan_buffer *buffer, u64 offset, u64 size, void *data)
 {
     // Create a host-visible staging buffer to upload to. Mark it as the source of the transfer.
     VkBufferUsageFlags flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
@@ -61,8 +58,7 @@ void upload_data_range(vulkan_context *context, VkCommandPool pool, VkFence fenc
     vulkan_buffer_destroy(context, &staging);
 }
 
-b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *application_name,
-                                      struct platform_state *plat_state)
+b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *application_name, struct platform_state *plat_state)
 {
     // Function pointers
     context.find_memory_index = find_memory_index;
@@ -159,19 +155,15 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 #if defined(_DEBUG)
     DDEBUG("Creating Vulkan debugger...");
     u32 log_severity =
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT; //|
-                                                      //    VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT; //|
+                                                                                                                                                        //    VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info = {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
     debug_create_info.messageSeverity = log_severity;
-    debug_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT |
-                                    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+    debug_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
     debug_create_info.pfnUserCallback = vk_debug_callback;
 
-    PFN_vkCreateDebugUtilsMessengerEXT func =
-        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkCreateDebugUtilsMessengerEXT");
+    PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkCreateDebugUtilsMessengerEXT");
     DASSERT_MSG(func, "Failed to create debug messenger!");
     VK_CHECK(func(context.instance, &debug_create_info, context.allocator, &context.debug_messenger));
     DDEBUG("Vulkan debugger created.");
@@ -179,7 +171,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 
     // Surface
     DDEBUG("Creating Vulkan surface...");
-    if (!platform_create_vulkan_surface(plat_state, &context))
+    if (!platform_create_vulkan_surface(&context))
     {
         DERROR("Failed to create platform surface!");
         return false;
@@ -196,8 +188,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     // Swapchain
     vulkan_swapchain_create(&context, context.framebuffer_width, context.framebuffer_height, &context.swapchain);
 
-    vulkan_renderpass_create(&context, &context.main_renderpass, 0, 0, context.framebuffer_width,
-                             context.framebuffer_height, 0.0f, 0.0f, 0.2f, 1.0f, 1.0f, 0);
+    vulkan_renderpass_create(&context, &context.main_renderpass, 0, 0, context.framebuffer_width, context.framebuffer_height, 0.0f, 0.0f, 0.2f, 1.0f, 1.0f, 0);
 
     // Swapchain framebuffers.
     context.swapchain.framebuffers = darray_reserve(vulkan_framebuffer, context.swapchain.image_count);
@@ -214,10 +205,8 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     for (u8 i = 0; i < context.swapchain.max_frames_in_flight; ++i)
     {
         VkSemaphoreCreateInfo semaphore_create_info = {VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-        vkCreateSemaphore(context.device.logical_device, &semaphore_create_info, context.allocator,
-                          &context.image_available_semaphores[i]);
-        vkCreateSemaphore(context.device.logical_device, &semaphore_create_info, context.allocator,
-                          &context.queue_complete_semaphores[i]);
+        vkCreateSemaphore(context.device.logical_device, &semaphore_create_info, context.allocator, &context.image_available_semaphores[i]);
+        vkCreateSemaphore(context.device.logical_device, &semaphore_create_info, context.allocator, &context.queue_complete_semaphores[i]);
 
         // Create the fence in a signaled state, indicating that the first frame has already been "rendered".
         // This will prevent the application from waiting indefinitely for the first frame to render since it
@@ -260,12 +249,10 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     verts[3].position.y = -0.5;
 
     const u32 index_count = 6;
-    u32       indices[index_count] = {0, 1, 2, 0, 3, 1};
+    u32       indices[6] = {0, 1, 2, 0, 3, 1};
 
-    upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue,
-                      &context.object_vertex_buffer, 0, sizeof(vertex_3d) * vert_count, verts);
-    upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue,
-                      &context.object_index_buffer, 0, sizeof(u32) * index_count, indices);
+    upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_vertex_buffer, 0, sizeof(vertex_3d) * vert_count, verts);
+    upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_index_buffer, 0, sizeof(u32) * index_count, indices);
     // TODO: end temp code
 
     DINFO("Vulkan renderer initialized successfully.");
@@ -314,8 +301,7 @@ void vulkan_renderer_backend_shutdown(renderer_backend *backend)
     {
         if (context.graphics_command_buffers[i].handle)
         {
-            vulkan_command_buffer_free(&context, context.device.graphics_command_pool,
-                                       &context.graphics_command_buffers[i]);
+            vulkan_command_buffer_free(&context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
             context.graphics_command_buffers[i].handle = 0;
         }
     }
@@ -348,8 +334,7 @@ void vulkan_renderer_backend_shutdown(renderer_backend *backend)
     DDEBUG("Destroying Vulkan debugger...");
     if (context.debug_messenger)
     {
-        PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-            context.instance, "vkDestroyDebugUtilsMessengerEXT");
+        PFN_vkDestroyDebugUtilsMessengerEXT func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkDestroyDebugUtilsMessengerEXT");
         func(context.instance, context.debug_messenger, context.allocator);
     }
 #endif
@@ -379,8 +364,7 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
         VkResult result = vkDeviceWaitIdle(device->logical_device);
         if (!vulkan_result_is_success(result))
         {
-            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (1) failed: '%s'",
-                   vulkan_result_string(result, true));
+            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (1) failed: '%s'", vulkan_result_string(result, true));
             return false;
         }
         DINFO("Recreating swapchain, booting.");
@@ -393,8 +377,7 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
         VkResult result = vkDeviceWaitIdle(device->logical_device);
         if (!vulkan_result_is_success(result))
         {
-            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (2) failed: '%s'",
-                   vulkan_result_string(result, true));
+            DERROR("vulkan_renderer_backend_begin_frame vkDeviceWaitIdle (2) failed: '%s'", vulkan_result_string(result, true));
             return false;
         }
 
@@ -418,9 +401,7 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
 
     // Acquire the next image from the swap chain. Pass along the semaphore that should signaled when this completes.
     // This same semaphore will later be waited on by the queue submission to ensure this image is available.
-    if (!vulkan_swapchain_acquire_next_image_index(&context, &context.swapchain, UINT64_MAX,
-                                                   context.image_available_semaphores[context.current_frame], 0,
-                                                   &context.image_index))
+    if (!vulkan_swapchain_acquire_next_image_index(&context, &context.swapchain, UINT64_MAX, context.image_available_semaphores[context.current_frame], 0, &context.image_index))
     {
         return false;
     }
@@ -452,8 +433,7 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
     context.main_renderpass.h = context.framebuffer_height;
 
     // Begin the render pass.
-    vulkan_renderpass_begin(command_buffer, &context.main_renderpass,
-                            context.swapchain.framebuffers[context.image_index].handle);
+    vulkan_renderpass_begin(command_buffer, &context.main_renderpass, context.swapchain.framebuffers[context.image_index].handle);
 
     // TODO: temporary test code
     vulkan_object_shader_use(&context, &context.object_shader);
@@ -516,8 +496,7 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)
     VkPipelineStageFlags flags[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submit_info.pWaitDstStageMask = flags;
 
-    VkResult result = vkQueueSubmit(context.device.graphics_queue, 1, &submit_info,
-                                    context.in_flight_fences[context.current_frame].handle);
+    VkResult result = vkQueueSubmit(context.device.graphics_queue, 1, &submit_info, context.in_flight_fences[context.current_frame].handle);
     if (result != VK_SUCCESS)
     {
         DERROR("vkQueueSubmit failed with result: %s", vulkan_result_string(result, true));
@@ -528,16 +507,13 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)
     // End queue submission
 
     // Give the image back to the swapchain.
-    vulkan_swapchain_present(&context, &context.swapchain, context.device.graphics_queue, context.device.present_queue,
-                             context.queue_complete_semaphores[context.current_frame], context.image_index);
+    vulkan_swapchain_present(&context, &context.swapchain, context.device.graphics_queue, context.device.present_queue, context.queue_complete_semaphores[context.current_frame], context.image_index);
 
     return true;
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT      message_severity,
-                                                 VkDebugUtilsMessageTypeFlagsEXT             message_types,
-                                                 const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
-                                                 void                                       *user_data)
+VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_types, const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
+                                                 void *user_data)
 {
     switch (message_severity)
     {
@@ -566,8 +542,7 @@ s32 find_memory_index(u32 type_filter, u32 property_flags)
     for (u32 i = 0; i < memory_properties.memoryTypeCount; ++i)
     {
         // Check each memory type to see if its bit is set to 1.
-        if (type_filter & (1 << i) &&
-            (memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags)
+        if (type_filter & (1 << i) && (memory_properties.memoryTypes[i].propertyFlags & property_flags) == property_flags)
         {
             return i;
         }
@@ -592,12 +567,10 @@ void create_command_buffers(renderer_backend *backend)
     {
         if (context.graphics_command_buffers[i].handle)
         {
-            vulkan_command_buffer_free(&context, context.device.graphics_command_pool,
-                                       &context.graphics_command_buffers[i]);
+            vulkan_command_buffer_free(&context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
         }
         dzero_memory(&context.graphics_command_buffers[i], sizeof(vulkan_command_buffer));
-        vulkan_command_buffer_allocate(&context, context.device.graphics_command_pool, true,
-                                       &context.graphics_command_buffers[i]);
+        vulkan_command_buffer_allocate(&context, context.device.graphics_command_pool, true, &context.graphics_command_buffers[i]);
     }
 
     DDEBUG("Vulkan command buffers created.");
@@ -611,8 +584,7 @@ void regenerate_framebuffers(renderer_backend *backend, vulkan_swapchain *swapch
         u32         attachment_count = 2;
         VkImageView attachments[] = {swapchain->views[i], swapchain->depth_attachment.view};
 
-        vulkan_framebuffer_create(&context, renderpass, context.framebuffer_width, context.framebuffer_height,
-                                  attachment_count, attachments, &context.swapchain.framebuffers[i]);
+        vulkan_framebuffer_create(&context, renderpass, context.framebuffer_width, context.framebuffer_height, attachment_count, attachments, &context.swapchain.framebuffers[i]);
     }
 }
 
@@ -645,8 +617,7 @@ b8 recreate_swapchain(renderer_backend *backend)
     }
 
     // Requery support
-    vulkan_device_query_swapchain_support(context.device.physical_device, context.surface,
-                                          &context.device.swapchain_support);
+    vulkan_device_query_swapchain_support(context.device.physical_device, context.surface, &context.device.swapchain_support);
     vulkan_device_detect_depth_format(&context.device);
 
     vulkan_swapchain_recreate(&context, cached_framebuffer_width, cached_framebuffer_height, &context.swapchain);
@@ -665,8 +636,7 @@ b8 recreate_swapchain(renderer_backend *backend)
     // cleanup swapchain
     for (u32 i = 0; i < context.swapchain.image_count; ++i)
     {
-        vulkan_command_buffer_free(&context, context.device.graphics_command_pool,
-                                   &context.graphics_command_buffers[i]);
+        vulkan_command_buffer_free(&context, context.device.graphics_command_pool, &context.graphics_command_buffers[i]);
     }
 
     // Framebuffers.
@@ -695,10 +665,8 @@ b8 create_buffers(vulkan_context *context)
     VkMemoryPropertyFlagBits memory_property_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     const u64                vertex_buffer_size = sizeof(vertex_3d) * 1024 * 1024;
 
-    if (!vulkan_buffer_create(context, vertex_buffer_size,
-                              VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                              memory_property_flags, true, &context->object_vertex_buffer))
+    if (!vulkan_buffer_create(context, vertex_buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, memory_property_flags, true,
+                              &context->object_vertex_buffer))
     {
         DERROR("Error creating vertex buffer.");
         return false;
@@ -706,10 +674,8 @@ b8 create_buffers(vulkan_context *context)
     context->geometry_vertex_offset = 0;
 
     const u64 index_buffer_size = sizeof(u32) * 1024 * 1024;
-    if (!vulkan_buffer_create(context, index_buffer_size,
-                              VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                                  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                              memory_property_flags, true, &context->object_index_buffer))
+    if (!vulkan_buffer_create(context, index_buffer_size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, memory_property_flags, true,
+                              &context->object_index_buffer))
     {
         DERROR("Error creating vertex buffer.");
         return false;

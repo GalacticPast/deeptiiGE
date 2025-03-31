@@ -31,8 +31,8 @@ typedef enum log_level
  *@param: b8, returns success if true.
  *
  */
-b8   initialize_logging(u64 *memory_requirement, void *state);
-void logger_shutdown(void *state);
+b8   logging_system_initialize(u64 *memory_requirement, void *state);
+void logger_system_shutdown(void *state);
 
 DAPI void log_output(log_level level, const char *message, ...);
 

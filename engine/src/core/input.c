@@ -26,7 +26,7 @@ typedef struct input_state
 // Internal input state
 static input_state *state_ptr = {};
 
-b8 initialize_input(u64 *input_state_mem_requirements, void *input_state)
+b8 input_system_initialize(u64 *input_state_mem_requirements, void *input_state)
 {
     *input_state_mem_requirements = sizeof(input_state);
     if (input_state == 0)
@@ -40,7 +40,7 @@ b8 initialize_input(u64 *input_state_mem_requirements, void *input_state)
     return true;
 }
 
-void input_shutdown(void *state)
+void input_system_shutdown(void *state)
 {
     // TODO: Add shutdown routines when needed.
     state_ptr = 0;

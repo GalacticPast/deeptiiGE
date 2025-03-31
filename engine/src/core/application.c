@@ -18,7 +18,6 @@ typedef struct application_state
     game            *game_inst;
     b8               is_running;
     b8               is_suspended;
-    platform_state   platform;
     s16              width;
     s16              height;
     clock            clock;
@@ -28,11 +27,20 @@ typedef struct application_state
     u64   memory_system_mem_requirements;
     void *memory_system_state;
 
+    u64   event_system_mem_requirements;
+    void *event_system_state;
+
     u64   logging_system_mem_requirements;
     void *logging_system_state;
 
     u64   input_system_mem_requirements;
     void *input_system_state;
+
+    u64   platform_mem_requirements;
+    void *platform_state;
+
+    u64   renderer_mem_requirements;
+    void *renderer_state;
 
 } application_state;
 
@@ -75,11 +83,21 @@ b8 application_create(game *game_inst)
         DERROR("Memory system initialization failed. Shutting down.");
         return false;
     }
+    /* Events */
+    event_system_initialize(&app_state->event_system_mem_requirements, 0);
+    app_state->event_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->event_system_mem_requirements);
+    result = event_system_initialize(&app_state->event_system_mem_requirements, app_state->event_system_state);
+
+    if (!result)
+    {
+        DERROR("Event system initialization failed. Shutting down.");
+        return false;
+    }
 
     /* logger */
-    initialize_logging(&app_state->logging_system_mem_requirements, 0);
+    logging_system_initialize(&app_state->logging_system_mem_requirements, 0);
     app_state->logging_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->logging_system_mem_requirements);
-    result = initialize_logging(&app_state->logging_system_mem_requirements, app_state->logging_system_state);
+    result = logging_system_initialize(&app_state->logging_system_mem_requirements, app_state->logging_system_state);
 
     if (!result)
     {
@@ -88,18 +106,12 @@ b8 application_create(game *game_inst)
     }
 
     /* input */
-    initialize_input(&app_state->input_system_mem_requirements, 0);
+    input_system_initialize(&app_state->input_system_mem_requirements, 0);
     app_state->input_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->input_system_mem_requirements);
-    result = initialize_input(&app_state->input_system_mem_requirements, app_state->input_system_state);
+    result = input_system_initialize(&app_state->input_system_mem_requirements, app_state->input_system_state);
     if (!result)
     {
         DERROR("Input system initialization failed. Shutting down.");
-        return false;
-    }
-
-    if (!event_initialize())
-    {
-        DERROR("Event system failed initialization. Application cannot continue.");
         return false;
     }
 
@@ -108,15 +120,23 @@ b8 application_create(game *game_inst)
     event_register(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_register(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
-    if (!platform_startup(&app_state->platform, game_inst->app_config.name, game_inst->app_config.start_pos_x, game_inst->app_config.start_pos_y, game_inst->app_config.start_width, game_inst->app_config.start_height))
+    platform_startup(&app_state->platform_mem_requirements, 0, 0, 0, 0, 0, 0);
+    app_state->platform_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->platform_mem_requirements);
+    result = platform_startup(&app_state->platform_mem_requirements, app_state->platform_state, game_inst->app_config.name, game_inst->app_config.start_pos_x, game_inst->app_config.start_pos_y,
+                              game_inst->app_config.start_width, game_inst->app_config.start_height);
+    if (!result)
     {
-        DFATAL("platform startup failed");
+        DERROR("Platform startup failed. Shutting down.");
         return false;
     }
 
-    if (!renderer_initialize(game_inst->app_config.name, &app_state->platform))
+    renderer_initialize(&app_state->renderer_mem_requirements, 0, 0);
+    app_state->renderer_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->renderer_mem_requirements);
+    result = renderer_initialize(&app_state->renderer_mem_requirements, app_state->renderer_state, game_inst->app_config.name);
+
+    if (!result)
     {
-        DFATAL("renderer initialze failed");
+        DERROR("Renderer startup failed. Shutting down.");
         return false;
     }
 
@@ -145,7 +165,7 @@ b8 application_run()
 
     while (app_state->is_running)
     {
-        if (!platform_pump_messages(&app_state->platform))
+        if (!platform_pump_messages())
         {
             app_state->is_running = false;
         }
@@ -184,15 +204,15 @@ b8 application_run()
     event_unregister(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_unregister(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
-    event_shutdown();
-    input_shutdown(app_state->input_system_state);
+    event_system_shutdown(app_state->event_system_state);
+    input_system_shutdown(app_state->input_system_state);
 
     renderer_shutdown();
 
-    platform_shutdown(&app_state->platform);
+    platform_shutdown();
 
     memory_shutdown(app_state->memory_system_state);
-    logger_shutdown(app_state->logging_system_state);
+    logger_system_shutdown(app_state->logging_system_state);
 
     return true;
 }
