@@ -61,6 +61,10 @@ void input_update(f64 delta_time)
 void input_process_key(keys key, b8 pressed)
 {
     // Only handle this if the state_ptr->actually changed.
+    if (!state_ptr)
+    {
+        return;
+    }
     if (state_ptr->keyboard_current.keys[key] != pressed)
     {
         // Update internal state_ptr->
@@ -75,6 +79,10 @@ void input_process_key(keys key, b8 pressed)
 
 void input_process_button(buttons button, b8 pressed)
 {
+    if (!state_ptr)
+    {
+        return;
+    }
     // If the state_ptr->changed, fire an event.
     if (state_ptr->mouse_current.buttons[button] != pressed)
     {
@@ -89,7 +97,10 @@ void input_process_button(buttons button, b8 pressed)
 
 void input_process_mouse_move(s16 x, s16 y)
 {
-    // Only process if actually different
+    if (!state_ptr)
+    {
+        return;
+    }
     if (state_ptr->mouse_current.x != x || state_ptr->mouse_current.y != y)
     {
         // NOTE: Enable this if debugging.

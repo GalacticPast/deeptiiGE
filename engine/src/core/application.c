@@ -72,31 +72,7 @@ b8 application_create(game *game_inst)
 
     // Initialize subsystems.
 
-    /* Memory */
     b8 result;
-
-    memory_system_initialize(&app_state->memory_system_mem_requirements, 0);
-    app_state->memory_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->memory_system_mem_requirements);
-    result = memory_system_initialize(&app_state->memory_system_mem_requirements, app_state->memory_system_state);
-    if (!result)
-    {
-        DERROR("Memory system initialization failed. Shutting down.");
-        return false;
-    }
-
-    add_stats(systems_allocator_total_size, MEMORY_TAG_LINEAR_ALLOCATOR);
-
-    /* Events */
-    event_system_initialize(&app_state->event_system_mem_requirements, 0);
-    app_state->event_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->event_system_mem_requirements);
-    result = event_system_initialize(&app_state->event_system_mem_requirements, app_state->event_system_state);
-
-    if (!result)
-    {
-        DERROR("Event system initialization failed. Shutting down.");
-        return false;
-    }
-
     /* logger */
     logging_system_initialize(&app_state->logging_system_mem_requirements, 0);
     app_state->logging_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->logging_system_mem_requirements);
@@ -108,6 +84,18 @@ b8 application_create(game *game_inst)
         return false;
     }
 
+    /* Memory */
+    memory_system_initialize(&app_state->memory_system_mem_requirements, 0);
+    app_state->memory_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->memory_system_mem_requirements);
+    result = memory_system_initialize(&app_state->memory_system_mem_requirements, app_state->memory_system_state);
+    if (!result)
+    {
+        DERROR("Memory system initialization failed. Shutting down.");
+        return false;
+    }
+
+    add_stats(systems_allocator_total_size, MEMORY_TAG_LINEAR_ALLOCATOR);
+
     /* input */
     input_system_initialize(&app_state->input_system_mem_requirements, 0);
     app_state->input_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->input_system_mem_requirements);
@@ -118,6 +106,16 @@ b8 application_create(game *game_inst)
         return false;
     }
 
+    /* Events */
+    event_system_initialize(&app_state->event_system_mem_requirements, 0);
+    app_state->event_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->event_system_mem_requirements);
+    result = event_system_initialize(&app_state->event_system_mem_requirements, app_state->event_system_state);
+
+    if (!result)
+    {
+        DERROR("Event system initialization failed. Shutting down.");
+        return false;
+    }
     event_register(EVENT_CODE_APPLICATION_QUIT, 0, application_on_event);
     event_register(EVENT_CODE_RESIZED, 0, application_on_event);
     event_register(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
