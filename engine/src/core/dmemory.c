@@ -14,10 +14,30 @@ struct memory_stats
     u64 tagged_allocations[MEMORY_TAG_MAX_TAGS];
 };
 
-static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
-    "UNKNOWN    ", "ARRAY      ", "DARRAY     ", "DICT       ", "RING_QUEUE ", "BST        ",
-    "STRING     ", "APPLICATION", "JOB        ", "TEXTURE    ", "MAT_INST   ", "RENDERER   ",
-    "GAME       ", "TRANSFORM  ", "ENTITY     ", "ENTITY_NODE", "SCENE      "};
+// clang-format off
+static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = 
+{
+    "UNKNOWN    ",
+    "ARRAY      ",
+    "LINEAR ALOC",
+    "DARRAY     ",
+    "DICT       ",
+    "RING_QUEUE ",
+    "BST        ",
+    "STRING     ",
+    "APPLICATION",
+    "JOB        ",
+    "TEXTURE    ",
+    "MAT_INST   ",
+    "RENDERER   ",
+    "GAME       ",
+    "TRANSFORM  ",
+    "ENTITY     ",
+    "ENTITY_NODE",
+    "SCENE      "
+};
+
+// clang-format on
 
 static struct memory_stats stats;
 

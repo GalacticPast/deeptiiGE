@@ -10,8 +10,8 @@ typedef struct keyboard_state
 
 typedef struct mouse_state
 {
-    i16 x;
-    i16 y;
+    s16 x;
+    s16 y;
     u8  buttons[BUTTON_MAX_BUTTONS];
 } mouse_state;
 
@@ -81,7 +81,7 @@ void input_process_button(buttons button, b8 pressed)
     }
 }
 
-void input_process_mouse_move(i16 x, i16 y)
+void input_process_mouse_move(s16 x, s16 y)
 {
     // Only process if actually different
     if (state.mouse_current.x != x || state.mouse_current.y != y)
@@ -101,7 +101,7 @@ void input_process_mouse_move(i16 x, i16 y)
     }
 }
 
-void input_process_mouse_wheel(i8 z_delta)
+void input_process_mouse_wheel(s8 z_delta)
 {
     // NOTE: no internal state to update.
 

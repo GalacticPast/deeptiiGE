@@ -16,8 +16,8 @@ typedef struct application_state
     b8             is_running;
     b8             is_suspended;
     platform_state platform;
-    i16            width;
-    i16            height;
+    s16            width;
+    s16            height;
     f64            last_time;
 } application_state;
 
