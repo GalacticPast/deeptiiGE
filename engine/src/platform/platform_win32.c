@@ -234,21 +234,27 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         case WM_ERASEBKGND:
             // Notify the OS that erasing will be handled by the application to prevent flicker.
             return 1;
-        case WM_CLOSE:
+        case WM_CLOSE: {
             event_context context = {};
             event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
             return 0;
-        case WM_DESTROY:
+        }
+        break;
+        case WM_DESTROY: {
             PostQuitMessage(0);
             return 0;
+        }
+        break;
         case WM_SIZE: {
             // Get the updated size.
-            // RECT r;
-            // GetClientRect(hwnd, &r);
-            // u32 width = r.right - r.left;
-            // u32 height = r.bottom - r.top;
+            RECT          r;
+            event_context context = {};
 
-            // TODO: Fire an event for window resize.
+            GetClientRect(hwnd, &r);
+            context.data.u32[0] = r.right - r.left;
+            context.data.u32[1] = r.bottom - r.top;
+
+            event_fire(EVENT_CODE_RESIZED, 0, context);
         }
         break;
         case WM_KEYDOWN:
