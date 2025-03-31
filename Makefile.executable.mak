@@ -37,7 +37,7 @@ extension :=
 include_flags := -Iengine/src -Itestbed/src 
 compiler_flags := -g -MD -O0 -fvisibility=hidden -Wall -Wno-error=deprecated-declarations -Wno-error=unused-function -Werror -Wvla -Werror=vla -Wgnu-folding-constant -Wno-missing-braces -fdeclspec -fPIC
 defines := -DDEBUG -DDIMPORT
-linker_flags := -Wl,--no-undefined,--no-allow-shlib-undefined -lengine -L./$(bin_dir) -Wl,-rpath,/home/galacticpast/Documents/projects/deeptige/bin -lm -ldl
+linker_flags := -Wl,--no-undefined,--no-allow-shlib-undefined -lengine -L./$(bin_dir) -Wl,-rpath,. -lm -ldl
 build_platform := linux
 
 # .c files

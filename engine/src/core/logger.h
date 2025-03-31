@@ -32,7 +32,7 @@ typedef enum log_level
  *
  */
 b8   initialize_logging(u64 *memory_requirement, void *state);
-void shutdown_logging(void *state);
+void logger_shutdown(void *state);
 
 DAPI void log_output(log_level level, const char *message, ...);
 

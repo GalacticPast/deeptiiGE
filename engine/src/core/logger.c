@@ -24,11 +24,20 @@ b8 initialize_logging(u64 *memory_requirement, void *state)
 
     logger_state = state;
     logger_state->initialized = true;
+
+    DFATAL("A test message: %f", 3.14f);
+    DERROR("A test message: %f", 3.14f);
+    DWARN("A test message: %f", 3.14f);
+    DINFO("A test message: %f", 3.14f);
+    DDEBUG("A test message: %f", 3.14f);
+    DTRACE("A test message: %f", 3.14f);
+
     DINFO("Logging system initalized.");
+
     return true;
 }
 
-void shutdown_logging(void *state)
+void logger_shutdown(void *state)
 {
     // TODO: cleanup logging/write queued entries.
     logger_state = 0;

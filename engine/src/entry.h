@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/application.h"
-#include "core/dmemory.h"
 #include "core/logger.h"
 #include "game_types.h"
 
@@ -13,8 +12,6 @@ extern b8 create_game(game *out_game);
  */
 int main(void)
 {
-
-    initialize_memory();
 
     // Request the game instance from the application.
     game game_inst;
@@ -44,8 +41,6 @@ int main(void)
         DINFO("Application did not shutdown gracefully.");
         return 2;
     }
-
-    shutdown_memory();
 
     return 0;
 }

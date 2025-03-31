@@ -14,6 +14,7 @@
 
 typedef struct application_state
 {
+    // INFO: copy of the game_inst. Ik i have a copy of a parent that contains iteslf so its kind of confusing...
     game            *game_inst;
     b8               is_running;
     b8               is_suspended;
@@ -24,8 +25,15 @@ typedef struct application_state
     f64              last_time;
     linear_allocator systems_allocator;
 
+    u64   memory_system_mem_requirements;
+    void *memory_system_state;
+
     u64   logging_system_mem_requirements;
     void *logging_system_state;
+
+    u64   input_system_mem_requirements;
+    void *input_system_state;
+
 } application_state;
 
 static application_state *app_state;
@@ -45,7 +53,9 @@ b8 application_create(game *game_inst)
 
     game_inst->application_state = dallocate(sizeof(application_state), MEMORY_TAG_APPLICATION);
     app_state = game_inst->application_state;
+
     app_state->game_inst = game_inst;
+
     app_state->is_running = false;
     app_state->is_suspended = false;
 
@@ -53,9 +63,23 @@ b8 application_create(game *game_inst)
     linear_allocator_create(systems_allocator_total_size, 0, &app_state->systems_allocator);
 
     // Initialize subsystems.
+
+    /* Memory */
+    b8 result;
+
+    memory_system_initialize(&app_state->memory_system_mem_requirements, 0);
+    app_state->memory_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->memory_system_mem_requirements);
+    result = memory_system_initialize(&app_state->memory_system_mem_requirements, app_state->memory_system_state);
+    if (!result)
+    {
+        DERROR("Memory system initialization failed. Shutting down.");
+        return false;
+    }
+
+    /* logger */
     initialize_logging(&app_state->logging_system_mem_requirements, 0);
     app_state->logging_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->logging_system_mem_requirements);
-    b8 result = initialize_logging(&app_state->logging_system_mem_requirements, app_state->logging_system_state);
+    result = initialize_logging(&app_state->logging_system_mem_requirements, app_state->logging_system_state);
 
     if (!result)
     {
@@ -63,15 +87,15 @@ b8 application_create(game *game_inst)
         return false;
     }
 
-    input_initialize();
-
-    // TODO: Remove this
-    DFATAL("A test message: %f", 3.14f);
-    DERROR("A test message: %f", 3.14f);
-    DWARN("A test message: %f", 3.14f);
-    DINFO("A test message: %f", 3.14f);
-    DDEBUG("A test message: %f", 3.14f);
-    DTRACE("A test message: %f", 3.14f);
+    /* input */
+    initialize_input(&app_state->input_system_mem_requirements, 0);
+    app_state->input_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->input_system_mem_requirements);
+    result = initialize_input(&app_state->input_system_mem_requirements, app_state->input_system_state);
+    if (!result)
+    {
+        DERROR("Input system initialization failed. Shutting down.");
+        return false;
+    }
 
     if (!event_initialize())
     {
@@ -116,6 +140,7 @@ b8 application_create(game *game_inst)
 
 b8 application_run()
 {
+    app_state->is_running = true;
     DINFO(get_memory_usage_str());
 
     while (app_state->is_running)
@@ -160,11 +185,14 @@ b8 application_run()
     event_unregister(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
     event_shutdown();
-    input_shutdown();
+    input_shutdown(app_state->input_system_state);
 
     renderer_shutdown();
 
     platform_shutdown(&app_state->platform);
+
+    memory_shutdown(app_state->memory_system_state);
+    logger_shutdown(app_state->logging_system_state);
 
     return true;
 }
