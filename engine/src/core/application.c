@@ -63,7 +63,19 @@ b8 application_create(game *game_inst)
     app_state = game_inst->application_state;
 
     app_state->game_inst = game_inst;
-
+    app_state->game_inst = game_inst;
+    app_state->memory_system_mem_requirements = 0;
+    app_state->memory_system_state = 0;
+    app_state->event_system_mem_requirements = 0;
+    app_state->event_system_state = 0;
+    app_state->logging_system_mem_requirements = 0;
+    app_state->logging_system_state = 0;
+    app_state->input_system_mem_requirements = 0;
+    app_state->input_system_state = 0;
+    app_state->platform_mem_requirements = 0;
+    app_state->platform_state = 0;
+    app_state->renderer_mem_requirements = 0;
+    app_state->renderer_state = 0;
     app_state->is_running = false;
     app_state->is_suspended = false;
 

@@ -12,7 +12,7 @@ typedef struct logger_system_state
     b8 initialized;
 } logger_system_state;
 
-static logger_system_state *logger_state;
+static logger_system_state *logger_state_ptr;
 
 b8 logging_system_initialize(u64 *memory_requirement, void *state)
 {
@@ -22,8 +22,8 @@ b8 logging_system_initialize(u64 *memory_requirement, void *state)
         return true;
     }
 
-    logger_state = state;
-    logger_state->initialized = true;
+    logger_state_ptr = state;
+    logger_state_ptr->initialized = true;
 
     DFATAL("A test message: %f", 3.14f);
     DERROR("A test message: %f", 3.14f);
@@ -40,7 +40,7 @@ b8 logging_system_initialize(u64 *memory_requirement, void *state)
 void logger_system_shutdown(void *state)
 {
     // TODO: cleanup logging/write queued entries.
-    logger_state = 0;
+    logger_state_ptr = 0;
 }
 
 void log_output(log_level level, const char *message, ...)

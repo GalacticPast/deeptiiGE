@@ -45,7 +45,7 @@ static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] =
 
 // clang-format on
 
-static memory_state *state_ptr;
+static memory_state *mem_state_ptr;
 
 DAPI b8 memory_system_initialize(u64 *memory_system_mem_requirements, void *mem_state)
 {
@@ -54,10 +54,10 @@ DAPI b8 memory_system_initialize(u64 *memory_system_mem_requirements, void *mem_
     {
         return true;
     }
-    state_ptr = (memory_state *)mem_state;
+    mem_state_ptr = (memory_state *)mem_state;
 
-    state_ptr->alloc_count = 0;
-    platform_zero_memory(&state_ptr->stats, sizeof(state_ptr->stats));
+    mem_state_ptr->alloc_count = 0;
+    platform_zero_memory(&mem_state_ptr->stats, sizeof(mem_state_ptr->stats));
 
     DINFO("Memory system initalized.");
     return true;
@@ -65,7 +65,7 @@ DAPI b8 memory_system_initialize(u64 *memory_system_mem_requirements, void *mem_
 
 void memory_shutdown(void *mem_state)
 {
-    state_ptr = 0;
+    mem_state_ptr = 0;
 }
 
 void *dallocate(u64 size, memory_tag tag)
@@ -75,11 +75,11 @@ void *dallocate(u64 size, memory_tag tag)
         DWARN("dallocate called using MEMORY_TAG_UNKNOWN. Re-class this allocation.");
     }
 
-    if (state_ptr)
+    if (mem_state_ptr)
     {
-        state_ptr->stats.total_allocated += size;
-        state_ptr->stats.tagged_allocations[tag] += size;
-        state_ptr->alloc_count++;
+        mem_state_ptr->stats.total_allocated += size;
+        mem_state_ptr->stats.tagged_allocations[tag] += size;
+        mem_state_ptr->alloc_count++;
     }
 
     // TODO: Memory alignment
@@ -95,10 +95,10 @@ void dfree(void *block, u64 size, memory_tag tag)
         DWARN("dfree called using MEMORY_TAG_UNKNOWN. Re-class this allocation.");
     }
 
-    if (state_ptr)
+    if (mem_state_ptr)
     {
-        state_ptr->stats.total_allocated -= size;
-        state_ptr->stats.tagged_allocations[tag] -= size;
+        mem_state_ptr->stats.total_allocated -= size;
+        mem_state_ptr->stats.tagged_allocations[tag] -= size;
     }
 
     // TODO: Memory alignment
@@ -132,26 +132,26 @@ char *get_memory_usage_str()
     {
         char  unit[4] = "XiB";
         float amount = 1.0f;
-        if (state_ptr->stats.tagged_allocations[i] >= gib)
+        if (mem_state_ptr->stats.tagged_allocations[i] >= gib)
         {
             unit[0] = 'G';
-            amount = state_ptr->stats.tagged_allocations[i] / (float)gib;
+            amount = mem_state_ptr->stats.tagged_allocations[i] / (float)gib;
         }
-        else if (state_ptr->stats.tagged_allocations[i] >= mib)
+        else if (mem_state_ptr->stats.tagged_allocations[i] >= mib)
         {
             unit[0] = 'M';
-            amount = state_ptr->stats.tagged_allocations[i] / (float)mib;
+            amount = mem_state_ptr->stats.tagged_allocations[i] / (float)mib;
         }
-        else if (state_ptr->stats.tagged_allocations[i] >= kib)
+        else if (mem_state_ptr->stats.tagged_allocations[i] >= kib)
         {
             unit[0] = 'K';
-            amount = state_ptr->stats.tagged_allocations[i] / (float)kib;
+            amount = mem_state_ptr->stats.tagged_allocations[i] / (float)kib;
         }
         else
         {
             unit[0] = 'B';
             unit[1] = 0;
-            amount = (float)state_ptr->stats.tagged_allocations[i];
+            amount = (float)mem_state_ptr->stats.tagged_allocations[i];
         }
 
         s32 length = snprintf(buffer + offset, 8000, "  %s: %.2f%s\n", memory_tag_strings[i], amount, unit);
@@ -163,19 +163,19 @@ char *get_memory_usage_str()
 
 u64 get_memory_alloc_count()
 {
-    if (state_ptr)
+    if (mem_state_ptr)
     {
-        return state_ptr->alloc_count;
+        return mem_state_ptr->alloc_count;
     }
     return 0;
 }
 
 void add_stats(u64 size, memory_tag tag)
 {
-    if (state_ptr)
+    if (mem_state_ptr)
     {
-        state_ptr->stats.total_allocated += size;
-        state_ptr->stats.tagged_allocations[tag] += size;
-        state_ptr->alloc_count++;
+        mem_state_ptr->stats.total_allocated += size;
+        mem_state_ptr->stats.tagged_allocations[tag] += size;
+        mem_state_ptr->alloc_count++;
     }
 }
