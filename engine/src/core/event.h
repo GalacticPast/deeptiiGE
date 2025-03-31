@@ -111,4 +111,5 @@ typedef enum system_event_code
     EVENT_CODE_RESIZED = 0x08,
 
     MAX_EVENT_CODE = 0xFF
+
 } system_event_code;

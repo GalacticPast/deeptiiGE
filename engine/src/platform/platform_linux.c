@@ -828,56 +828,56 @@ u32 translate_keycode(u32 wl_keycode)
             return KEY_ESCAPE;
         }
         case 2: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD1;
         }
         case 3: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD2;
         }
         case 4: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD3;
         }
         case 5: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD4;
         }
         case 6: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD5;
         }
         case 7: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD6;
         }
         case 8: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD7;
         }
         case 9: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD8;
         }
         case 10: {
-            return 0;
+            return KEYS_MAX_KEYS;
             // return KEY_NUMPAD9;
         }
         case 11: {
-            return 0;
-            // return KEY_NUMPAD0;
+            return KEYS_MAX_KEYS;
+            // return KEY_NUMPADKEYS_MAX_KEYS;
         }
         case 12: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 13: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 14: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 15: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 16: {
             return KEY_Q;
@@ -910,16 +910,16 @@ u32 translate_keycode(u32 wl_keycode)
             return KEY_P;
         }
         case 26: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 27: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 28: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 29: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 30: {
             return KEY_A;
@@ -949,19 +949,19 @@ u32 translate_keycode(u32 wl_keycode)
             return KEY_L;
         }
         case 39: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 40: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 41: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 42: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 43: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 44: {
             return KEY_Z;
@@ -985,165 +985,165 @@ u32 translate_keycode(u32 wl_keycode)
             return KEY_M;
         }
         case 51: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 52: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 53: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 54: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 55: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 56: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 57: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 58: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 59: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 60: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 61: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 62: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 63: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 64: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 65: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 66: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 67: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 68: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 69: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 70: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 71: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 72: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 73: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 74: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 75: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 76: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 77: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 78: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 79: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 80: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 81: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 82: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 83: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 84: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 85: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 86: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 87: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 88: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 89: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 90: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 91: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 92: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 93: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 94: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 95: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 96: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 97: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 98: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 99: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 100: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 101: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         case 102: {
-            return 0;
+            return KEYS_MAX_KEYS;
         }
         defualt:
-            return 0;
+            return KEYS_MAX_KEYS;
     }
-    return 0;
+    return KEYS_MAX_KEYS;
 }
 
 #endif
