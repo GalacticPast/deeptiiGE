@@ -71,7 +71,6 @@ all: scaffold compile link
 scaffold: 
 ifeq ($(build_platform),windows)
 	@echo scaffolding project structure 
-	-@setlocal enableextensions enabledelayedexpansion && mkdir $(obj_dir) 2>NUL || cd .
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addsuffix \$(src_dir),$(obj_dir)) 2>NUL || cd .
 	-@setlocal enableextensions enabledelayedexpansion && mkdir $(addprefix $(obj_dir), $(directories)) 2>NUL || cd .
 else
@@ -83,7 +82,7 @@ endif
 
 .PHONY: compile
 compile:
-	@echo --- Performing "$(assembly)" $(build_platform) build ---
+	@echo --- compiling "$(assembly)" for $(build_platform) ---
 -include $(OBJ_FILES:.o=.d)
 
 .PHONY: link

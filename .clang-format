@@ -1,4 +1,5 @@
 BasedOnStyle: Microsoft
 AlignConsecutiveDeclarations: true
 AllowAllParametersOfDeclarationOnNextLine: false
+ColumnLimit: 220 
 IndentCaseLabels: true

@@ -38,7 +38,7 @@ void *linear_allocator_allocate(linear_allocator *allocator, u64 size)
 {
     if (allocator && allocator->memory)
     {
-        if (allocator->allocated + size >= allocator->total_size)
+        if (allocator->allocated + size > allocator->total_size)
         {
             u64 remaining = allocator->total_size - allocator->allocated;
             DERROR("linear_allocator_allocate - Tried to allocate %lluB, only %lluB remaining.", size, remaining);

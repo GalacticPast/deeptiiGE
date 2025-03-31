@@ -18,19 +18,15 @@ enum
     DARRAY_FIELD_LENGTH
 };
 
-void *_darray_create(u64 length, u64 stride);
-void  _darray_destroy(void *array);
-
-u64  _darray_field_get(void *array, u64 field);
-void _darray_field_set(void *array, u64 field, u64 value);
-
-void *_darray_resize(void *array);
-
-void *_darray_push(void *array, const void *value_ptr);
-void  _darray_pop(void *array, void *dest);
-
-void *_darray_pop_at(void *array, u64 index, void *dest);
-void *_darray_insert_at(void *array, u64 index, void *value_ptr);
+DAPI void      *_darray_create(u64 length, u64 stride);
+DAPI void       _darray_destroy(void *array);
+DAPI DAPI u64   _darray_field_get(void *array, u64 field);
+DAPI void       _darray_field_set(void *array, u64 field, u64 value);
+DAPI DAPI void *_darray_resize(void *array);
+DAPI DAPI void *_darray_push(void *array, const void *value_ptr);
+DAPI void       _darray_pop(void *array, void *dest);
+DAPI DAPI void *_darray_pop_at(void *array, u64 index, void *dest);
+DAPI void      *_darray_insert_at(void *array, u64 index, void *value_ptr);
 
 #define DARRAY_DEFAULT_CAPACITY 1
 #define DARRAY_RESIZE_FACTOR 2
