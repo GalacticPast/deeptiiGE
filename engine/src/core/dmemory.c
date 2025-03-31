@@ -169,3 +169,13 @@ u64 get_memory_alloc_count()
     }
     return 0;
 }
+
+void add_stats(u64 size, memory_tag tag)
+{
+    if (state_ptr)
+    {
+        state_ptr->stats.total_allocated += size;
+        state_ptr->stats.tagged_allocations[tag] += size;
+        state_ptr->alloc_count++;
+    }
+}

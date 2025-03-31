@@ -52,3 +52,6 @@ DAPI void *dset_memory(void *dest, s32 value, u64 size);
 DAPI char *get_memory_usage_str();
 
 DAPI u64 get_memory_alloc_count();
+
+// WARN: hack to correctly report the lienar allocator size because we allocate the linear allocator before the memory subsystem gets initialized
+void add_stats(u64 size, memory_tag tag);

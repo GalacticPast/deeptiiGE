@@ -83,6 +83,9 @@ b8 application_create(game *game_inst)
         DERROR("Memory system initialization failed. Shutting down.");
         return false;
     }
+
+    add_stats(systems_allocator_total_size, MEMORY_TAG_LINEAR_ALLOCATOR);
+
     /* Events */
     event_system_initialize(&app_state->event_system_mem_requirements, 0);
     app_state->event_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->event_system_mem_requirements);
