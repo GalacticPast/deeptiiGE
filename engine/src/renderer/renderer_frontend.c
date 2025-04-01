@@ -82,10 +82,9 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
         u32 height;
         platform_get_window_dimensions(&width, &height);
 
-        mat4       projection = mat4_perspective(deg_to_rad(45.0f), (f32)width / (f32)height, 0.01f, 1000.0f);
-        static f32 z = -1.0f;
-        z -= 0.01f;
-        mat4 view = mat4_translation((vec3){0.0f, 0.0f, z});
+        mat4 projection = mat4_perspective(deg_to_rad(45.0f), (f32)width / (f32)height, 0.01f, 1000.0f);
+
+        mat4 view = mat4_translation((vec3){0.0f, 0.0f, -30.0f});
 
         backend_ptr->update_global_game_state(projection, view);
 
