@@ -66,13 +66,6 @@ void input_process_key(keys key, b8 pressed)
         return;
     }
 
-    if (key == KEY_ESCAPE)
-    {
-        event_context context = {};
-        event_fire(EVENT_CODE_APPLICATION_QUIT, 0, context);
-        return;
-    }
-
     if (input_state_ptr->keyboard_current.keys[key] != pressed)
     {
         // Update internal input_state_ptr->

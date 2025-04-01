@@ -668,6 +668,7 @@ static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel
     {
         return;
     }
+
     platform_state_ptr->width = width;
     platform_state_ptr->height = height;
 
@@ -830,8 +831,8 @@ b8 platform_create_vulkan_surface(vulkan_context *context)
 
 void platform_get_window_dimensions(u32 *width, u32 *height)
 {
-    *width = platform_state_ptr->width;
-    *height = platform_state_ptr->height;
+    *width = platform_state_ptr->width == 0 ? 1270 : platform_state_ptr->width;
+    *height = platform_state_ptr->height == 0 ? 800 : platform_state_ptr->height;
 }
 
 u32 translate_keycode(u32 wl_keycode)
@@ -1153,6 +1154,12 @@ u32 translate_keycode(u32 wl_keycode)
         }
         case 102: {
             return KEYS_MAX_KEYS;
+        }
+        case 103: {
+            return KEY_UP;
+        }
+        case 108: {
+            return KEY_DOWN;
         }
         defualt:
             return KEYS_MAX_KEYS;

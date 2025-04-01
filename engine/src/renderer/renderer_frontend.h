@@ -5,9 +5,12 @@
 struct static_mesh_data;
 struct platform_state;
 
-b8   renderer_initialize(u64 *renderer_mem_requirements, void *state, const char *application_name);
-void renderer_shutdown();
+b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const char *application_name);
 
-DAPI void renderer_on_resized(u16 width, u16 height);
+void renderer_system_shutdown();
 
-DAPI b8 renderer_draw_frame(render_packet *packet);
+void renderer_on_resized(u16 width, u16 height);
+
+b8 renderer_draw_frame(render_packet *packet);
+
+DAPI void renderer_set_view(mat4 view);

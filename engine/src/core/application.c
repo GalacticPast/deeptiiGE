@@ -131,9 +131,9 @@ b8 application_create(game *game_inst)
         return false;
     }
 
-    renderer_initialize(&app_state->renderer_mem_requirements, 0, 0);
+    renderer_system_initialize(&app_state->renderer_mem_requirements, 0, 0);
     app_state->renderer_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->renderer_mem_requirements);
-    result = renderer_initialize(&app_state->renderer_mem_requirements, app_state->renderer_state, game_inst->app_config.name);
+    result = renderer_system_initialize(&app_state->renderer_mem_requirements, app_state->renderer_state, game_inst->app_config.name);
 
     if (!result)
     {
@@ -162,6 +162,11 @@ b8 application_create(game *game_inst)
 b8 application_run()
 {
     app_state->is_running = true;
+
+    clock_start(&app_state->clock);
+    clock_update(&app_state->clock);
+    app_state->last_time = app_state->clock.elapsed;
+
     DINFO(get_memory_usage_str());
 
     while (app_state->is_running)
@@ -174,7 +179,12 @@ b8 application_run()
 
         if (!app_state->is_suspended)
         {
-            if (!app_state->game_inst->update(app_state->game_inst, (f32)0))
+            clock_update(&app_state->clock);
+
+            f64 current_time = app_state->clock.elapsed;
+            f64 delta = (current_time - app_state->last_time);
+
+            if (!app_state->game_inst->update(app_state->game_inst, (f32)delta))
             {
                 DFATAL("Game update failed, shutting down.");
                 app_state->is_running = false;
@@ -182,7 +192,7 @@ b8 application_run()
             }
 
             // Call the game's render routine.
-            if (!app_state->game_inst->render(app_state->game_inst, (f32)0))
+            if (!app_state->game_inst->render(app_state->game_inst, (f32)delta))
             {
                 DFATAL("Game render failed, shutting down.");
                 app_state->is_running = false;
@@ -194,6 +204,7 @@ b8 application_run()
             // As a safety, input is the last thing to be updated before
             // this frame ends.
             input_update(0);
+            app_state->last_time = current_time;
         }
     }
 
@@ -208,12 +219,13 @@ b8 application_run()
     event_system_shutdown(app_state->event_system_state);
     input_system_shutdown(app_state->input_system_state);
 
-    renderer_shutdown();
+    renderer_system_shutdown();
 
     platform_shutdown();
 
     memory_shutdown(app_state->memory_system_state);
     logger_system_shutdown(app_state->logging_system_state);
+    clock_stop(&app_state->clock);
 
     return true;
 }
