@@ -43,7 +43,7 @@ typedef struct platform_state
     xcb_atom_t        wm_delete_win;
 } platform_state;
 
-static platform_state *state_ptr;
+static platform_state *platform_state_ptr;
 
 // Key translation
 keys translate_keycode(u32 wl_keycode);
@@ -55,24 +55,25 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     {
         return true;
     }
+    platform_state_ptr = plat_state;
 
     // Connect to X
-    state_ptr->display = XOpenDisplay(NULL);
+    platform_state_ptr->display = XOpenDisplay(NULL);
 
     // Turn off key repeats.
-    XAutoRepeatOff(state_ptr->display);
+    XAutoRepeatOff(platform_state_ptr->display);
 
     // Retrieve the connection from the display.
-    state_ptr->connection = XGetXCBConnection(state_ptr->display);
+    platform_state_ptr->connection = XGetXCBConnection(platform_state_ptr->display);
 
-    if (xcb_connection_has_error(state_ptr->connection))
+    if (xcb_connection_has_error(platform_state_ptr->connection))
     {
         DFATAL("Failed to connect to X server via XCB.");
         return false;
     }
 
     // Get data from the X server
-    const struct xcb_setup_t *setup = xcb_get_setup(state_ptr->connection);
+    const struct xcb_setup_t *setup = xcb_get_setup(platform_state_ptr->connection);
 
     // Loop through screens using iterator
     xcb_screen_iterator_t it = xcb_setup_roots_iterator(setup);
@@ -83,10 +84,10 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     }
 
     // After screens have been looped through, assign it.
-    state_ptr->screen = it.data;
+    platform_state_ptr->screen = it.data;
 
     // Allocate a XID for the window to be created.
-    state_ptr->window = xcb_generate_id(state_ptr->connection);
+    platform_state_ptr->window = xcb_generate_id(platform_state_ptr->connection);
 
     // Register event types.
     // XCB_CW_BACK_PIXEL = filling then window bg with a single colour
@@ -98,42 +99,42 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
         XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     // Values to be sent over XCB (bg colour, events)
-    u32 value_list[] = {state_ptr->screen->black_pixel, event_values};
+    u32 value_list[] = {platform_state_ptr->screen->black_pixel, event_values};
 
     // Create the window
-    xcb_void_cookie_t cookie = xcb_create_window(state_ptr->connection,
+    xcb_void_cookie_t cookie = xcb_create_window(platform_state_ptr->connection,
                                                  XCB_COPY_FROM_PARENT, // depth
-                                                 state_ptr->window,
-                                                 state_ptr->screen->root,       // parent
-                                                 x,                             // x
-                                                 y,                             // y
-                                                 width,                         // width
-                                                 height,                        // height
-                                                 0,                             // No border
-                                                 XCB_WINDOW_CLASS_INPUT_OUTPUT, // class
-                                                 state_ptr->screen->root_visual, event_mask, value_list);
+                                                 platform_state_ptr->window,
+                                                 platform_state_ptr->screen->root, // parent
+                                                 x,                                // x
+                                                 y,                                // y
+                                                 width,                            // width
+                                                 height,                           // height
+                                                 0,                                // No border
+                                                 XCB_WINDOW_CLASS_INPUT_OUTPUT,    // class
+                                                 platform_state_ptr->screen->root_visual, event_mask, value_list);
 
     // Change the title
-    xcb_change_property(state_ptr->connection, XCB_PROP_MODE_REPLACE, state_ptr->window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
+    xcb_change_property(platform_state_ptr->connection, XCB_PROP_MODE_REPLACE, platform_state_ptr->window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
                         8, // data should be viewed 8 bits at a time
                         strlen(application_name), application_name);
 
     // Tell the server to notify when the window manager
     // attempts to destroy the window.
-    xcb_intern_atom_cookie_t wm_delete_cookie = xcb_intern_atom(state_ptr->connection, 0, strlen("WM_DELETE_WINDOW"), "WM_DELETE_WINDOW");
-    xcb_intern_atom_cookie_t wm_protocols_cookie = xcb_intern_atom(state_ptr->connection, 0, strlen("WM_PROTOCOLS"), "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t *wm_delete_reply = xcb_intern_atom_reply(state_ptr->connection, wm_delete_cookie, NULL);
-    xcb_intern_atom_reply_t *wm_protocols_reply = xcb_intern_atom_reply(state_ptr->connection, wm_protocols_cookie, NULL);
-    state_ptr->wm_delete_win = wm_delete_reply->atom;
-    state_ptr->wm_protocols = wm_protocols_reply->atom;
+    xcb_intern_atom_cookie_t wm_delete_cookie = xcb_intern_atom(platform_state_ptr->connection, 0, strlen("WM_DELETE_WINDOW"), "WM_DELETE_WINDOW");
+    xcb_intern_atom_cookie_t wm_protocols_cookie = xcb_intern_atom(platform_state_ptr->connection, 0, strlen("WM_PROTOCOLS"), "WM_PROTOCOLS");
+    xcb_intern_atom_reply_t *wm_delete_reply = xcb_intern_atom_reply(platform_state_ptr->connection, wm_delete_cookie, NULL);
+    xcb_intern_atom_reply_t *wm_protocols_reply = xcb_intern_atom_reply(platform_state_ptr->connection, wm_protocols_cookie, NULL);
+    platform_state_ptr->wm_delete_win = wm_delete_reply->atom;
+    platform_state_ptr->wm_protocols = wm_protocols_reply->atom;
 
-    xcb_change_property(state_ptr->connection, XCB_PROP_MODE_REPLACE, state_ptr->window, wm_protocols_reply->atom, 4, 32, 1, &wm_delete_reply->atom);
+    xcb_change_property(platform_state_ptr->connection, XCB_PROP_MODE_REPLACE, platform_state_ptr->window, wm_protocols_reply->atom, 4, 32, 1, &wm_delete_reply->atom);
 
     // Map the window to the screen
-    xcb_map_window(state_ptr->connection, state_ptr->window);
+    xcb_map_window(platform_state_ptr->connection, platform_state_ptr->window);
 
     // Flush the stream
-    s32 stream_result = xcb_flush(state_ptr->connection);
+    s32 stream_result = xcb_flush(platform_state_ptr->connection);
     if (stream_result <= 0)
     {
         DFATAL("An error occurred when flusing the stream: %d", stream_result);
@@ -147,9 +148,9 @@ void platform_shutdown()
 {
     // Simply cold-cast to the known type.
     // Turn key repeats back on since this is global for the OS... just... wow.
-    XAutoRepeatOn(state_ptr->display);
+    XAutoRepeatOn(platform_state_ptr->display);
 
-    xcb_destroy_window(state_ptr->connection, state_ptr->window);
+    xcb_destroy_window(platform_state_ptr->connection, platform_state_ptr->window);
 }
 
 b8 platform_pump_messages()
@@ -163,7 +164,7 @@ b8 platform_pump_messages()
     // Poll for events until null is returned.
     while (event != 0)
     {
-        event = xcb_poll_for_event(state_ptr->connection);
+        event = xcb_poll_for_event(platform_state_ptr->connection);
         if (event == 0)
         {
             break;
@@ -178,7 +179,7 @@ b8 platform_pump_messages()
                 xcb_key_press_event_t *kb_event = (xcb_key_press_event_t *)event;
                 b8                     pressed = event->response_type == XCB_KEY_PRESS;
                 xcb_keycode_t          code = kb_event->detail;
-                KeySym                 key_sym = XkbKeycodeToKeysym(state_ptr->display,
+                KeySym                 key_sym = XkbKeycodeToKeysym(platform_state_ptr->display,
                                                                     (KeyCode)code, // event.xkey.keycode,
                                                                     0, code & ShiftMask ? 1 : 0);
 
@@ -230,7 +231,7 @@ b8 platform_pump_messages()
                 cm = (xcb_client_message_event_t *)event;
 
                 // Window close
-                if (cm->data.data32[0] == state_ptr->wm_delete_win)
+                if (cm->data.data32[0] == platform_state_ptr->wm_delete_win)
                 {
                     quit_flagged = true;
                 }
@@ -260,8 +261,8 @@ b8 platform_create_vulkan_surface(struct vulkan_context *context)
     surface_info.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
     surface_info.pNext = 0;
     surface_info.flags = 0;
-    surface_info.connection = state_ptr->connection;
-    surface_info.window = state_ptr->window;
+    surface_info.connection = platform_state_ptr->connection;
+    surface_info.window = platform_state_ptr->window;
 
     VK_CHECK(vkCreateXcbSurfaceKHR(context->instance, &surface_info, 0, &context->surface));
 
@@ -583,9 +584,12 @@ typedef struct platform_state
     struct wl_keyboard *wl_keyboard;
     struct wl_mouse    *wl_mouse;
 
+    /* dimensions */
+    u32 width;
+    u32 height;
 } platform_state;
 
-static struct platform_state *state_ptr;
+static struct platform_state *platform_state_ptr;
 
 u32 translate_keycode(u32 key);
 
@@ -640,15 +644,15 @@ static void wl_seat_capabilites(void *data, struct wl_seat *wl_seat, u32 capabil
 
     b8 have_keyboard = capabilities & WL_SEAT_CAPABILITY_KEYBOARD;
 
-    if (have_keyboard && state_ptr->wl_keyboard == NULL)
+    if (have_keyboard && platform_state_ptr->wl_keyboard == NULL)
     {
-        state_ptr->wl_keyboard = wl_seat_get_keyboard(state_ptr->wl_seat);
-        wl_keyboard_add_listener(state_ptr->wl_keyboard, &wl_keyboard_listener, state_ptr);
+        platform_state_ptr->wl_keyboard = wl_seat_get_keyboard(platform_state_ptr->wl_seat);
+        wl_keyboard_add_listener(platform_state_ptr->wl_keyboard, &wl_keyboard_listener, platform_state_ptr);
     }
-    else if (!have_keyboard && state_ptr->wl_keyboard != NULL)
+    else if (!have_keyboard && platform_state_ptr->wl_keyboard != NULL)
     {
-        wl_keyboard_release(state_ptr->wl_keyboard);
-        state_ptr->wl_keyboard = NULL;
+        wl_keyboard_release(platform_state_ptr->wl_keyboard);
+        platform_state_ptr->wl_keyboard = NULL;
     }
 }
 static void wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name)
@@ -664,9 +668,13 @@ static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel
     {
         return;
     }
+    platform_state_ptr->width = width;
+    platform_state_ptr->height = height;
+
     event_context context = {};
     context.data.u32[0] = width;
     context.data.u32[1] = height;
+
     event_fire(EVENT_CODE_RESIZED, 0, context);
 }
 
@@ -679,7 +687,7 @@ struct xdg_toplevel_listener xdg_toplevel_listener = {.configure = xdg_toplevel_
 static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, u32 serial)
 {
     xdg_surface_ack_configure(xdg_surface, serial);
-    wl_surface_commit(state_ptr->wl_surface);
+    wl_surface_commit(platform_state_ptr->wl_surface);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
@@ -702,17 +710,17 @@ static void registry_global(void *data, struct wl_registry *wl_registry, u32 nam
 
     if (string_compare(interface, wl_compositor_interface.name))
     {
-        state_ptr->wl_compositor = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
+        platform_state_ptr->wl_compositor = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
     }
     else if (string_compare(interface, xdg_wm_base_interface.name))
     {
-        state_ptr->xdg_wm_base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
-        xdg_wm_base_add_listener(state_ptr->xdg_wm_base, &xdg_wm_base_listener, state_ptr);
+        platform_state_ptr->xdg_wm_base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
+        xdg_wm_base_add_listener(platform_state_ptr->xdg_wm_base, &xdg_wm_base_listener, platform_state_ptr);
     }
     else if (string_compare(interface, wl_seat_interface.name))
     {
-        state_ptr->wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
-        wl_seat_add_listener(state_ptr->wl_seat, &wl_seat_listener, state_ptr);
+        platform_state_ptr->wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
+        wl_seat_add_listener(platform_state_ptr->wl_seat, &wl_seat_listener, platform_state_ptr);
     }
 }
 
@@ -735,49 +743,49 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     }
     DINFO("Initializing linux-Wayland platform...");
 
-    state_ptr = plat_state;
+    platform_state_ptr = plat_state;
 
-    state_ptr->wl_display = wl_display_connect(NULL);
-    if (!state_ptr->wl_display)
+    platform_state_ptr->wl_display = wl_display_connect(NULL);
+    if (!platform_state_ptr->wl_display)
     {
         return false;
     }
 
-    state_ptr->wl_registry = wl_display_get_registry(state_ptr->wl_display);
-    if (!state_ptr->wl_registry)
+    platform_state_ptr->wl_registry = wl_display_get_registry(platform_state_ptr->wl_display);
+    if (!platform_state_ptr->wl_registry)
     {
         return false;
     }
-    wl_registry_add_listener(state_ptr->wl_registry, &wl_registry_listener, state_ptr);
+    wl_registry_add_listener(platform_state_ptr->wl_registry, &wl_registry_listener, platform_state_ptr);
 
-    wl_display_roundtrip(state_ptr->wl_display);
+    wl_display_roundtrip(platform_state_ptr->wl_display);
 
-    state_ptr->wl_surface = wl_compositor_create_surface(state_ptr->wl_compositor);
-    if (!state_ptr->wl_surface)
-    {
-        return false;
-    }
-
-    state_ptr->xdg_surface = xdg_wm_base_get_xdg_surface(state_ptr->xdg_wm_base, state_ptr->wl_surface);
-    if (!state_ptr->xdg_surface)
+    platform_state_ptr->wl_surface = wl_compositor_create_surface(platform_state_ptr->wl_compositor);
+    if (!platform_state_ptr->wl_surface)
     {
         return false;
     }
 
-    xdg_surface_add_listener(state_ptr->xdg_surface, &xdg_surface_listener, state_ptr);
-
-    state_ptr->xdg_toplevel = xdg_surface_get_toplevel(state_ptr->xdg_surface);
-
-    if (!state_ptr->xdg_toplevel)
+    platform_state_ptr->xdg_surface = xdg_wm_base_get_xdg_surface(platform_state_ptr->xdg_wm_base, platform_state_ptr->wl_surface);
+    if (!platform_state_ptr->xdg_surface)
     {
         return false;
     }
-    xdg_toplevel_add_listener(state_ptr->xdg_toplevel, &xdg_toplevel_listener, state_ptr);
 
-    xdg_toplevel_set_title(state_ptr->xdg_toplevel, application_name);
-    xdg_toplevel_set_app_id(state_ptr->xdg_toplevel, application_name);
+    xdg_surface_add_listener(platform_state_ptr->xdg_surface, &xdg_surface_listener, platform_state_ptr);
 
-    wl_surface_commit(state_ptr->wl_surface);
+    platform_state_ptr->xdg_toplevel = xdg_surface_get_toplevel(platform_state_ptr->xdg_surface);
+
+    if (!platform_state_ptr->xdg_toplevel)
+    {
+        return false;
+    }
+    xdg_toplevel_add_listener(platform_state_ptr->xdg_toplevel, &xdg_toplevel_listener, platform_state_ptr);
+
+    xdg_toplevel_set_title(platform_state_ptr->xdg_toplevel, application_name);
+    xdg_toplevel_set_app_id(platform_state_ptr->xdg_toplevel, application_name);
+
+    wl_surface_commit(platform_state_ptr->wl_surface);
 
     DINFO("Linux-Wayland platform initialized");
 
@@ -787,17 +795,17 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
 b8 platform_pump_messages()
 {
 
-    s32 result = wl_display_dispatch(state_ptr->wl_display);
+    s32 result = wl_display_dispatch(platform_state_ptr->wl_display);
 
     return result == -1 ? false : true;
 }
 
 void platform_shutdown()
 {
-    xdg_toplevel_destroy(state_ptr->xdg_toplevel);
-    xdg_surface_destroy(state_ptr->xdg_surface);
-    wl_surface_destroy(state_ptr->wl_surface);
-    wl_display_disconnect(state_ptr->wl_display);
+    xdg_toplevel_destroy(platform_state_ptr->xdg_toplevel);
+    xdg_surface_destroy(platform_state_ptr->xdg_surface);
+    wl_surface_destroy(platform_state_ptr->wl_surface);
+    wl_display_disconnect(platform_state_ptr->wl_display);
 }
 
 void platform_get_required_extension_names(const char ***names_darray)
@@ -812,12 +820,18 @@ b8 platform_create_vulkan_surface(vulkan_context *context)
     create_surface_info.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
     create_surface_info.pNext = 0;
     create_surface_info.flags = 0;
-    create_surface_info.display = state_ptr->wl_display;
-    create_surface_info.surface = state_ptr->wl_surface;
+    create_surface_info.display = platform_state_ptr->wl_display;
+    create_surface_info.surface = platform_state_ptr->wl_surface;
 
     VK_CHECK(vkCreateWaylandSurfaceKHR(context->instance, &create_surface_info, 0, &context->surface));
 
     return true;
+}
+
+void platform_get_window_dimensions(u32 *width, u32 *height)
+{
+    *width = platform_state_ptr->width;
+    *height = platform_state_ptr->height;
 }
 
 u32 translate_keycode(u32 wl_keycode)

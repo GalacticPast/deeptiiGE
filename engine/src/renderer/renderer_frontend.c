@@ -1,4 +1,6 @@
 #include "renderer_frontend.h"
+#include "math/dmath.h"
+#include "platform/platform.h"
 
 #include "renderer_backend.h"
 
@@ -68,8 +70,24 @@ void renderer_on_resized(u16 width, u16 height)
 DAPI b8 renderer_draw_frame(render_packet *packet)
 {
     // If the begin frame returned successfully, mid-frame operations may continue.
+    if (!backend_ptr)
+    {
+        DWARN("renderer backend does not exist to accept to update global state");
+        return false;
+    }
+
     if (renderer_begin_frame(packet->delta_time))
     {
+        u32 width;
+        u32 height;
+        platform_get_window_dimensions(&width, &height);
+
+        mat4       projection = mat4_perspective(deg_to_rad(45.0f), (f32)width / (f32)height, 0.01f, 1000.0f);
+        static f32 z = -1.0f;
+        z -= 0.01f;
+        mat4 view = mat4_translation((vec3){0.0f, 0.0f, z});
+
+        backend_ptr->update_global_game_state(projection, view);
 
         // End the frame. If this fails, it is likely unrecoverable.
         b8 result = renderer_end_frame(packet->delta_time);

@@ -19,6 +19,7 @@ void platform_console_write_error(const char *message, u8 colour);
 
 f64 platform_get_absolute_time();
 
+void platform_get_window_dimensions(u32 *width, u32 *height);
 // Sleep on the thread for the provided ms. This blocks the main thread.
 // Should only be used for giving time back to the OS for unused update power.
 // Therefore it is not exported.

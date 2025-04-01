@@ -87,7 +87,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     const char **required_extensions = darray_create(const char *);
     darray_push(required_extensions, &VK_KHR_SURFACE_EXTENSION_NAME); // Generic surface extension
     platform_get_required_extension_names(&required_extensions);      // Platform-specific extension(s)
-#if defined(_DEBUG)
+#if defined(DEBUG)
     darray_push(required_extensions, &VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // debug utilities
 
     DDEBUG("Required extensions:");
@@ -107,7 +107,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 
 // If validation should be done, get a list of the required validation layert names
 // and make sure they exist. Validation layers should only be enabled on non-release builds.
-#if defined(_DEBUG)
+#if defined(DEBUG)
     DINFO("Validation layers enabled. Enumerating...");
 
     // The list of validation layers required.
@@ -152,7 +152,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     DINFO("Vulkan Instance created.");
 
     // Debugger
-#if defined(_DEBUG)
+#if defined(DEBUG)
     DDEBUG("Creating Vulkan debugger...");
     u32 log_severity =
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT; //|
@@ -236,23 +236,26 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     vertex_3d verts[vert_count];
     dzero_memory(verts, sizeof(vertex_3d) * vert_count);
 
-    verts[0].position.x = 0.0;
-    verts[0].position.y = -0.5;
+    f32 scale = 5.0f;
 
-    verts[1].position.x = 0.5;
-    verts[1].position.y = 0.5;
+    verts[0].position.x = -0.5 * scale;
+    verts[0].position.y = -0.5 * scale;
 
-    verts[2].position.x = 0;
-    verts[2].position.y = 0.5;
+    verts[1].position.x = 0.5 * scale;
+    verts[1].position.y = 0.5 * scale;
 
-    verts[3].position.x = 0.5;
-    verts[3].position.y = -0.5;
+    verts[2].position.x = -0.5 * scale;
+    verts[2].position.y = 0.5 * scale;
+
+    verts[3].position.x = 0.5 * scale;
+    verts[3].position.y = -0.5 * scale;
 
     const u32 index_count = 6;
     u32       indices[6] = {0, 1, 2, 0, 3, 1};
 
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_vertex_buffer, 0, sizeof(vertex_3d) * vert_count, verts);
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_index_buffer, 0, sizeof(u32) * index_count, indices);
+
     // TODO: end temp code
 
     DINFO("Vulkan renderer initialized successfully.");
@@ -330,7 +333,7 @@ void vulkan_renderer_backend_shutdown(renderer_backend *backend)
         context.surface = 0;
     }
 
-#if defined(_DEBUG)
+#if defined(DEBUG)
     DDEBUG("Destroying Vulkan debugger...");
     if (context.debug_messenger)
     {
@@ -435,10 +438,23 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
     // Begin the render pass.
     vulkan_renderpass_begin(command_buffer, &context.main_renderpass, context.swapchain.framebuffers[context.image_index].handle);
 
-    // TODO: temporary test code
+    return true;
+}
+void vulkan_renderer_update_global_state(mat4 projection, mat4 view)
+{
+    vulkan_command_buffer *command_buffer = &context.graphics_command_buffers[context.image_index];
+
+    vulkan_object_shader_use(&context, &context.object_shader);
+
+    context.object_shader.global_ubo.projection = projection;
+    context.object_shader.global_ubo.view = view;
+
+    vulkan_object_shader_update_global_state(&context, &context.object_shader);
+
     vulkan_object_shader_use(&context, &context.object_shader);
 
     // Bind vertex buffer at offset.
+
     VkDeviceSize offsets[1] = {0};
     vkCmdBindVertexBuffers(command_buffer->handle, 0, 1, &context.object_vertex_buffer.handle, (VkDeviceSize *)offsets);
 
@@ -447,9 +463,6 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
 
     // Issue the draw.
     vkCmdDrawIndexed(command_buffer->handle, 6, 1, 0, 0, 0);
-    // TODO: end temporary test code
-
-    return true;
 }
 
 b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)

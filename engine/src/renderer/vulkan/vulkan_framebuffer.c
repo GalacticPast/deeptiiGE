@@ -2,11 +2,14 @@
 
 #include "core/dmemory.h"
 
-void vulkan_framebuffer_create(vulkan_context *context, vulkan_renderpass *renderpass, u32 width, u32 height,
-                               u32 attachment_count, VkImageView *attachments, vulkan_framebuffer *out_framebuffer)
+void vulkan_framebuffer_create(vulkan_context *context, vulkan_renderpass *renderpass, u32 width, u32 height, u32 attachment_count, VkImageView *attachments, vulkan_framebuffer *out_framebuffer)
 {
     // Take a copy of the attachments, renderpass and attachment count
-    out_framebuffer->attachments = dallocate(sizeof(VkImageView) * attachment_count, MEMORY_TAG_RENDERER);
+    if (out_framebuffer->attachments == 0)
+    {
+        out_framebuffer->attachments = dallocate(sizeof(VkImageView) * attachment_count, MEMORY_TAG_RENDERER);
+    }
+
     for (u32 i = 0; i < attachment_count; ++i)
     {
         out_framebuffer->attachments[i] = attachments[i];
@@ -23,8 +26,7 @@ void vulkan_framebuffer_create(vulkan_context *context, vulkan_renderpass *rende
     framebuffer_create_info.height = height;
     framebuffer_create_info.layers = 1;
 
-    VK_CHECK(vkCreateFramebuffer(context->device.logical_device, &framebuffer_create_info, context->allocator,
-                                 &out_framebuffer->handle));
+    VK_CHECK(vkCreateFramebuffer(context->device.logical_device, &framebuffer_create_info, context->allocator, &out_framebuffer->handle));
 }
 
 void vulkan_framebuffer_destroy(vulkan_context *context, vulkan_framebuffer *framebuffer)

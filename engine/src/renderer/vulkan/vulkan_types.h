@@ -2,13 +2,14 @@
 
 #include "core/asserts.h"
 #include "defines.h"
+#include "renderer/renderer_frontend.h"
 
 #include <vulkan/vulkan.h>
 
 // Checks the given expression's return value against VK_SUCCESS.
-#define VK_CHECK(expr)                                                                                                 \
-    {                                                                                                                  \
-        DASSERT(expr == VK_SUCCESS);                                                                                   \
+#define VK_CHECK(expr)                                                                                                                                                                                                     \
+    {                                                                                                                                                                                                                      \
+        DASSERT(expr == VK_SUCCESS);                                                                                                                                                                                       \
     }
 
 typedef struct vulkan_swapchain_support_info
@@ -152,6 +153,17 @@ typedef struct vulkan_object_shader
 {
     vulkan_shader_stage stages[OBJECT_SHADER_STAGE_COUNT];
     vulkan_pipeline     pipeline;
+
+    VkDescriptorPool      global_descriptor_pool;
+    VkDescriptorSetLayout global_descriptor_set_layout;
+
+    // INFO: 3 because we have 3 frames in flight i.e triple buffering.
+    VkDescriptorSet global_descriptor_sets[3];
+
+    global_uniform_object global_ubo;
+    // INFO: for our global uniform object
+    vulkan_buffer global_uniform_buffer;
+
 } vulkan_object_shader;
 
 typedef struct vulkan_context
@@ -175,7 +187,7 @@ typedef struct vulkan_context
     VkAllocationCallbacks *allocator;
     VkSurfaceKHR           surface;
 
-#if defined(_DEBUG)
+#if defined(DEBUG)
     VkDebugUtilsMessengerEXT debug_messenger;
 #endif
 

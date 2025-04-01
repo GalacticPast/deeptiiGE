@@ -5,8 +5,7 @@
 #include "vulkan_device.h"
 #include "vulkan_utils.h"
 
-b8 vulkan_buffer_create(vulkan_context *context, u64 size, VkBufferUsageFlagBits usage, u32 memory_property_flags,
-                        b8 bind_on_create, vulkan_buffer *out_buffer)
+b8 vulkan_buffer_create(vulkan_context *context, u64 size, VkBufferUsageFlagBits usage, u32 memory_property_flags, b8 bind_on_create, vulkan_buffer *out_buffer)
 {
     dzero_memory(out_buffer, sizeof(vulkan_buffer));
     out_buffer->total_size = size;
@@ -24,8 +23,7 @@ b8 vulkan_buffer_create(vulkan_context *context, u64 size, VkBufferUsageFlagBits
     VkMemoryRequirements requirements;
     vkGetBufferMemoryRequirements(context->device.logical_device, out_buffer->handle, &requirements);
 
-    out_buffer->memory_index =
-        context->find_memory_index(requirements.memoryTypeBits, out_buffer->memory_property_flags);
+    out_buffer->memory_index = context->find_memory_index(requirements.memoryTypeBits, out_buffer->memory_property_flags);
 
     if (out_buffer->memory_index == -1)
     {
@@ -39,8 +37,7 @@ b8 vulkan_buffer_create(vulkan_context *context, u64 size, VkBufferUsageFlagBits
     allocate_info.memoryTypeIndex = (u32)out_buffer->memory_index;
 
     // Allocate the memory.
-    VkResult result =
-        vkAllocateMemory(context->device.logical_device, &allocate_info, context->allocator, &out_buffer->memory);
+    VkResult result = vkAllocateMemory(context->device.logical_device, &allocate_info, context->allocator, &out_buffer->memory);
 
     if (result != VK_SUCCESS)
     {
@@ -94,7 +91,7 @@ b8 vulkan_buffer_resize(vulkan_context *context, u64 new_size, vulkan_buffer *bu
 
     // Allocate the memory.
     VkDeviceMemory new_memory;
-    VkResult result = vkAllocateMemory(context->device.logical_device, &allocate_info, context->allocator, &new_memory);
+    VkResult       result = vkAllocateMemory(context->device.logical_device, &allocate_info, context->allocator, &new_memory);
     if (result != VK_SUCCESS)
     {
         DERROR("Unable to resize vulkan buffer because the required memory allocation failed. Error: %i", result);
@@ -147,8 +144,7 @@ void vulkan_buffer_unlock_memory(vulkan_context *context, vulkan_buffer *buffer)
     vkUnmapMemory(context->device.logical_device, buffer->memory);
 }
 
-void vulkan_buffer_load_data(vulkan_context *context, vulkan_buffer *buffer, u64 offset, u64 size, u32 flags,
-                             const void *data)
+void vulkan_buffer_load_data(vulkan_context *context, vulkan_buffer *buffer, u64 offset, u64 size, u32 flags, const void *data)
 {
     void *data_ptr;
     VK_CHECK(vkMapMemory(context->device.logical_device, buffer->memory, offset, size, flags, &data_ptr));
@@ -157,8 +153,7 @@ void vulkan_buffer_load_data(vulkan_context *context, vulkan_buffer *buffer, u64
     vkUnmapMemory(context->device.logical_device, buffer->memory);
 }
 
-void vulkan_buffer_copy_to(vulkan_context *context, VkCommandPool pool, VkFence fence, VkQueue queue, VkBuffer source,
-                           u64 source_offset, VkBuffer dest, u64 dest_offset, u64 size)
+void vulkan_buffer_copy_to(vulkan_context *context, VkCommandPool pool, VkFence fence, VkQueue queue, VkBuffer source, u64 source_offset, VkBuffer dest, u64 dest_offset, u64 size)
 {
     vkQueueWaitIdle(queue);
 
