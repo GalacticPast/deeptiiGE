@@ -31,10 +31,10 @@ b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const
     backend_state_ptr = state;
 
     // TODO: make this configurable.
-    renderer_backend_create(RENDERER_BACKEND_TYPE_VULKAN, 0, &backend_state_ptr->backend);
+    renderer_backend_create(RENDERER_BACKEND_TYPE_VULKAN, &backend_state_ptr->backend);
     backend_state_ptr->backend.frame_number = 0;
 
-    if (!backend_state_ptr->backend.initialize(&backend_state_ptr->backend, application_name, 0))
+    if (!backend_state_ptr->backend.initialize(&backend_state_ptr->backend, application_name))
     {
         DFATAL("Renderer backend failed to initialize. Shutting down.");
         return false;
@@ -124,4 +124,13 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
 void renderer_set_view(mat4 view)
 {
     backend_state_ptr->view = view;
+}
+
+void renderer_create_texture(const char *texture_name, b8 auto_release, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_tranparency, struct texture *out_texture)
+{
+    backend_state_ptr->backend.create_texture(texture_name, auto_release, width, height, channel_count, pixels, has_tranparency, out_texture);
+}
+void renderer_destroy_texture(struct texture *out_texture)
+{
+    backend_state_ptr->backend.destroy_texture(out_texture);
 }

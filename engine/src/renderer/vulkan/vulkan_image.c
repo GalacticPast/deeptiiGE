@@ -5,9 +5,8 @@
 #include "core/dmemory.h"
 #include "core/logger.h"
 
-void vulkan_image_create(vulkan_context *context, VkImageType image_type, u32 width, u32 height, VkFormat format,
-                         VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags memory_flags,
-                         b32 create_view, VkImageAspectFlags view_aspect_flags, vulkan_image *out_image)
+void vulkan_image_create(vulkan_context *context, VkImageType image_type, u32 width, u32 height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags memory_flags, b32 create_view,
+                         VkImageAspectFlags view_aspect_flags, vulkan_image *out_image)
 {
 
     // Copy params
@@ -45,8 +44,7 @@ void vulkan_image_create(vulkan_context *context, VkImageType image_type, u32 wi
     VkMemoryAllocateInfo memory_allocate_info = {VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
     memory_allocate_info.allocationSize = memory_requirements.size;
     memory_allocate_info.memoryTypeIndex = memory_type;
-    VK_CHECK(vkAllocateMemory(context->device.logical_device, &memory_allocate_info, context->allocator,
-                              &out_image->memory));
+    VK_CHECK(vkAllocateMemory(context->device.logical_device, &memory_allocate_info, context->allocator, &out_image->memory));
 
     // Bind the memory
     VK_CHECK(vkBindImageMemory(context->device.logical_device, out_image->handle, out_image->memory,
@@ -60,8 +58,7 @@ void vulkan_image_create(vulkan_context *context, VkImageType image_type, u32 wi
     }
 }
 
-void vulkan_image_view_create(vulkan_context *context, VkFormat format, vulkan_image *image,
-                              VkImageAspectFlags aspect_flags)
+void vulkan_image_view_create(vulkan_context *context, VkFormat format, vulkan_image *image, VkImageAspectFlags aspect_flags)
 {
     VkImageViewCreateInfo view_create_info = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
     view_create_info.image = image->handle;
@@ -76,6 +73,81 @@ void vulkan_image_view_create(vulkan_context *context, VkFormat format, vulkan_i
     view_create_info.subresourceRange.layerCount = 1;
 
     VK_CHECK(vkCreateImageView(context->device.logical_device, &view_create_info, context->allocator, &image->view));
+}
+
+void vulkan_image_transition_layout(vulkan_context *context, vulkan_command_buffer *command_buffer, vulkan_image *image, VkFormat format, VkImageLayout old_layout, VkImageLayout new_layout)
+{
+    VkImageMemoryBarrier barrier = {};
+
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.pNext = 0;
+    barrier.oldLayout = old_layout;
+    barrier.newLayout = new_layout;
+
+    barrier.srcQueueFamilyIndex = context->device.graphics_queue_index;
+    barrier.dstQueueFamilyIndex = context->device.graphics_queue_index;
+    barrier.image = image->handle;
+
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    VkPipelineStageFlags source_stage;
+    VkPipelineStageFlags dest_stage;
+
+    if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        // DONT care for what the pipeline stage is in at the start.
+        source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+
+        // used of copying
+        dest_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    else if (old_layout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && new_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        // from a copying stage to ...
+        source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+
+        // the fragment stage
+        dest_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    else
+    {
+        DFATAL("Unsopperted layout transition");
+        return;
+    }
+
+    vkCmdPipelineBarrier(command_buffer->handle, source_stage, dest_stage, 0, 0, 0, 0, 0, 1, &barrier);
+}
+
+void vulkan_image_copy_from_buffer(vulkan_context *context, vulkan_image *image, VkBuffer buffer, vulkan_command_buffer *command_buffer)
+{
+    VkBufferImageCopy buffer_region = {};
+
+    dzero_memory(&buffer_region, sizeof(VkBufferImageCopy));
+
+    buffer_region.bufferOffset = 0;
+    buffer_region.bufferRowLength = 0;
+    buffer_region.bufferImageHeight = 0;
+
+    buffer_region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    buffer_region.imageSubresource.mipLevel = 0;
+    buffer_region.imageSubresource.baseArrayLayer = 0;
+    buffer_region.imageSubresource.layerCount = 1;
+
+    buffer_region.imageExtent.width = image->width;
+    buffer_region.imageExtent.height = image->height;
+    buffer_region.imageExtent.depth = 1;
+
+    vkCmdCopyBufferToImage(command_buffer->handle, buffer, image->handle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &buffer_region);
 }
 
 void vulkan_image_destroy(vulkan_context *context, vulkan_image *image)

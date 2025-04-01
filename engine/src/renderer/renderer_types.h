@@ -18,12 +18,14 @@ typedef struct global_uniform_object
     mat4 m_reserved1;
 } global_uniform_object;
 
+// declaration so that we dont have to forward define and include bunch of header files
+
 typedef struct renderer_backend
 {
-    struct platform_state *plat_state;
-    u64                    frame_number;
 
-    b8 (*initialize)(struct renderer_backend *backend, const char *application_name, struct platform_state *plat_state);
+    u64 frame_number;
+
+    b8 (*initialize)(struct renderer_backend *backend, const char *application_name);
 
     void (*shutdown)(struct renderer_backend *backend);
 
@@ -31,11 +33,19 @@ typedef struct renderer_backend
 
     b8 (*begin_frame)(struct renderer_backend *backend, f32 delta_time);
 
-    void (*update_global_game_state)(mat4 projection, mat4 view);
-
     b8 (*end_frame)(struct renderer_backend *backend, f32 delta_time);
 
+    void (*update_global_game_state)(mat4 projection, mat4 view);
+
     void (*update_object)(mat4 model);
+
+    // forwrd declration to supress the errors
+    struct texture *out_texture;
+
+    void (*create_texture)(const char *texture_name, b8 auto_release, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_tranparency, struct texture *out_texture);
+
+    void (*destroy_texture)(struct texture *out_texture);
+
 } renderer_backend;
 
 typedef struct render_packet
