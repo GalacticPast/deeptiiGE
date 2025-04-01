@@ -10,3 +10,5 @@ void vulkan_renderer_backend_on_resized(renderer_backend *backend, u16 width, u1
 b8   vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time);
 void vulkan_renderer_update_global_state(mat4 projection, mat4 view);
 b8   vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time);
+
+void vulkan_renderer_update_object(mat4 model);

@@ -67,8 +67,11 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     context.allocator = 0;
 
     // application_get_framebuffer_size(&cached_framebuffer_width, &cached_framebuffer_height);
-    context.framebuffer_width = (cached_framebuffer_width != 0) ? cached_framebuffer_width : 800;
-    context.framebuffer_height = (cached_framebuffer_height != 0) ? cached_framebuffer_height : 600;
+    u32 width;
+    u32 height;
+    platform_get_window_dimensions(&width, &height);
+    context.framebuffer_width = (cached_framebuffer_width != 0) ? cached_framebuffer_width : width;
+    context.framebuffer_height = (cached_framebuffer_height != 0) ? cached_framebuffer_height : height;
     cached_framebuffer_width = 0;
     cached_framebuffer_height = 0;
 
@@ -440,6 +443,23 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
 
     return true;
 }
+
+void vulkan_renderer_update_object(mat4 model)
+{
+    vulkan_object_shader_update_object(&context, &context.object_shader, model);
+
+    vulkan_command_buffer *command_buffer = &context.graphics_command_buffers[context.image_index];
+
+    VkDeviceSize offsets[1] = {0};
+    vkCmdBindVertexBuffers(command_buffer->handle, 0, 1, &context.object_vertex_buffer.handle, (VkDeviceSize *)offsets);
+
+    // Bind index buffer at offset.
+    vkCmdBindIndexBuffer(command_buffer->handle, context.object_index_buffer.handle, 0, VK_INDEX_TYPE_UINT32);
+
+    // Issue the draw.
+    vkCmdDrawIndexed(command_buffer->handle, 6, 1, 0, 0, 0);
+}
+
 void vulkan_renderer_update_global_state(mat4 projection, mat4 view)
 {
     vulkan_command_buffer *command_buffer = &context.graphics_command_buffers[context.image_index];
@@ -454,15 +474,6 @@ void vulkan_renderer_update_global_state(mat4 projection, mat4 view)
     vulkan_object_shader_use(&context, &context.object_shader);
 
     // Bind vertex buffer at offset.
-
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(command_buffer->handle, 0, 1, &context.object_vertex_buffer.handle, (VkDeviceSize *)offsets);
-
-    // Bind index buffer at offset.
-    vkCmdBindIndexBuffer(command_buffer->handle, context.object_index_buffer.handle, 0, VK_INDEX_TYPE_UINT32);
-
-    // Issue the draw.
-    vkCmdDrawIndexed(command_buffer->handle, 6, 1, 0, 0, 0);
 }
 
 b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)

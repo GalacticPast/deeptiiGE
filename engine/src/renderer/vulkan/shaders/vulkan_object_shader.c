@@ -185,3 +185,12 @@ void vulkan_object_shader_update_global_state(vulkan_context *context, vulkan_ob
 
     vkUpdateDescriptorSets(context->device.logical_device, 1, &descriptor_write, 0, 0);
 }
+
+void vulkan_object_shader_update_object(vulkan_context *context, vulkan_object_shader *shader, mat4 model)
+{
+    u32             image_index = context->image_index;
+    VkCommandBuffer command_buffer = context->graphics_command_buffers[image_index].handle;
+
+    // NOTE: guarenteed for only 128 bytes
+    vkCmdPushConstants(command_buffer, shader->pipeline.pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), &model);
+}

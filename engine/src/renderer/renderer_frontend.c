@@ -63,6 +63,7 @@ void renderer_on_resized(u16 width, u16 height)
     }
     else
     {
+
         DWARN("renderer backend does not exist to accept resize: %i %i", width, height);
     }
 }
@@ -85,8 +86,10 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
         mat4 projection = mat4_perspective(deg_to_rad(45.0f), (f32)width / (f32)height, 0.01f, 1000.0f);
 
         mat4 view = mat4_translation((vec3){0.0f, 0.0f, -30.0f});
-
         backend_ptr->update_global_game_state(projection, view);
+
+        mat4 model = mat4_translation((vec3){0.0f, 0.0f, 0.0f});
+        backend_ptr->update_object(model);
 
         // End the frame. If this fails, it is likely unrecoverable.
         b8 result = renderer_end_frame(packet->delta_time);

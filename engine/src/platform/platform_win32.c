@@ -20,6 +20,9 @@ typedef struct platform_state
 {
     HINSTANCE h_instance;
     HWND      hwnd;
+
+    u32 width;
+    u32 height;
 } platform_state;
 
 // Clock
@@ -233,6 +236,15 @@ void platform_sleep(u64 ms)
     Sleep(ms);
 }
 
+void platform_get_window_dimensions(u32 *width, u32 *height)
+{
+    if (platform_state_ptr)
+    {
+        *width = platform_state_ptr->width;
+        *height = platform_state_ptr->height;
+    }
+}
+
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param)
 {
     switch (msg)
@@ -257,8 +269,14 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
             event_context context = {};
 
             GetClientRect(hwnd, &r);
-            context.data.u32[0] = r.right - r.left;
-            context.data.u32[1] = r.bottom - r.top;
+            u32 width = r.right - r.left;
+            u32 height = r.bottom - r.top;
+
+            context.data.u32[0] = width;
+            context.data.u32[1] = height;
+
+            platform_state_ptr->width = width;
+            platform_state_ptr->height = height;
 
             event_fire(EVENT_CODE_RESIZED, 0, context);
         }
