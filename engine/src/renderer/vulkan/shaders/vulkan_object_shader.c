@@ -50,6 +50,60 @@ b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *ou
 
     VK_CHECK(vkCreateDescriptorPool(context->device.logical_device, &global_descriptor_pool_create_info, context->allocator, &out_shader->global_descriptor_pool));
 
+    // Local/Object descriptors
+    //  Local/Object Descriptors
+
+    const u32 local_sampler_count = 1;
+
+    VkDescriptorType descriptor_types[VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT] = {
+        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER // Binding 0 - uniform buffer
+    };
+
+    VkDescriptorSetLayoutBinding bindings[VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT];
+    dzero_memory(&bindings, sizeof(VkDescriptorSetLayoutBinding) * VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT);
+
+    for (u32 i = 0; i < VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT; ++i)
+    {
+
+        bindings[i].binding         = i;
+        bindings[i].descriptorCount = 1;
+        bindings[i].descriptorType  = descriptor_types[i];
+        bindings[i].stageFlags      = VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+
+    VkDescriptorSetLayoutCreateInfo layout_info = {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
+    layout_info.bindingCount                    = VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT;
+    layout_info.pBindings                       = bindings;
+    VK_CHECK(vkCreateDescriptorSetLayout(context->device.logical_device, &layout_info, 0, &out_shader->object_descriptor_set_layout));
+
+    // Local/Object descriptor pool: Used for object-specific items like diffuse colour
+
+    VkDescriptorPoolSize object_pool_sizes[2];
+
+    // The first section will be used for uniform buffers
+
+    object_pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+    object_pool_sizes[0].descriptorCount = VULKAN_OBJECT_MAX_OBJECT_COUNT;
+
+    // The second section will be used for image samplers.
+
+    object_pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+    object_pool_sizes[1].descriptorCount = local_sampler_count * VULKAN_OBJECT_MAX_OBJECT_COUNT;
+
+    VkDescriptorPoolCreateInfo object_pool_info = {VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
+
+    object_pool_info.poolSizeCount = 2;
+
+    object_pool_info.pPoolSizes = object_pool_sizes;
+
+    object_pool_info.maxSets = VULKAN_OBJECT_MAX_OBJECT_COUNT;
+
+    // Create object descriptor pool.
+
+    VK_CHECK(vkCreateDescriptorPool(context->device.logical_device, &object_pool_info, context->allocator, &out_shader->object_descriptor_pool));
+
     // Pipeline creation
     VkViewport viewport;
     viewport.x        = 0.0f;
@@ -155,7 +209,7 @@ void vulkan_object_shader_use(vulkan_context *context, vulkan_object_shader *sha
     vulkan_pipeline_bind(&context->graphics_command_buffers[image_index], VK_PIPELINE_BIND_POINT_GRAPHICS, &shader->pipeline);
 }
 
-void vulkan_object_shader_update_global_state(vulkan_context *context, vulkan_object_shader *shader)
+void vulkan_object_shader_update_global_state(vulkan_context *context, vulkan_object_shader *shader, f32 delta_time)
 {
     u32             image_index       = context->image_index;
     VkCommandBuffer cmd_buffer        = context->graphics_command_buffers[image_index].handle;
@@ -186,11 +240,15 @@ void vulkan_object_shader_update_global_state(vulkan_context *context, vulkan_ob
     vkUpdateDescriptorSets(context->device.logical_device, 1, &descriptor_write, 0, 0);
 }
 
-void vulkan_object_shader_update_object(vulkan_context *context, vulkan_object_shader *shader, mat4 model)
+void vulkan_object_shader_update_object(vulkan_context *context, vulkan_object_shader *shader, geometry_render_data data)
 {
     u32             image_index    = context->image_index;
     VkCommandBuffer command_buffer = context->graphics_command_buffers[image_index].handle;
 
     // NOTE: guarenteed for only 128 bytes
-    vkCmdPushConstants(command_buffer, shader->pipeline.pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), &model);
+    vkCmdPushConstants(command_buffer, shader->pipeline.pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(mat4), &data.model);
+}
+
+b8 vulkan_object_shader_acquire_resources(vulkan_context *context, vulkan_object_shader *shader, u32 *out_object_id)
+{
 }

@@ -1,5 +1,6 @@
 #include "vulkan_backend.h"
 
+#include "shaders/vulkan_object_shader.h"
 #include "vulkan_buffer.h"
 #include "vulkan_command_buffer.h"
 #include "vulkan_device.h"
@@ -12,7 +13,6 @@
 #include "vulkan_types.h"
 #include "vulkan_utils.h"
 
-#include "core/application.h"
 #include "core/dmemory.h"
 #include "core/dstring.h"
 #include "core/logger.h"
@@ -260,6 +260,15 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_vertex_buffer, 0, sizeof(vertex_3d) * vert_count, verts);
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_index_buffer, 0, sizeof(u32) * index_count, indices);
 
+    u32 object_id = 0;
+    b8  result    = vulkan_object_shader_acquire_resources(&context, &context.object_shader, &object_id);
+
+    if (!result)
+    {
+        DERROR("Failed to acquire shader resources.");
+        return false;
+    }
+
     // TODO: end temp code
 
     DINFO("Vulkan renderer initialized successfully.");
@@ -363,7 +372,8 @@ void vulkan_renderer_backend_on_resized(renderer_backend *backend, u16 width, u1
 
 b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time)
 {
-    vulkan_device *device = &context.device;
+    context.frame_delta_time = delta_time;
+    vulkan_device *device    = &context.device;
 
     // Check if recreating swap chain and boot out.
     if (context.recreating_swapchain)
@@ -445,9 +455,9 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
     return true;
 }
 
-void vulkan_renderer_update_object(mat4 model)
+void vulkan_renderer_update_object(geometry_render_data data)
 {
-    vulkan_object_shader_update_object(&context, &context.object_shader, model);
+    vulkan_object_shader_update_object(&context, &context.object_shader, data);
 
     vulkan_command_buffer *command_buffer = &context.graphics_command_buffers[context.image_index];
 
@@ -470,7 +480,7 @@ void vulkan_renderer_update_global_state(mat4 projection, mat4 view)
     context.object_shader.global_ubo.projection = projection;
     context.object_shader.global_ubo.view       = view;
 
-    vulkan_object_shader_update_global_state(&context, &context.object_shader);
+    vulkan_object_shader_update_global_state(&context, &context.object_shader, context.frame_delta_time);
 
     vulkan_object_shader_use(&context, &context.object_shader);
 
@@ -715,7 +725,7 @@ void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s
     out_texture->width         = width;
     out_texture->height        = height;
     out_texture->channel_count = channel_count;
-    out_texture->generation    = 0;
+    out_texture->generation    = INVALID_ID;
 
     // TODO: Use and allocator for this
     out_texture->internal_data = (vulkan_texture_data *)dallocate(sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
@@ -745,6 +755,8 @@ void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s
     vulkan_image_transition_layout(&context, &temp_buffer, &data->image, image_format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     vulkan_image_copy_from_buffer(&context, &data->image, staging.handle, &temp_buffer);
+
+    vulkan_buffer_destroy(&context, &staging);
 
     vulkan_image_transition_layout(&context, &temp_buffer, &data->image, image_format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
@@ -778,6 +790,8 @@ void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s
 
 void vulkan_renderer_destroy_texture(texture *texture)
 {
+    vkDeviceWaitIdle(context.device.logical_device);
+
     vulkan_texture_data *data = texture->internal_data;
 
     vulkan_image_destroy(&context, &data->image);
