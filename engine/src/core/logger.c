@@ -22,7 +22,7 @@ b8 logging_system_initialize(u64 *memory_requirement, void *state)
         return true;
     }
 
-    logger_state_ptr = state;
+    logger_state_ptr              = state;
     logger_state_ptr->initialized = true;
 
     DFATAL("A test message: %f", 3.14f);
@@ -46,7 +46,7 @@ void logger_system_shutdown(void *state)
 void log_output(log_level level, const char *message, ...)
 {
     const char *level_strings[6] = {"[FATAL]: ", "[ERROR]: ", "[WARN]:  ", "[INFO]:  ", "[DEBUG]: ", "[TRACE]: "};
-    b8          is_error = level < LOG_LEVEL_WARN;
+    b8          is_error         = level < LOG_LEVEL_WARN;
 
     // Technically imposes a 32k character limit on a single log entry, but...
     // DON'T DO THAT!

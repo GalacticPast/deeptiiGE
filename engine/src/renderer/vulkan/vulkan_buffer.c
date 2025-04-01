@@ -8,14 +8,14 @@
 b8 vulkan_buffer_create(vulkan_context *context, u64 size, VkBufferUsageFlagBits usage, u32 memory_property_flags, b8 bind_on_create, vulkan_buffer *out_buffer)
 {
     dzero_memory(out_buffer, sizeof(vulkan_buffer));
-    out_buffer->total_size = size;
-    out_buffer->usage = usage;
+    out_buffer->total_size            = size;
+    out_buffer->usage                 = usage;
     out_buffer->memory_property_flags = memory_property_flags;
 
     VkBufferCreateInfo buffer_info = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-    buffer_info.size = size;
-    buffer_info.usage = usage;
-    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // NOTE: Only used in one queue.
+    buffer_info.size               = size;
+    buffer_info.usage              = usage;
+    buffer_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE; // NOTE: Only used in one queue.
 
     VK_CHECK(vkCreateBuffer(context->device.logical_device, &buffer_info, context->allocator, &out_buffer->handle));
 
@@ -33,8 +33,8 @@ b8 vulkan_buffer_create(vulkan_context *context, u64 size, VkBufferUsageFlagBits
 
     // Allocate memory info
     VkMemoryAllocateInfo allocate_info = {VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
-    allocate_info.allocationSize = requirements.size;
-    allocate_info.memoryTypeIndex = (u32)out_buffer->memory_index;
+    allocate_info.allocationSize       = requirements.size;
+    allocate_info.memoryTypeIndex      = (u32)out_buffer->memory_index;
 
     // Allocate the memory.
     VkResult result = vkAllocateMemory(context->device.logical_device, &allocate_info, context->allocator, &out_buffer->memory);
@@ -66,17 +66,17 @@ void vulkan_buffer_destroy(vulkan_context *context, vulkan_buffer *buffer)
     }
 
     buffer->total_size = 0;
-    buffer->usage = 0;
-    buffer->is_locked = false;
+    buffer->usage      = 0;
+    buffer->is_locked  = false;
 }
 b8 vulkan_buffer_resize(vulkan_context *context, u64 new_size, vulkan_buffer *buffer, VkQueue queue, VkCommandPool pool)
 {
     // Create new buffer.
     VkBufferCreateInfo buffer_info = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
-    buffer_info.size = new_size;
-    buffer_info.usage = buffer->usage;
-    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // NOTE: Only used in one queue.
-                                                         //
+    buffer_info.size               = new_size;
+    buffer_info.usage              = buffer->usage;
+    buffer_info.sharingMode        = VK_SHARING_MODE_EXCLUSIVE; // NOTE: Only used in one queue.
+                                                                //
     VkBuffer new_buffer;
     VK_CHECK(vkCreateBuffer(context->device.logical_device, &buffer_info, context->allocator, &new_buffer));
 
@@ -86,8 +86,8 @@ b8 vulkan_buffer_resize(vulkan_context *context, u64 new_size, vulkan_buffer *bu
 
     // Allocate memory info
     VkMemoryAllocateInfo allocate_info = {VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO};
-    allocate_info.allocationSize = requirements.size;
-    allocate_info.memoryTypeIndex = (u32)buffer->memory_index;
+    allocate_info.allocationSize       = requirements.size;
+    allocate_info.memoryTypeIndex      = (u32)buffer->memory_index;
 
     // Allocate the memory.
     VkDeviceMemory new_memory;
@@ -122,8 +122,8 @@ b8 vulkan_buffer_resize(vulkan_context *context, u64 new_size, vulkan_buffer *bu
 
     // Set new properties
     buffer->total_size = new_size;
-    buffer->memory = new_memory;
-    buffer->handle = new_buffer;
+    buffer->memory     = new_memory;
+    buffer->handle     = new_buffer;
     return true;
 }
 void vulkan_buffer_bind(vulkan_context *context, vulkan_buffer *buffer, u64 offset)
@@ -165,7 +165,7 @@ void vulkan_buffer_copy_to(vulkan_context *context, VkCommandPool pool, VkFence 
     VkBufferCopy copy_region;
     copy_region.srcOffset = source_offset;
     copy_region.dstOffset = dest_offset;
-    copy_region.size = size;
+    copy_region.size      = size;
     vkCmdCopyBuffer(temp_command_buffer.handle, source, dest, 1, &copy_region);
 
     // Submit the buffer for execution and wait for it to complete.

@@ -37,10 +37,10 @@ DAPI void      *_darray_insert_at(void *array, u64 index, void *value_ptr);
 
 #define darray_destroy(array) _darray_destroy(array);
 
-#define darray_push(array, value)                                                                                      \
-    {                                                                                                                  \
-        __auto_type temp = value;                                                                                      \
-        array = _darray_push(array, &temp);                                                                            \
+#define darray_push(array, value)                                                                                                                                                                                          \
+    {                                                                                                                                                                                                                      \
+        __auto_type temp = value;                                                                                                                                                                                          \
+        array            = _darray_push(array, &temp);                                                                                                                                                                     \
     }
 // NOTE: could use __auto_type for temp above, but intellisense
 // for VSCode flags it as an unknown type. typeof() seems to
@@ -48,10 +48,10 @@ DAPI void      *_darray_insert_at(void *array, u64 index, void *value_ptr);
 
 #define darray_pop(array, value_ptr) _darray_pop(array, value_ptr)
 
-#define darray_insert_at(array, index, value)                                                                          \
-    {                                                                                                                  \
-        typeof(value) temp = value;                                                                                    \
-        array = _darray_insert_at(array, index, &temp);                                                                \
+#define darray_insert_at(array, index, value)                                                                                                                                                                              \
+    {                                                                                                                                                                                                                      \
+        typeof(value) temp = value;                                                                                                                                                                                        \
+        array              = _darray_insert_at(array, index, &temp);                                                                                                                                                       \
     }
 
 #define darray_pop_at(array, index, value_ptr) _darray_pop_at(array, index, value_ptr)

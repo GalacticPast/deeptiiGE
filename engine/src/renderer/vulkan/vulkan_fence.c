@@ -6,7 +6,7 @@ void vulkan_fence_create(vulkan_context *context, b8 create_signaled, vulkan_fen
 {
 
     // Make sure to signal the fence if required.
-    out_fence->is_signaled = create_signaled;
+    out_fence->is_signaled              = create_signaled;
     VkFenceCreateInfo fence_create_info = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
     if (out_fence->is_signaled)
     {

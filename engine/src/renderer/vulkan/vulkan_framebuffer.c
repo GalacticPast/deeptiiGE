@@ -14,17 +14,17 @@ void vulkan_framebuffer_create(vulkan_context *context, vulkan_renderpass *rende
     {
         out_framebuffer->attachments[i] = attachments[i];
     }
-    out_framebuffer->renderpass = renderpass;
+    out_framebuffer->renderpass       = renderpass;
     out_framebuffer->attachment_count = attachment_count;
 
     // Creation info
     VkFramebufferCreateInfo framebuffer_create_info = {VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
-    framebuffer_create_info.renderPass = renderpass->handle;
-    framebuffer_create_info.attachmentCount = attachment_count;
-    framebuffer_create_info.pAttachments = out_framebuffer->attachments;
-    framebuffer_create_info.width = width;
-    framebuffer_create_info.height = height;
-    framebuffer_create_info.layers = 1;
+    framebuffer_create_info.renderPass              = renderpass->handle;
+    framebuffer_create_info.attachmentCount         = attachment_count;
+    framebuffer_create_info.pAttachments            = out_framebuffer->attachments;
+    framebuffer_create_info.width                   = width;
+    framebuffer_create_info.height                  = height;
+    framebuffer_create_info.layers                  = 1;
 
     VK_CHECK(vkCreateFramebuffer(context->device.logical_device, &framebuffer_create_info, context->allocator, &out_framebuffer->handle));
 }
@@ -37,7 +37,7 @@ void vulkan_framebuffer_destroy(vulkan_context *context, vulkan_framebuffer *fra
         dfree(framebuffer->attachments, sizeof(VkImageView) * framebuffer->attachment_count, MEMORY_TAG_RENDERER);
         framebuffer->attachments = 0;
     }
-    framebuffer->handle = 0;
+    framebuffer->handle           = 0;
     framebuffer->attachment_count = 0;
-    framebuffer->renderpass = 0;
+    framebuffer->renderpass       = 0;
 }

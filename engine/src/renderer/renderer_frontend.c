@@ -40,9 +40,9 @@ b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const
         return false;
     }
     backend_state_ptr->near_clip = 0.1f;
-    backend_state_ptr->far_clip = 1000.0f;
+    backend_state_ptr->far_clip  = 1000.0f;
 
-    mat4 projection = mat4_perspective(deg_to_rad(45.0f), 1280.0f / 700.0f, backend_state_ptr->near_clip, backend_state_ptr->far_clip);
+    mat4 projection               = mat4_perspective(deg_to_rad(45.0f), 1280.0f / 700.0f, backend_state_ptr->near_clip, backend_state_ptr->far_clip);
     backend_state_ptr->projection = projection;
 
     backend_state_ptr->view = mat4_translation((vec3){0.0f, 0.0f, 30.0f});
@@ -77,7 +77,7 @@ void renderer_on_resized(u16 width, u16 height)
 {
     if (backend_state_ptr)
     {
-        mat4 projection = mat4_perspective(deg_to_rad(45.0f), (f32)width / (f32)height, backend_state_ptr->near_clip, backend_state_ptr->far_clip);
+        mat4 projection               = mat4_perspective(deg_to_rad(45.0f), (f32)width / (f32)height, backend_state_ptr->near_clip, backend_state_ptr->far_clip);
         backend_state_ptr->projection = projection;
         backend_state_ptr->backend.resized(&backend_state_ptr->backend, width, height);
     }
@@ -105,7 +105,7 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
         angle += 0.001f;
 
         quat quat_axis = quat_from_axis_angle(vec3_forward(), angle, false);
-        mat4 model = quat_to_rotation_matrix(quat_axis, vec3_zero());
+        mat4 model     = quat_to_rotation_matrix(quat_axis, vec3_zero());
         backend_state_ptr->backend.update_object(model);
 
         // End the frame. If this fails, it is likely unrecoverable.

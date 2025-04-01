@@ -6,9 +6,9 @@ void linear_allocator_create(u64 total_size, void *memory, linear_allocator *out
 {
     if (out_allocator)
     {
-        out_allocator->total_size = total_size;
+        out_allocator->total_size  = total_size;
         out_allocator->owns_memory = memory == 0;
-        out_allocator->allocated = 0;
+        out_allocator->allocated   = 0;
         if (memory)
         {
             out_allocator->memory = memory;
@@ -27,10 +27,10 @@ void linear_allocator_destroy(linear_allocator *out_allocator)
         {
             dfree(out_allocator->memory, out_allocator->total_size, MEMORY_TAG_LINEAR_ALLOCATOR);
         }
-        out_allocator->allocated = 0;
-        out_allocator->total_size = 0;
+        out_allocator->allocated   = 0;
+        out_allocator->total_size  = 0;
         out_allocator->owns_memory = 0;
-        out_allocator->memory = 0;
+        out_allocator->memory      = 0;
     }
 }
 

@@ -15,7 +15,7 @@ void recalculate_view_matrix(game_state *state)
 {
     if (state->camera_view_dirty)
     {
-        mat4 rotation = mat4_euler_xyz(state->camera_euler.x, state->camera_euler.y, state->camera_euler.z);
+        mat4 rotation    = mat4_euler_xyz(state->camera_euler.x, state->camera_euler.y, state->camera_euler.z);
         mat4 translation = mat4_translation(state->camera_position);
 
         state->view = mat4_mul(rotation, translation);
@@ -41,7 +41,7 @@ void camera_roll(game_state *state, f32 amount_to_roll)
 {
     state->camera_euler.z += amount_to_roll;
 
-    f32 limit = deg_to_rad(89.0f);
+    f32 limit             = deg_to_rad(89.0f);
     state->camera_euler.x = DCLAMP(state->camera_euler.x, -limit, limit);
 
     state->camera_view_dirty = true;
@@ -52,10 +52,10 @@ b8 game_initialize(game *game_inst)
     game_state *state = (game_state *)game_inst->state;
 
     state->camera_position = (vec3){0.0f, 0.0f, 30.0f};
-    state->camera_euler = vec3_zero();
+    state->camera_euler    = vec3_zero();
 
-    state->view = mat4_translation(state->camera_position);
-    state->view = mat4_inverse(state->view);
+    state->view              = mat4_translation(state->camera_position);
+    state->view              = mat4_inverse(state->view);
     state->camera_view_dirty = true;
 
     DDEBUG("game_initialize() called!");
@@ -64,12 +64,12 @@ b8 game_initialize(game *game_inst)
 
 b8 game_update(game *game_inst, f32 delta_time)
 {
-    game_state *state = (game_state *)game_inst->state;
-    static u64  alloc_count = 0;
+    game_state *state              = (game_state *)game_inst->state;
+    static u64  alloc_count        = 0;
     f32         camera_sensitivity = 1.0f;
 
     u64 prev_alloc_count = alloc_count;
-    alloc_count = get_memory_alloc_count();
+    alloc_count          = get_memory_alloc_count();
 
     if (input_is_key_up('M') && input_was_key_down('M'))
     {
@@ -99,28 +99,28 @@ b8 game_update(game *game_inst, f32 delta_time)
     }
 
     f32  temp_move_speed = 50.0f;
-    vec3 velocity = vec3_zero();
+    vec3 velocity        = vec3_zero();
 
     if (input_is_key_down('W'))
     {
         vec3 forward = mat4_forward(state->view);
-        velocity = vec3_add(velocity, forward);
+        velocity     = vec3_add(velocity, forward);
     }
     if (input_is_key_down('S'))
     {
         vec3 backward = mat4_backward(state->view);
-        velocity = vec3_add(velocity, backward);
+        velocity      = vec3_add(velocity, backward);
     }
 
     if (input_is_key_down('Q'))
     {
         vec3 left = mat4_left(state->view);
-        velocity = vec3_add(velocity, left);
+        velocity  = vec3_add(velocity, left);
     }
     if (input_is_key_down('E'))
     {
         vec3 right = mat4_right(state->view);
-        velocity = vec3_add(velocity, right);
+        velocity   = vec3_add(velocity, right);
     }
 
     if (input_is_key_down(KEY_SPACE))

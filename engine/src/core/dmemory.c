@@ -127,31 +127,31 @@ char *get_memory_usage_str()
     const u64 kib = 1024;
 
     char buffer[8000] = "System memory use (tagged):\n";
-    u64  offset = strlen(buffer);
+    u64  offset       = strlen(buffer);
     for (u32 i = 0; i < MEMORY_TAG_MAX_TAGS; ++i)
     {
         char  unit[4] = "XiB";
-        float amount = 1.0f;
+        float amount  = 1.0f;
         if (mem_state_ptr->stats.tagged_allocations[i] >= gib)
         {
             unit[0] = 'G';
-            amount = mem_state_ptr->stats.tagged_allocations[i] / (float)gib;
+            amount  = mem_state_ptr->stats.tagged_allocations[i] / (float)gib;
         }
         else if (mem_state_ptr->stats.tagged_allocations[i] >= mib)
         {
             unit[0] = 'M';
-            amount = mem_state_ptr->stats.tagged_allocations[i] / (float)mib;
+            amount  = mem_state_ptr->stats.tagged_allocations[i] / (float)mib;
         }
         else if (mem_state_ptr->stats.tagged_allocations[i] >= kib)
         {
             unit[0] = 'K';
-            amount = mem_state_ptr->stats.tagged_allocations[i] / (float)kib;
+            amount  = mem_state_ptr->stats.tagged_allocations[i] / (float)kib;
         }
         else
         {
             unit[0] = 'B';
             unit[1] = 0;
-            amount = (float)mem_state_ptr->stats.tagged_allocations[i];
+            amount  = (float)mem_state_ptr->stats.tagged_allocations[i];
         }
 
         s32 length = snprintf(buffer + offset, 8000, "  %s: %.2f%s\n", memory_tag_strings[i], amount, unit);

@@ -28,8 +28,8 @@ void test_manager_register_test(b8 (*PFN_test)(), char *desc)
 
 void test_manager_run_tests()
 {
-    u32 passed = 0;
-    u32 failed = 0;
+    u32 passed  = 0;
+    u32 failed  = 0;
     u32 skipped = 0;
 
     u32 count = darray_length(tests);
@@ -61,8 +61,7 @@ void test_manager_run_tests()
         char status[20];
         string_format(status, failed ? "*** %d FAILED ***" : "SUCCESS", failed);
         clock_update(&total_time);
-        DINFO("Executed %d of %d (skipped %d) %s (%.6f sec / %.6f sec total", i + 1, count, skipped, status,
-              test_time.elapsed, total_time.elapsed);
+        DINFO("Executed %d of %d (skipped %d) %s (%.6f sec / %.6f sec total", i + 1, count, skipped, status, test_time.elapsed, total_time.elapsed);
     }
 
     clock_stop(&total_time);

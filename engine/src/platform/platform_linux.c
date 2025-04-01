@@ -76,7 +76,7 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     const struct xcb_setup_t *setup = xcb_get_setup(platform_state_ptr->connection);
 
     // Loop through screens using iterator
-    xcb_screen_iterator_t it = xcb_setup_roots_iterator(setup);
+    xcb_screen_iterator_t it       = xcb_setup_roots_iterator(setup);
     s32                   screen_p = 0;
     for (s32 s = screen_p; s > 0; s--)
     {
@@ -121,12 +121,12 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
 
     // Tell the server to notify when the window manager
     // attempts to destroy the window.
-    xcb_intern_atom_cookie_t wm_delete_cookie = xcb_intern_atom(platform_state_ptr->connection, 0, strlen("WM_DELETE_WINDOW"), "WM_DELETE_WINDOW");
+    xcb_intern_atom_cookie_t wm_delete_cookie    = xcb_intern_atom(platform_state_ptr->connection, 0, strlen("WM_DELETE_WINDOW"), "WM_DELETE_WINDOW");
     xcb_intern_atom_cookie_t wm_protocols_cookie = xcb_intern_atom(platform_state_ptr->connection, 0, strlen("WM_PROTOCOLS"), "WM_PROTOCOLS");
-    xcb_intern_atom_reply_t *wm_delete_reply = xcb_intern_atom_reply(platform_state_ptr->connection, wm_delete_cookie, NULL);
-    xcb_intern_atom_reply_t *wm_protocols_reply = xcb_intern_atom_reply(platform_state_ptr->connection, wm_protocols_cookie, NULL);
-    platform_state_ptr->wm_delete_win = wm_delete_reply->atom;
-    platform_state_ptr->wm_protocols = wm_protocols_reply->atom;
+    xcb_intern_atom_reply_t *wm_delete_reply     = xcb_intern_atom_reply(platform_state_ptr->connection, wm_delete_cookie, NULL);
+    xcb_intern_atom_reply_t *wm_protocols_reply  = xcb_intern_atom_reply(platform_state_ptr->connection, wm_protocols_cookie, NULL);
+    platform_state_ptr->wm_delete_win            = wm_delete_reply->atom;
+    platform_state_ptr->wm_protocols             = wm_protocols_reply->atom;
 
     xcb_change_property(platform_state_ptr->connection, XCB_PROP_MODE_REPLACE, platform_state_ptr->window, wm_protocols_reply->atom, 4, 32, 1, &wm_delete_reply->atom);
 
@@ -177,11 +177,11 @@ b8 platform_pump_messages()
             case XCB_KEY_RELEASE: {
                 // Key press event - xcb_key_press_event_t and xcb_key_release_event_t are the same
                 xcb_key_press_event_t *kb_event = (xcb_key_press_event_t *)event;
-                b8                     pressed = event->response_type == XCB_KEY_PRESS;
-                xcb_keycode_t          code = kb_event->detail;
-                KeySym                 key_sym = XkbKeycodeToKeysym(platform_state_ptr->display,
-                                                                    (KeyCode)code, // event.xkey.keycode,
-                                                                    0, code & ShiftMask ? 1 : 0);
+                b8                     pressed  = event->response_type == XCB_KEY_PRESS;
+                xcb_keycode_t          code     = kb_event->detail;
+                KeySym                 key_sym  = XkbKeycodeToKeysym(platform_state_ptr->display,
+                                                                     (KeyCode)code, // event.xkey.keycode,
+                                                                     0, code & ShiftMask ? 1 : 0);
 
                 keys key = translate_keycode(key_sym);
 
@@ -191,8 +191,8 @@ b8 platform_pump_messages()
             break;
             case XCB_BUTTON_PRESS:
             case XCB_BUTTON_RELEASE: {
-                xcb_button_press_event_t *mouse_event = (xcb_button_press_event_t *)event;
-                b8                        pressed = event->response_type == XCB_BUTTON_PRESS;
+                xcb_button_press_event_t *mouse_event  = (xcb_button_press_event_t *)event;
+                b8                        pressed      = event->response_type == XCB_BUTTON_PRESS;
                 buttons                   mouse_button = BUTTON_MAX_BUTTONS;
                 switch (mouse_event->detail)
                 {
@@ -258,11 +258,11 @@ b8 platform_create_vulkan_surface(struct vulkan_context *context)
     DTRACE("Creating X11 surface...");
 
     VkXcbSurfaceCreateInfoKHR surface_info = {};
-    surface_info.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-    surface_info.pNext = 0;
-    surface_info.flags = 0;
-    surface_info.connection = platform_state_ptr->connection;
-    surface_info.window = platform_state_ptr->window;
+    surface_info.sType                     = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+    surface_info.pNext                     = 0;
+    surface_info.flags                     = 0;
+    surface_info.connection                = platform_state_ptr->connection;
+    surface_info.window                    = platform_state_ptr->window;
 
     VK_CHECK(vkCreateXcbSurfaceKHR(context->instance, &surface_info, 0, &context->surface));
 
@@ -627,11 +627,11 @@ static void wl_keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard,
 }
 
 static const struct wl_keyboard_listener wl_keyboard_listener = {
-    .keymap = wl_keyboard_keymap,
-    .enter = wl_keyboard_enter,
-    .leave = wl_keyboard_leave,
-    .key = wl_keyboard_key,
-    .modifiers = wl_keyboard_modifiers,
+    .keymap      = wl_keyboard_keymap,
+    .enter       = wl_keyboard_enter,
+    .leave       = wl_keyboard_leave,
+    .key         = wl_keyboard_key,
+    .modifiers   = wl_keyboard_modifiers,
     .repeat_info = wl_keyboard_repeat_info,
 };
 //
@@ -669,12 +669,12 @@ static void xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel
         return;
     }
 
-    platform_state_ptr->width = width;
+    platform_state_ptr->width  = width;
     platform_state_ptr->height = height;
 
     event_context context = {};
-    context.data.u32[0] = width;
-    context.data.u32[1] = height;
+    context.data.u32[0]   = width;
+    context.data.u32[1]   = height;
 
     event_fire(EVENT_CODE_RESIZED, 0, context);
 }
@@ -731,7 +731,7 @@ static void registry_global_remove(void *data, struct wl_registry *wl_registry, 
 }
 
 static const struct wl_registry_listener wl_registry_listener = {
-    .global = registry_global,
+    .global        = registry_global,
     .global_remove = registry_global_remove,
 };
 
@@ -818,11 +818,11 @@ void platform_get_required_extension_names(const char ***names_darray)
 b8 platform_create_vulkan_surface(vulkan_context *context)
 {
     VkWaylandSurfaceCreateInfoKHR create_surface_info = {};
-    create_surface_info.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-    create_surface_info.pNext = 0;
-    create_surface_info.flags = 0;
-    create_surface_info.display = platform_state_ptr->wl_display;
-    create_surface_info.surface = platform_state_ptr->wl_surface;
+    create_surface_info.sType                         = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+    create_surface_info.pNext                         = 0;
+    create_surface_info.flags                         = 0;
+    create_surface_info.display                       = platform_state_ptr->wl_display;
+    create_surface_info.surface                       = platform_state_ptr->wl_surface;
 
     VK_CHECK(vkCreateWaylandSurfaceKHR(context->instance, &create_surface_info, 0, &context->surface));
 
@@ -831,7 +831,7 @@ b8 platform_create_vulkan_surface(vulkan_context *context)
 
 void platform_get_window_dimensions(u32 *width, u32 *height)
 {
-    *width = platform_state_ptr->width == 0 ? 1270 : platform_state_ptr->width;
+    *width  = platform_state_ptr->width == 0 ? 1270 : platform_state_ptr->width;
     *height = platform_state_ptr->height == 0 ? 800 : platform_state_ptr->height;
 }
 
@@ -1214,7 +1214,7 @@ void platform_sleep(u64 ms)
 {
 #if _POSIX_C_SOURCE >= 199309L
     struct timespec ts;
-    ts.tv_sec = ms / 1000;
+    ts.tv_sec  = ms / 1000;
     ts.tv_nsec = (ms % 1000) * 1000 * 1000;
     nanosleep(&ts, 0);
 #else

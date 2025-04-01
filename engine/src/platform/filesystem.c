@@ -14,7 +14,7 @@ b8 filesystem_exists(const char *path)
 b8 filesystem_open(const char *path, file_modes mode, b8 binary, file_handle *out_handle)
 {
     out_handle->is_valid = false;
-    out_handle->handle = 0;
+    out_handle->handle   = 0;
     const char *mode_str;
     if ((mode & FILE_MODE_READ) != 0 && (mode & FILE_MODE_WRITE) != 0)
     {
@@ -41,7 +41,7 @@ b8 filesystem_open(const char *path, file_modes mode, b8 binary, file_handle *ou
         return false;
     }
 
-    out_handle->handle = file;
+    out_handle->handle   = file;
     out_handle->is_valid = true;
     return true;
 }
@@ -50,7 +50,7 @@ void filesystem_close(file_handle *handle)
     if (handle->handle)
     {
         fclose((FILE *)handle->handle);
-        handle->handle = 0;
+        handle->handle   = 0;
         handle->is_valid = false;
     }
 }
@@ -63,7 +63,7 @@ b8 filesystem_read_line(file_handle *handle, char **line_buf)
         if (fgets(buffer, 32000, (FILE *)handle->handle) != 0)
         {
             u64 length = strlen(buffer);
-            *line_buf = dallocate((sizeof(char) * length) + 1, MEMORY_TAG_STRING);
+            *line_buf  = dallocate((sizeof(char) * length) + 1, MEMORY_TAG_STRING);
             strcpy(*line_buf, buffer);
             return true;
         }
@@ -108,7 +108,7 @@ b8 filesystem_read_all_bytes(file_handle *handle, u8 **out_bytes, u64 *out_bytes
         u64 size = ftell((FILE *)handle->handle);
         rewind((FILE *)handle->handle);
 
-        *out_bytes = dallocate(sizeof(u8) * size, MEMORY_TAG_STRING);
+        *out_bytes      = dallocate(sizeof(u8) * size, MEMORY_TAG_STRING);
         *out_bytes_read = fread(*out_bytes, 1, size, (FILE *)handle->handle);
 
         if (*out_bytes_read != size)

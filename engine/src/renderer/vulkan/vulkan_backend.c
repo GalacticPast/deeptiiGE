@@ -27,8 +27,8 @@
 #include "shaders/vulkan_object_shader.h"
 
 // static Vulkan context
-static vulkan_context context = {};
-static u32            cached_framebuffer_width = 0;
+static vulkan_context context                   = {};
+static u32            cached_framebuffer_width  = 0;
 static u32            cached_framebuffer_height = 0;
 
 VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT message_severity, VkDebugUtilsMessageTypeFlagsEXT message_types, const VkDebugUtilsMessengerCallbackDataEXT *callback_data,
@@ -71,21 +71,21 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     u32 width;
     u32 height;
     platform_get_window_dimensions(&width, &height);
-    context.framebuffer_width = (cached_framebuffer_width != 0) ? cached_framebuffer_width : width;
+    context.framebuffer_width  = (cached_framebuffer_width != 0) ? cached_framebuffer_width : width;
     context.framebuffer_height = (cached_framebuffer_height != 0) ? cached_framebuffer_height : height;
-    cached_framebuffer_width = 0;
-    cached_framebuffer_height = 0;
+    cached_framebuffer_width   = 0;
+    cached_framebuffer_height  = 0;
 
     // Setup Vulkan instance.
-    VkApplicationInfo app_info = {VK_STRUCTURE_TYPE_APPLICATION_INFO};
-    app_info.apiVersion = VK_API_VERSION_1_2;
-    app_info.pApplicationName = application_name;
+    VkApplicationInfo app_info  = {VK_STRUCTURE_TYPE_APPLICATION_INFO};
+    app_info.apiVersion         = VK_API_VERSION_1_2;
+    app_info.pApplicationName   = application_name;
     app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    app_info.pEngineName = "deeptiGE";
-    app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    app_info.pEngineName        = "deeptiGE";
+    app_info.engineVersion      = VK_MAKE_VERSION(1, 0, 0);
 
     VkInstanceCreateInfo create_info = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
-    create_info.pApplicationInfo = &app_info;
+    create_info.pApplicationInfo     = &app_info;
 
     // Obtain a list of required extensions
     const char **required_extensions = darray_create(const char *);
@@ -102,7 +102,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     }
 #endif
 
-    create_info.enabledExtensionCount = darray_length(required_extensions);
+    create_info.enabledExtensionCount   = darray_length(required_extensions);
     create_info.ppEnabledExtensionNames = required_extensions;
 
     // Validation layers.
@@ -149,7 +149,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     DINFO("All required validation layers are present.");
 #endif
 
-    create_info.enabledLayerCount = required_validation_layer_count;
+    create_info.enabledLayerCount   = required_validation_layer_count;
     create_info.ppEnabledLayerNames = required_validation_layer_names;
 
     VK_CHECK(vkCreateInstance(&create_info, context.allocator, &context.instance));
@@ -163,9 +163,9 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
                                                                                                                                                         //    VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
 
     VkDebugUtilsMessengerCreateInfoEXT debug_create_info = {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
-    debug_create_info.messageSeverity = log_severity;
-    debug_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-    debug_create_info.pfnUserCallback = vk_debug_callback;
+    debug_create_info.messageSeverity                    = log_severity;
+    debug_create_info.messageType                        = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+    debug_create_info.pfnUserCallback                    = vk_debug_callback;
 
     PFN_vkCreateDebugUtilsMessengerEXT func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(context.instance, "vkCreateDebugUtilsMessengerEXT");
     DASSERT_MSG(func, "Failed to create debug messenger!");
@@ -203,8 +203,8 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 
     // Create sync objects.
     context.image_available_semaphores = darray_reserve(VkSemaphore, context.swapchain.max_frames_in_flight);
-    context.queue_complete_semaphores = darray_reserve(VkSemaphore, context.swapchain.max_frames_in_flight);
-    context.in_flight_fences = darray_reserve(vulkan_fence, context.swapchain.max_frames_in_flight);
+    context.queue_complete_semaphores  = darray_reserve(VkSemaphore, context.swapchain.max_frames_in_flight);
+    context.in_flight_fences           = darray_reserve(vulkan_fence, context.swapchain.max_frames_in_flight);
 
     for (u8 i = 0; i < context.swapchain.max_frames_in_flight; ++i)
     {
@@ -255,7 +255,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     verts[3].position.y = -0.5 * scale;
 
     const u32 index_count = 6;
-    u32       indices[6] = {0, 1, 2, 0, 3, 1};
+    u32       indices[6]  = {0, 1, 2, 0, 3, 1};
 
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_vertex_buffer, 0, sizeof(vertex_3d) * vert_count, verts);
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_index_buffer, 0, sizeof(u32) * index_count, indices);
@@ -354,7 +354,7 @@ void vulkan_renderer_backend_on_resized(renderer_backend *backend, u16 width, u1
 {
     // Update the "framebuffer size generation", a counter which indicates when the
     // framebuffer size has been updated.
-    cached_framebuffer_width = width;
+    cached_framebuffer_width  = width;
     cached_framebuffer_height = height;
     context.framebuffer_size_generation++;
 
@@ -420,18 +420,18 @@ b8 vulkan_renderer_backend_begin_frame(renderer_backend *backend, f32 delta_time
 
     // Dynamic state
     VkViewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = (f32)context.framebuffer_height;
-    viewport.width = (f32)context.framebuffer_width;
-    viewport.height = -(f32)context.framebuffer_height;
+    viewport.x        = 0.0f;
+    viewport.y        = (f32)context.framebuffer_height;
+    viewport.width    = (f32)context.framebuffer_width;
+    viewport.height   = -(f32)context.framebuffer_height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     // Scissor
     VkRect2D scissor;
     scissor.offset.x = scissor.offset.y = 0;
-    scissor.extent.width = context.framebuffer_width;
-    scissor.extent.height = context.framebuffer_height;
+    scissor.extent.width                = context.framebuffer_width;
+    scissor.extent.height               = context.framebuffer_height;
 
     vkCmdSetViewport(command_buffer->handle, 0, 1, &viewport);
     vkCmdSetScissor(command_buffer->handle, 0, 1, &scissor);
@@ -468,7 +468,7 @@ void vulkan_renderer_update_global_state(mat4 projection, mat4 view)
     vulkan_object_shader_use(&context, &context.object_shader);
 
     context.object_shader.global_ubo.projection = projection;
-    context.object_shader.global_ubo.view = view;
+    context.object_shader.global_ubo.view       = view;
 
     vulkan_object_shader_update_global_state(&context, &context.object_shader);
 
@@ -505,15 +505,15 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)
 
     // Command buffer(s) to be executed.
     submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &command_buffer->handle;
+    submit_info.pCommandBuffers    = &command_buffer->handle;
 
     // The semaphore(s) to be signaled when the queue is complete.
     submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores = &context.queue_complete_semaphores[context.current_frame];
+    submit_info.pSignalSemaphores    = &context.queue_complete_semaphores[context.current_frame];
 
     // Wait semaphore ensures that the operation cannot begin until the image is available.
     submit_info.waitSemaphoreCount = 1;
-    submit_info.pWaitSemaphores = &context.image_available_semaphores[context.current_frame];
+    submit_info.pWaitSemaphores    = &context.image_available_semaphores[context.current_frame];
 
     // Each semaphore waits on the corresponding pipeline stage to complete. 1:1 ratio.
     // VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT prevents subsequent colour attachment
@@ -607,7 +607,7 @@ void regenerate_framebuffers(renderer_backend *backend, vulkan_swapchain *swapch
     {
         // TODO: make this dynamic based on the currently configured attachments
         u32         attachment_count = 2;
-        VkImageView attachments[] = {swapchain->views[i], swapchain->depth_attachment.view};
+        VkImageView attachments[]    = {swapchain->views[i], swapchain->depth_attachment.view};
 
         vulkan_framebuffer_create(&context, renderpass, context.framebuffer_width, context.framebuffer_height, attachment_count, attachments, &context.swapchain.framebuffers[i]);
     }
@@ -648,12 +648,12 @@ b8 recreate_swapchain(renderer_backend *backend)
     vulkan_swapchain_recreate(&context, cached_framebuffer_width, cached_framebuffer_height, &context.swapchain);
 
     // Sync the framebuffer size with the cached sizes.
-    context.framebuffer_width = cached_framebuffer_width;
+    context.framebuffer_width  = cached_framebuffer_width;
     context.framebuffer_height = cached_framebuffer_height;
-    context.main_renderpass.w = context.framebuffer_width;
-    context.main_renderpass.h = context.framebuffer_height;
-    cached_framebuffer_width = 0;
-    cached_framebuffer_height = 0;
+    context.main_renderpass.w  = context.framebuffer_width;
+    context.main_renderpass.h  = context.framebuffer_height;
+    cached_framebuffer_width   = 0;
+    cached_framebuffer_height  = 0;
 
     // Update framebuffer size generation.
     context.framebuffer_size_last_generation = context.framebuffer_size_generation;
@@ -688,7 +688,7 @@ b8 recreate_swapchain(renderer_backend *backend)
 b8 create_buffers(vulkan_context *context)
 {
     VkMemoryPropertyFlagBits memory_property_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    const u64                vertex_buffer_size = sizeof(vertex_3d) * 1024 * 1024;
+    const u64                vertex_buffer_size    = sizeof(vertex_3d) * 1024 * 1024;
 
     if (!vulkan_buffer_create(context, vertex_buffer_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, memory_property_flags, true,
                               &context->object_vertex_buffer))
@@ -712,20 +712,20 @@ b8 create_buffers(vulkan_context *context)
 
 void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_transparency, texture *out_texture)
 {
-    out_texture->width = width;
-    out_texture->height = height;
+    out_texture->width         = width;
+    out_texture->height        = height;
     out_texture->channel_count = channel_count;
-    out_texture->generation = 0;
+    out_texture->generation    = 0;
 
     // TODO: Use and allocator for this
     out_texture->internal_data = (vulkan_texture_data *)dallocate(sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
-    vulkan_texture_data *data = out_texture->internal_data;
+    vulkan_texture_data *data  = out_texture->internal_data;
 
     VkDeviceSize image_size = width * height * channel_count;
 
     VkFormat image_format = VK_FORMAT_R8G8B8A8_UNORM;
 
-    VkBufferUsageFlags    usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    VkBufferUsageFlags    usage_flags       = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     VkMemoryPropertyFlags memory_prop_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     vulkan_buffer         staging;
 
@@ -738,8 +738,8 @@ void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s
                         VK_IMAGE_ASPECT_COLOR_BIT, &data->image);
 
     vulkan_command_buffer temp_buffer = {};
-    VkCommandPool         pool = context.device.graphics_command_pool;
-    VkQueue               queue = context.device.graphics_queue;
+    VkCommandPool         pool        = context.device.graphics_command_pool;
+    VkQueue               queue       = context.device.graphics_queue;
     vulkan_command_buffer_allocate_and_begin_single_use(&context, pool, &temp_buffer);
 
     vulkan_image_transition_layout(&context, &temp_buffer, &data->image, image_format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -752,22 +752,22 @@ void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s
 
     VkSamplerCreateInfo sampler_info = {};
 
-    sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    sampler_info.pNext = 0;
-    sampler_info.magFilter = VK_FILTER_LINEAR;
-    sampler_info.minFilter = VK_FILTER_LINEAR;
-    sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    sampler_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    sampler_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    sampler_info.anisotropyEnable = VK_TRUE;
-    sampler_info.maxAnisotropy = 16;
-    sampler_info.compareEnable = VK_FALSE;
-    sampler_info.compareOp = VK_COMPARE_OP_ALWAYS;
-    sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    sampler_info.mipLodBias = 0.0f;
-    sampler_info.minLod = 0.0f;
-    sampler_info.maxLod = 0.0f;
+    sampler_info.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    sampler_info.pNext                   = 0;
+    sampler_info.magFilter               = VK_FILTER_LINEAR;
+    sampler_info.minFilter               = VK_FILTER_LINEAR;
+    sampler_info.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_info.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_info.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_info.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    sampler_info.anisotropyEnable        = VK_TRUE;
+    sampler_info.maxAnisotropy           = 16;
+    sampler_info.compareEnable           = VK_FALSE;
+    sampler_info.compareOp               = VK_COMPARE_OP_ALWAYS;
+    sampler_info.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    sampler_info.mipLodBias              = 0.0f;
+    sampler_info.minLod                  = 0.0f;
+    sampler_info.maxLod                  = 0.0f;
     sampler_info.unnormalizedCoordinates = VK_FALSE;
 
     VK_CHECK(vkCreateSampler(context.device.logical_device, &sampler_info, context.allocator, &data->sampler));

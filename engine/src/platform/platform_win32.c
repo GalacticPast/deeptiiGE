@@ -48,14 +48,14 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     HICON     icon = LoadIcon(platform_state_ptr->h_instance, IDI_APPLICATION);
     WNDCLASSA wc;
     memset(&wc, 0, sizeof(wc));
-    wc.style = CS_DBLCLKS; // Get double-clicks
-    wc.lpfnWndProc = win32_process_message;
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = platform_state_ptr->h_instance;
-    wc.hIcon = icon;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW); // NULL; // Manage the cursor manually
-    wc.hbrBackground = NULL;                  // Transparent
+    wc.style         = CS_DBLCLKS; // Get double-clicks
+    wc.lpfnWndProc   = win32_process_message;
+    wc.cbClsExtra    = 0;
+    wc.cbWndExtra    = 0;
+    wc.hInstance     = platform_state_ptr->h_instance;
+    wc.hIcon         = icon;
+    wc.hCursor       = LoadCursor(NULL, IDC_ARROW); // NULL; // Manage the cursor manually
+    wc.hbrBackground = NULL;                        // Transparent
     wc.lpszClassName = "kohi_window_class";
 
     if (!RegisterClassA(&wc))
@@ -65,17 +65,17 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     }
 
     // Create window
-    u32 client_x = x;
-    u32 client_y = y;
-    u32 client_width = width;
+    u32 client_x      = x;
+    u32 client_y      = y;
+    u32 client_width  = width;
     u32 client_height = height;
 
-    u32 window_x = client_x;
-    u32 window_y = client_y;
-    u32 window_width = client_width;
+    u32 window_x      = client_x;
+    u32 window_y      = client_y;
+    u32 window_width  = client_width;
     u32 window_height = client_height;
 
-    u32 window_style = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
+    u32 window_style    = WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION;
     u32 window_ex_style = WS_EX_APPWINDOW;
 
     window_style |= WS_MAXIMIZEBOX;
@@ -109,7 +109,7 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     }
 
     // Show the window
-    b32 should_activate = 1; // TODO: if the window should not accept input, this should be false.
+    b32 should_activate           = 1; // TODO: if the window should not accept input, this should be false.
     s32 show_window_command_flags = should_activate ? SW_SHOW : SW_SHOWNOACTIVATE;
     // If initially minimized, use SW_MINIMIZE : SW_SHOWMINNOACTIVE;
     // If initially maximized, use SW_SHOWMAXIMIZED : SW_MAXIMIZE
@@ -162,11 +162,11 @@ b8 platform_create_vulkan_surface(struct vulkan_context *context)
 
     VkWin32SurfaceCreateInfoKHR surface_info = {};
 
-    surface_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-    surface_info.pNext = 0;
-    surface_info.flags = 0;
+    surface_info.sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    surface_info.pNext     = 0;
+    surface_info.flags     = 0;
     surface_info.hinstance = platform_state_ptr->h_instance;
-    surface_info.hwnd = platform_state_ptr->hwnd;
+    surface_info.hwnd      = platform_state_ptr->hwnd;
 
     VK_CHECK(vkCreateWin32SurfaceKHR(context->instance, &surface_info, 0, &context->surface));
 
@@ -207,7 +207,7 @@ void platform_console_write(const char *message, u8 colour)
     static u8 levels[6] = {64, 4, 6, 2, 1, 8};
     SetConsoleTextAttribute(console_handle, levels[colour]);
     OutputDebugStringA(message);
-    u64     length = strlen(message);
+    u64     length         = strlen(message);
     LPDWORD number_written = 0;
     WriteConsoleA(GetStdHandle(STD_OUTPUT_HANDLE), message, (DWORD)length, number_written, 0);
 }
@@ -219,7 +219,7 @@ void platform_console_write_error(const char *message, u8 colour)
     static u8 levels[6] = {64, 4, 6, 2, 1, 8};
     SetConsoleTextAttribute(console_handle, levels[colour]);
     OutputDebugStringA(message);
-    u64     length = strlen(message);
+    u64     length         = strlen(message);
     LPDWORD number_written = 0;
     WriteConsoleA(GetStdHandle(STD_ERROR_HANDLE), message, (DWORD)length, number_written, 0);
 }
@@ -240,7 +240,7 @@ void platform_get_window_dimensions(u32 *width, u32 *height)
 {
     if (platform_state_ptr)
     {
-        *width = platform_state_ptr->width;
+        *width  = platform_state_ptr->width;
         *height = platform_state_ptr->height;
     }
 }
@@ -269,13 +269,13 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
             event_context context = {};
 
             GetClientRect(hwnd, &r);
-            u32 width = r.right - r.left;
+            u32 width  = r.right - r.left;
             u32 height = r.bottom - r.top;
 
             context.data.u32[0] = width;
             context.data.u32[1] = height;
 
-            platform_state_ptr->width = width;
+            platform_state_ptr->width  = width;
             platform_state_ptr->height = height;
 
             event_fire(EVENT_CODE_RESIZED, 0, context);
@@ -287,7 +287,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         case WM_SYSKEYUP: {
             // Key pressed/released
             b8   pressed = (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN);
-            keys key = (u16)w_param;
+            keys key     = (u16)w_param;
 
             // Pass to the input subsystem for processing.
             input_process_key(key, pressed);
@@ -318,7 +318,7 @@ LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARA
         case WM_LBUTTONUP:
         case WM_MBUTTONUP:
         case WM_RBUTTONUP: {
-            b8      pressed = msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN;
+            b8      pressed      = msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN;
             buttons mouse_button = BUTTON_MAX_BUTTONS;
             switch (msg)
             {

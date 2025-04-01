@@ -37,9 +37,9 @@ b8 vulkan_device_create(vulkan_context *context)
 
     DINFO("Creating logical device...");
     // NOTE: Do not create additional queues for shared indices.
-    b8  present_shares_graphics_queue = context->device.graphics_queue_index == context->device.present_queue_index;
+    b8  present_shares_graphics_queue  = context->device.graphics_queue_index == context->device.present_queue_index;
     b8  transfer_shares_graphics_queue = context->device.graphics_queue_index == context->device.transfer_queue_index;
-    u32 index_count = 1;
+    u32 index_count                    = 1;
     if (!present_shares_graphics_queue)
     {
         index_count++;
@@ -49,7 +49,7 @@ b8 vulkan_device_create(vulkan_context *context)
         index_count++;
     }
     u32 indices[index_count];
-    u8  index = 0;
+    u8  index        = 0;
     indices[index++] = context->device.graphics_queue_index;
     if (!present_shares_graphics_queue)
     {
@@ -63,35 +63,35 @@ b8 vulkan_device_create(vulkan_context *context)
     VkDeviceQueueCreateInfo queue_create_infos[index_count];
     for (u32 i = 0; i < index_count; ++i)
     {
-        queue_create_infos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queue_create_infos[i].sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queue_create_infos[i].queueFamilyIndex = indices[i];
-        queue_create_infos[i].queueCount = 1;
+        queue_create_infos[i].queueCount       = 1;
 
         // TODO: Enable this for a future enhancement.
         // if (indices[i] == context->device.graphics_queue_index) {
         //     queue_create_infos[i].queueCount = 2;
         // }
-        queue_create_infos[i].flags = 0;
-        queue_create_infos[i].pNext = 0;
-        f32 queue_priority = 1.0f;
+        queue_create_infos[i].flags            = 0;
+        queue_create_infos[i].pNext            = 0;
+        f32 queue_priority                     = 1.0f;
         queue_create_infos[i].pQueuePriorities = &queue_priority;
     }
 
     // Request device features.
     // TODO: should be config driven
     VkPhysicalDeviceFeatures device_features = {};
-    device_features.samplerAnisotropy = VK_TRUE; // Request anistrophy
+    device_features.samplerAnisotropy        = VK_TRUE; // Request anistrophy
 
-    VkDeviceCreateInfo device_create_info = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
-    device_create_info.queueCreateInfoCount = index_count;
-    device_create_info.pQueueCreateInfos = queue_create_infos;
-    device_create_info.pEnabledFeatures = &device_features;
-    device_create_info.enabledExtensionCount = 1;
-    const char *extension_names = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    VkDeviceCreateInfo device_create_info      = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
+    device_create_info.queueCreateInfoCount    = index_count;
+    device_create_info.pQueueCreateInfos       = queue_create_infos;
+    device_create_info.pEnabledFeatures        = &device_features;
+    device_create_info.enabledExtensionCount   = 1;
+    const char *extension_names                = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
     device_create_info.ppEnabledExtensionNames = &extension_names;
 
     // Deprecated and ignored, so pass nothing.
-    device_create_info.enabledLayerCount = 0;
+    device_create_info.enabledLayerCount   = 0;
     device_create_info.ppEnabledLayerNames = 0;
 
     // Create the device.
@@ -109,8 +109,8 @@ b8 vulkan_device_create(vulkan_context *context)
 
     // Create command pool for graphics queue.
     VkCommandPoolCreateInfo pool_create_info = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
-    pool_create_info.queueFamilyIndex = context->device.graphics_queue_index;
-    pool_create_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    pool_create_info.queueFamilyIndex        = context->device.graphics_queue_index;
+    pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     VK_CHECK(vkCreateCommandPool(context->device.logical_device, &pool_create_info, context->allocator, &context->device.graphics_command_pool));
     DINFO("Graphics command pool created.");
 
@@ -122,7 +122,7 @@ void vulkan_device_destroy(vulkan_context *context)
 
     // Unset queues
     context->device.graphics_queue = 0;
-    context->device.present_queue = 0;
+    context->device.present_queue  = 0;
     context->device.transfer_queue = 0;
 
     DINFO("Destroying command pools...");
@@ -143,21 +143,21 @@ void vulkan_device_destroy(vulkan_context *context)
     if (context->device.swapchain_support.formats)
     {
         dfree(context->device.swapchain_support.formats, sizeof(VkSurfaceFormatKHR) * context->device.swapchain_support.format_count, MEMORY_TAG_RENDERER);
-        context->device.swapchain_support.formats = 0;
+        context->device.swapchain_support.formats      = 0;
         context->device.swapchain_support.format_count = 0;
     }
 
     if (context->device.swapchain_support.present_modes)
     {
         dfree(context->device.swapchain_support.present_modes, sizeof(VkPresentModeKHR) * context->device.swapchain_support.present_mode_count, MEMORY_TAG_RENDERER);
-        context->device.swapchain_support.present_modes = 0;
+        context->device.swapchain_support.present_modes      = 0;
         context->device.swapchain_support.present_mode_count = 0;
     }
 
     dzero_memory(&context->device.swapchain_support.capabilities, sizeof(context->device.swapchain_support.capabilities));
 
     context->device.graphics_queue_index = -1;
-    context->device.present_queue_index = -1;
+    context->device.present_queue_index  = -1;
     context->device.transfer_queue_index = -1;
 }
 
@@ -194,7 +194,7 @@ b8 vulkan_device_detect_depth_format(vulkan_device *device)
 {
     // Format candidates
     const u64 candidate_count = 3;
-    VkFormat  candidates[3] = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+    VkFormat  candidates[3]   = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
 
     u32 flags = VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
     for (u64 i = 0; i < candidate_count; ++i)
@@ -243,13 +243,13 @@ b8 select_physical_device(vulkan_context *context)
         // TODO: These requirements should probably be driven by engine
         // configuration.
         vulkan_physical_device_requirements requirements = {};
-        requirements.graphics = true;
-        requirements.present = true;
-        requirements.transfer = true;
+        requirements.graphics                            = true;
+        requirements.present                             = true;
+        requirements.transfer                            = true;
         // NOTE: Enable this if compute will be required.
         // requirements.compute = true;
-        requirements.sampler_anisotropy = true;
-        requirements.discrete_gpu = true;
+        requirements.sampler_anisotropy     = true;
+        requirements.discrete_gpu           = true;
         requirements.device_extension_names = darray_create(const char *);
         darray_push(requirements.device_extension_names, &VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
@@ -299,16 +299,16 @@ b8 select_physical_device(vulkan_context *context)
                 }
             }
 
-            context->device.physical_device = physical_devices[i];
+            context->device.physical_device      = physical_devices[i];
             context->device.graphics_queue_index = queue_info.graphics_family_index;
-            context->device.present_queue_index = queue_info.present_family_index;
+            context->device.present_queue_index  = queue_info.present_family_index;
             context->device.transfer_queue_index = queue_info.transfer_family_index;
             // NOTE: set compute index here if needed.
 
             // Keep a copy of properties, features and memory info for later use.
             context->device.properties = properties;
-            context->device.features = features;
-            context->device.memory = memory;
+            context->device.features   = features;
+            context->device.memory     = memory;
             break;
         }
     }
@@ -329,8 +329,8 @@ b8 physical_device_meets_requirements(VkPhysicalDevice device, VkSurfaceKHR surf
 {
     // Evaluate device properties to determine if it meets the needs of our applcation.
     out_queue_info->graphics_family_index = -1;
-    out_queue_info->present_family_index = -1;
-    out_queue_info->compute_family_index = -1;
+    out_queue_info->present_family_index  = -1;
+    out_queue_info->compute_family_index  = -1;
     out_queue_info->transfer_family_index = -1;
 
     // Discrete GPU?
@@ -376,7 +376,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice device, VkSurfaceKHR surf
             // liklihood that it is a dedicated transfer queue.
             if (current_transfer_score <= min_transfer_score)
             {
-                min_transfer_score = current_transfer_score;
+                min_transfer_score                    = current_transfer_score;
                 out_queue_info->transfer_family_index = i;
             }
         }
@@ -424,7 +424,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice device, VkSurfaceKHR surf
         if (requirements->device_extension_names)
         {
             u32                    available_extension_count = 0;
-            VkExtensionProperties *available_extensions = 0;
+            VkExtensionProperties *available_extensions      = 0;
             VK_CHECK(vkEnumerateDeviceExtensionProperties(device, 0, &available_extension_count, 0));
             if (available_extension_count != 0)
             {

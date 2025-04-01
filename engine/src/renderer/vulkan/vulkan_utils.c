@@ -46,41 +46,31 @@ const char *vulkan_result_string(VkResult result, b8 get_extended)
 
         // Error codes
         case VK_ERROR_OUT_OF_HOST_MEMORY:
-            return !get_extended ? "VK_ERROR_OUT_OF_HOST_MEMORY"
-                                 : "VK_ERROR_OUT_OF_HOST_MEMORY A host memory allocation has failed.";
+            return !get_extended ? "VK_ERROR_OUT_OF_HOST_MEMORY" : "VK_ERROR_OUT_OF_HOST_MEMORY A host memory allocation has failed.";
         case VK_ERROR_OUT_OF_DEVICE_MEMORY:
-            return !get_extended ? "VK_ERROR_OUT_OF_DEVICE_MEMORY"
-                                 : "VK_ERROR_OUT_OF_DEVICE_MEMORY A device memory allocation has failed.";
+            return !get_extended ? "VK_ERROR_OUT_OF_DEVICE_MEMORY" : "VK_ERROR_OUT_OF_DEVICE_MEMORY A device memory allocation has failed.";
         case VK_ERROR_INITIALIZATION_FAILED:
             return !get_extended ? "VK_ERROR_INITIALIZATION_FAILED"
                                  : "VK_ERROR_INITIALIZATION_FAILED Initialization of an object could not be completed "
                                    "for implementation-specific reasons.";
         case VK_ERROR_DEVICE_LOST:
-            return !get_extended ? "VK_ERROR_DEVICE_LOST"
-                                 : "VK_ERROR_DEVICE_LOST The logical or physical device has been lost. See Lost Device";
+            return !get_extended ? "VK_ERROR_DEVICE_LOST" : "VK_ERROR_DEVICE_LOST The logical or physical device has been lost. See Lost Device";
         case VK_ERROR_MEMORY_MAP_FAILED:
-            return !get_extended ? "VK_ERROR_MEMORY_MAP_FAILED"
-                                 : "VK_ERROR_MEMORY_MAP_FAILED Mapping of a memory object has failed.";
+            return !get_extended ? "VK_ERROR_MEMORY_MAP_FAILED" : "VK_ERROR_MEMORY_MAP_FAILED Mapping of a memory object has failed.";
         case VK_ERROR_LAYER_NOT_PRESENT:
-            return !get_extended
-                       ? "VK_ERROR_LAYER_NOT_PRESENT"
-                       : "VK_ERROR_LAYER_NOT_PRESENT A requested layer is not present or could not be loaded.";
+            return !get_extended ? "VK_ERROR_LAYER_NOT_PRESENT" : "VK_ERROR_LAYER_NOT_PRESENT A requested layer is not present or could not be loaded.";
         case VK_ERROR_EXTENSION_NOT_PRESENT:
-            return !get_extended ? "VK_ERROR_EXTENSION_NOT_PRESENT"
-                                 : "VK_ERROR_EXTENSION_NOT_PRESENT A requested extension is not supported.";
+            return !get_extended ? "VK_ERROR_EXTENSION_NOT_PRESENT" : "VK_ERROR_EXTENSION_NOT_PRESENT A requested extension is not supported.";
         case VK_ERROR_FEATURE_NOT_PRESENT:
-            return !get_extended ? "VK_ERROR_FEATURE_NOT_PRESENT"
-                                 : "VK_ERROR_FEATURE_NOT_PRESENT A requested feature is not supported.";
+            return !get_extended ? "VK_ERROR_FEATURE_NOT_PRESENT" : "VK_ERROR_FEATURE_NOT_PRESENT A requested feature is not supported.";
         case VK_ERROR_INCOMPATIBLE_DRIVER:
             return !get_extended ? "VK_ERROR_INCOMPATIBLE_DRIVER"
                                  : "VK_ERROR_INCOMPATIBLE_DRIVER The requested version of Vulkan is not supported by "
                                    "the driver or is otherwise incompatible for implementation-specific reasons.";
         case VK_ERROR_TOO_MANY_OBJECTS:
-            return !get_extended ? "VK_ERROR_TOO_MANY_OBJECTS"
-                                 : "VK_ERROR_TOO_MANY_OBJECTS Too many objects of the type have already been created.";
+            return !get_extended ? "VK_ERROR_TOO_MANY_OBJECTS" : "VK_ERROR_TOO_MANY_OBJECTS Too many objects of the type have already been created.";
         case VK_ERROR_FORMAT_NOT_SUPPORTED:
-            return !get_extended ? "VK_ERROR_FORMAT_NOT_SUPPORTED"
-                                 : "VK_ERROR_FORMAT_NOT_SUPPORTED A requested format is not supported on this device.";
+            return !get_extended ? "VK_ERROR_FORMAT_NOT_SUPPORTED" : "VK_ERROR_FORMAT_NOT_SUPPORTED A requested format is not supported on this device.";
         case VK_ERROR_FRAGMENTED_POOL:
             return !get_extended ? "VK_ERROR_FRAGMENTED_POOL"
                                  : "VK_ERROR_FRAGMENTED_POOL A pool allocation has failed due to fragmentation of the "
@@ -89,8 +79,7 @@ const char *vulkan_result_string(VkResult result, b8 get_extended)
                                    "preference to VK_ERROR_OUT_OF_POOL_MEMORY, but only if the implementation is "
                                    "certain that the pool allocation failure was due to fragmentation.";
         case VK_ERROR_SURFACE_LOST_KHR:
-            return !get_extended ? "VK_ERROR_SURFACE_LOST_KHR"
-                                 : "VK_ERROR_SURFACE_LOST_KHR A surface is no longer available.";
+            return !get_extended ? "VK_ERROR_SURFACE_LOST_KHR" : "VK_ERROR_SURFACE_LOST_KHR A surface is no longer available.";
         case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR:
             return !get_extended ? "VK_ERROR_NATIVE_WINDOW_IN_USE_KHR"
                                  : "VK_ERROR_NATIVE_WINDOW_IN_USE_KHR The requested window is already in use by Vulkan "
@@ -102,10 +91,9 @@ const char *vulkan_result_string(VkResult result, b8 get_extended)
                                    "swapchain will fail. Applications must query the new surface properties and "
                                    "recreate their swapchain if they wish to continue presenting to the surface.";
         case VK_ERROR_INCOMPATIBLE_DISPLAY_KHR:
-            return !get_extended
-                       ? "VK_ERROR_INCOMPATIBLE_DISPLAY_KHR"
-                       : "VK_ERROR_INCOMPATIBLE_DISPLAY_KHR The display used by a swapchain does not use the same "
-                         "presentable image layout, or is incompatible in a way that prevents sharing an image.";
+            return !get_extended ? "VK_ERROR_INCOMPATIBLE_DISPLAY_KHR"
+                                 : "VK_ERROR_INCOMPATIBLE_DISPLAY_KHR The display used by a swapchain does not use the same "
+                                   "presentable image layout, or is incompatible in a way that prevents sharing an image.";
         case VK_ERROR_INVALID_SHADER_NV:
             return !get_extended ? "VK_ERROR_INVALID_SHADER_NV"
                                  : "VK_ERROR_INVALID_SHADER_NV One or more shaders failed to compile or link. More "
@@ -121,8 +109,7 @@ const char *vulkan_result_string(VkResult result, b8 get_extended)
                                  : "VK_ERROR_INVALID_EXTERNAL_HANDLE An external handle is not a valid handle of the "
                                    "specified type.";
         case VK_ERROR_FRAGMENTATION:
-            return !get_extended ? "VK_ERROR_FRAGMENTATION"
-                                 : "VK_ERROR_FRAGMENTATION A descriptor pool creation has failed due to fragmentation.";
+            return !get_extended ? "VK_ERROR_FRAGMENTATION" : "VK_ERROR_FRAGMENTATION A descriptor pool creation has failed due to fragmentation.";
         case VK_ERROR_INVALID_DEVICE_ADDRESS_EXT:
             return !get_extended ? "VK_ERROR_INVALID_DEVICE_ADDRESS_EXT"
                                  : "VK_ERROR_INVALID_DEVICE_ADDRESS_EXT A buffer creation failed because the requested "
