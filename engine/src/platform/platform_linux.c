@@ -551,6 +551,7 @@ keys translate_keycode(u32 wl_keycode)
 //
 #include "wayland/xdg-shell-client-protocol.h"
 #include <wayland-client.h>
+#include <xkbcommon/xkbcommon-keysyms.h>
 #include <xkbcommon/xkbcommon.h>
 
 #include <fcntl.h>
@@ -593,7 +594,7 @@ typedef struct platform_state
 
 static struct platform_state *platform_state_ptr;
 
-u32 translate_keycode(u32 key);
+u32 translate_keycode(xkb_keysym_t xkb_sym);
 
 // keyboard
 
@@ -623,15 +624,11 @@ static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, u32 s
 static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, u32 serial, u32 time, u32 key, u32 state)
 {
 
-    char     buf[128];
     uint32_t keycode = key + 8;
 
     xkb_keysym_t sym = xkb_state_key_get_one_sym(platform_state_ptr->xkb_state, keycode);
-    xkb_keysym_get_name(sym, buf, sizeof(buf));
 
-    const char *action = state == WL_KEYBOARD_KEY_STATE_PRESSED ? "press" : "release";
-
-    keys code = translate_keycode(keycode);
+    keys code = translate_keycode(sym);
 
     input_process_key(code, (b8)state);
 }
@@ -865,332 +862,158 @@ void platform_get_window_dimensions(u32 *width, u32 *height)
     *height = platform_state_ptr->height == 0 ? 800 : platform_state_ptr->height;
 }
 
-u32 translate_keycode(u32 wl_keycode)
+u32 translate_keycode(xkb_keysym_t xkb_sym)
 {
-    switch (wl_keycode)
+    switch (xkb_sym)
     {
-        case 1: {
+        case XKB_KEY_Escape: {
             return KEY_ESCAPE;
         }
-        case 2: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD1;
-        }
-        case 3: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD2;
-        }
-        case 4: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD3;
-        }
-        case 5: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD4;
-        }
-        case 6: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD5;
-        }
-        case 7: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD6;
-        }
-        case 8: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD7;
-        }
-        case 9: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD8;
-        }
-        case 10: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPAD9;
-        }
-        case 11: {
-            return KEYS_MAX_KEYS;
-            // return KEY_NUMPADKEYS_MAX_KEYS;
-        }
-        case 12: {
-            return KEYS_MAX_KEYS;
-        }
-        case 13: {
-            return KEYS_MAX_KEYS;
-        }
-        case 14: {
-            return KEYS_MAX_KEYS;
-        }
-        case 15: {
-            return KEYS_MAX_KEYS;
-        }
-        case 16: {
-            return KEY_Q;
-        }
-        case 17: {
-            return KEY_W;
-        }
-        case 18: {
-            return KEY_E;
-        }
-        case 19: {
-            return KEY_R;
-        }
-        case 20: {
-            return KEY_T;
-        }
-        case 21: {
-            return KEY_Y;
-        }
-        case 22: {
-            return KEY_U;
-        }
-        case 23: {
-            return KEY_I;
-        }
-        case 24: {
-            return KEY_O;
-        }
-        case 25: {
-            return KEY_P;
-        }
-        case 26: {
-            return KEYS_MAX_KEYS;
-        }
-        case 27: {
-            return KEYS_MAX_KEYS;
-        }
-        case 28: {
-            return KEYS_MAX_KEYS;
-        }
-        case 29: {
-            return KEYS_MAX_KEYS;
-        }
-        case 30: {
+        case XKB_KEY_a: {
             return KEY_A;
         }
-        case 31: {
-            return KEY_S;
-        }
-        case 32: {
-            return KEY_D;
-        }
-        case 33: {
-            return KEY_F;
-        }
-        case 34: {
-            return KEY_G;
-        }
-        case 35: {
-            return KEY_H;
-        }
-        case 36: {
-            return KEY_J;
-        }
-        case 37: {
-            return KEY_K;
-        }
-        case 38: {
-            return KEY_L;
-        }
-        case 39: {
-            return KEYS_MAX_KEYS;
-        }
-        case 40: {
-            return KEYS_MAX_KEYS;
-        }
-        case 41: {
-            return KEYS_MAX_KEYS;
-        }
-        case 42: {
-            return KEYS_MAX_KEYS;
-        }
-        case 43: {
-            return KEYS_MAX_KEYS;
-        }
-        case 44: {
-            return KEY_Z;
-        }
-        case 45: {
-            return KEY_X;
-        }
-        case 46: {
-            return KEY_C;
-        }
-        case 47: {
-            return KEY_V;
-        }
-        case 48: {
+        case XKB_KEY_b: {
             return KEY_B;
         }
-        case 49: {
-            return KEY_N;
+        case XKB_KEY_c: {
+            return KEY_C;
         }
-        case 50: {
+        case XKB_KEY_d: {
+            return KEY_D;
+        }
+        case XKB_KEY_e: {
+            return KEY_E;
+        }
+        case XKB_KEY_f: {
+            return KEY_F;
+        }
+        case XKB_KEY_g: {
+            return KEY_G;
+        }
+        case XKB_KEY_h: {
+            return KEY_H;
+        }
+        case XKB_KEY_i: {
+            return KEY_I;
+        }
+        case XKB_KEY_j: {
+            return KEY_J;
+        }
+        case XKB_KEY_k: {
+            return KEY_K;
+        }
+        case XKB_KEY_l: {
+            return KEY_L;
+        }
+        case XKB_KEY_m: {
             return KEY_M;
         }
-        case 51: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_n: {
+            return KEY_N;
         }
-        case 52: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_o: {
+            return KEY_O;
         }
-        case 53: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_p: {
+            return KEY_P;
         }
-        case 54: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_q: {
+            return KEY_Q;
         }
-        case 55: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_r: {
+            return KEY_R;
         }
-        case 56: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_s: {
+            return KEY_S;
         }
-        case 57: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_t: {
+            return KEY_T;
         }
-        case 58: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_u: {
+            return KEY_U;
         }
-        case 59: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_v: {
+            return KEY_V;
         }
-        case 60: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_w: {
+            return KEY_W;
         }
-        case 61: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_x: {
+            return KEY_X;
         }
-        case 62: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_y: {
+            return KEY_Y;
         }
-        case 63: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_z: {
+            return KEY_Z;
         }
-        case 64: {
-            return KEYS_MAX_KEYS;
+        case XKB_KEY_Left: {
+            return KEY_LEFT;
         }
-        case 65: {
-            return KEYS_MAX_KEYS;
-        }
-        case 66: {
-            return KEYS_MAX_KEYS;
-        }
-        case 67: {
-            return KEYS_MAX_KEYS;
-        }
-        case 68: {
-            return KEYS_MAX_KEYS;
-        }
-        case 69: {
-            return KEYS_MAX_KEYS;
-        }
-        case 70: {
-            return KEYS_MAX_KEYS;
-        }
-        case 71: {
-            return KEYS_MAX_KEYS;
-        }
-        case 72: {
-            return KEYS_MAX_KEYS;
-        }
-        case 73: {
-            return KEYS_MAX_KEYS;
-        }
-        case 74: {
-            return KEYS_MAX_KEYS;
-        }
-        case 75: {
-            return KEYS_MAX_KEYS;
-        }
-        case 76: {
-            return KEYS_MAX_KEYS;
-        }
-        case 77: {
-            return KEYS_MAX_KEYS;
-        }
-        case 78: {
-            return KEYS_MAX_KEYS;
-        }
-        case 79: {
-            return KEYS_MAX_KEYS;
-        }
-        case 80: {
-            return KEYS_MAX_KEYS;
-        }
-        case 81: {
-            return KEYS_MAX_KEYS;
-        }
-        case 82: {
-            return KEYS_MAX_KEYS;
-        }
-        case 83: {
-            return KEYS_MAX_KEYS;
-        }
-        case 84: {
-            return KEYS_MAX_KEYS;
-        }
-        case 85: {
-            return KEYS_MAX_KEYS;
-        }
-        case 86: {
-            return KEYS_MAX_KEYS;
-        }
-        case 87: {
-            return KEYS_MAX_KEYS;
-        }
-        case 88: {
-            return KEYS_MAX_KEYS;
-        }
-        case 89: {
-            return KEYS_MAX_KEYS;
-        }
-        case 90: {
-            return KEYS_MAX_KEYS;
-        }
-        case 91: {
-            return KEYS_MAX_KEYS;
-        }
-        case 92: {
-            return KEYS_MAX_KEYS;
-        }
-        case 93: {
-            return KEYS_MAX_KEYS;
-        }
-        case 94: {
-            return KEYS_MAX_KEYS;
-        }
-        case 95: {
-            return KEYS_MAX_KEYS;
-        }
-        case 96: {
-            return KEYS_MAX_KEYS;
-        }
-        case 97: {
-            return KEYS_MAX_KEYS;
-        }
-        case 98: {
-            return KEYS_MAX_KEYS;
-        }
-        case 99: {
-            return KEYS_MAX_KEYS;
-        }
-        case 100: {
-            return KEYS_MAX_KEYS;
-        }
-        case 101: {
-            return KEYS_MAX_KEYS;
-        }
-        case 102: {
-            return KEYS_MAX_KEYS;
-        }
-        case 103: {
+        case XKB_KEY_Up: {
             return KEY_UP;
         }
-        case 108: {
+        case XKB_KEY_Right: {
+            return KEY_RIGHT;
+        }
+        case XKB_KEY_Down: {
             return KEY_DOWN;
         }
+        case XKB_KEY_space: {
+            return KEY_SPACE;
+        }
+        case XKB_KEY_KP_0: {
+            return KEY_NUMPAD0;
+        }
+        case XKB_KEY_KP_1: {
+            return KEY_NUMPAD1;
+        }
+        case XKB_KEY_KP_2: {
+            return KEY_NUMPAD2;
+        }
+        case XKB_KEY_KP_3: {
+            return KEY_NUMPAD3;
+        }
+        case XKB_KEY_KP_4: {
+            return KEY_NUMPAD4;
+        }
+        case XKB_KEY_KP_5: {
+            return KEY_NUMPAD5;
+        }
+        case XKB_KEY_KP_6: {
+            return KEY_NUMPAD6;
+        }
+        case XKB_KEY_KP_7: {
+            return KEY_NUMPAD7;
+        }
+        case XKB_KEY_KP_8: {
+            return KEY_NUMPAD8;
+        }
+        case XKB_KEY_KP_9: {
+            return KEY_NUMPAD9;
+        }
+        case XKB_KEY_Shift_L: {
+            return KEY_LSHIFT;
+        }
+        case XKB_KEY_Shift_R: {
+            return KEY_RSHIFT;
+        }
+        case XKB_KEY_Control_L: {
+            return KEY_LCONTROL;
+        }
+        case XKB_KEY_Control_R: {
+            return KEY_RCONTROL;
+        }
+        case XKB_KEY_Caps_Lock: {
+            return KEY_CAPITAL;
+        }
+        case XKB_KEY_Alt_L: {
+            return KEY_LMENU;
+        }
+        case XKB_KEY_Alt_R: {
+            return KEY_RMENU;
+        }
+
         defualt:
             return KEYS_MAX_KEYS;
     }
