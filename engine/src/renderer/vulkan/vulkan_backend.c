@@ -764,11 +764,11 @@ void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s
 
     vulkan_image_copy_from_buffer(&context, &data->image, staging.handle, &temp_buffer);
 
-    vulkan_buffer_destroy(&context, &staging);
-
     vulkan_image_transition_layout(&context, &temp_buffer, &data->image, image_format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vulkan_command_buffer_end_single_use(&context, pool, &temp_buffer, queue);
+
+    vulkan_buffer_destroy(&context, &staging);
 
     VkSamplerCreateInfo sampler_info = {};
 
