@@ -9,8 +9,10 @@
 #define BUILTIN_SHADER_OBJECT_NAME "Builtin.ObjectShader"
 #define ATTRIBUTE_COUNT 2
 
-b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *out_shader)
+b8 vulkan_object_shader_create(vulkan_context *context, texture *default_diffuse, vulkan_object_shader *out_shader)
 {
+    out_shader->default_diffuse = default_diffuse;
+
     char                  stage_type_strings[OBJECT_SHADER_STAGE_COUNT][5] = {"vert", "frag"};
     VkShaderStageFlagBits stage_types[OBJECT_SHADER_STAGE_COUNT]           = {VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT};
 
@@ -154,8 +156,8 @@ b8 vulkan_object_shader_create(vulkan_context *context, vulkan_object_shader *ou
         return false;
     }
 
-    result = vulkan_buffer_create(context, sizeof(global_uniform_object), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                                  true, &out_shader->global_uniform_buffer);
+    result = vulkan_buffer_create(context, sizeof(global_uniform_object), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, true, &out_shader->global_uniform_buffer);
 
     if (!result)
     {
@@ -316,6 +318,13 @@ void vulkan_object_shader_update_object(vulkan_context *context, vulkan_object_s
         // Check if the descriptor needs updating first.
         if (t && (*descriptor_generation != t->generation || *descriptor_generation == INVALID_ID))
         {
+            if (t->generation == INVALID_ID)
+            {
+                t = shader->default_diffuse;
+
+                *descriptor_generation = INVALID_ID;
+            }
+
             vulkan_texture_data *internal_data = (vulkan_texture_data *)t->internal_data;
 
             // Assign view and sampler.

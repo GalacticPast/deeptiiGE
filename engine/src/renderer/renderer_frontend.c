@@ -7,6 +7,14 @@
 #include "core/dmemory.h"
 #include "core/logger.h"
 
+// TODO: temporary
+#include "core/dstring.h"
+#include "core/event.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "vendor/stb_image.h"
+// end
+
 // Backend render state.
 typedef struct renderer_backend_state
 {
@@ -18,9 +26,108 @@ typedef struct renderer_backend_state
     f32  far_clip;
 
     texture default_texture;
+
+    // TODO: temporary
+    texture test_diffuse;
+    //
 } renderer_backend_state;
 
 static renderer_backend_state *backend_state_ptr;
+
+void create_texture(texture *tex)
+{
+    dzero_memory(tex, sizeof(texture));
+    tex->generation = INVALID_ID;
+}
+
+b8 load_texture(const char *texture_name, texture *tex)
+{
+    char *format_str = "assets/textures/%s.%s";
+
+    const s32 required_channel_count = 4;
+
+    stbi_set_flip_vertically_on_load(true);
+    char full_file_path[512];
+
+    string_format(full_file_path, format_str, texture_name, "png");
+
+    texture temp_texture;
+
+    u8 *data = stbi_load(full_file_path, (s32 *)&temp_texture.width, (s32 *)&temp_texture.height, (s32 *)&temp_texture.channel_count, required_channel_count);
+
+    temp_texture.channel_count = required_channel_count;
+
+    if (data)
+    {
+        u32 current_generation = tex->generation;
+        tex->generation        = INVALID_ID;
+
+        u64 total_size = temp_texture.width * temp_texture.height * required_channel_count;
+
+        b32 has_transparency = false;
+
+        for (s64 i = 0; i < total_size; i += required_channel_count)
+        {
+            u8 alpha_pixel = data[i + 3];
+            if (alpha_pixel < 255)
+            {
+                has_transparency = true;
+                break;
+            }
+        }
+
+        if (stbi_failure_reason())
+        {
+            DWARN("Load texture() failed to load file '%s': %s", full_file_path, stbi_failure_reason());
+        }
+
+        renderer_create_texture(texture_name, true, temp_texture.width, temp_texture.height, required_channel_count, data, has_transparency, &temp_texture);
+
+        // Take a copy of the proivded texture
+        texture old = *tex;
+
+        *tex = temp_texture;
+
+        renderer_destroy_texture(&old);
+
+        if (current_generation == INVALID_ID)
+        {
+            tex->generation = 0;
+        }
+        else
+        {
+            tex->generation = current_generation + 1;
+        }
+
+        stbi_image_free(data);
+        return true;
+    }
+    else
+    {
+        if (stbi_failure_reason())
+        {
+            DWARN("Load texture() failed to load file '%s': %s", full_file_path, stbi_failure_reason());
+        }
+        return false;
+    }
+}
+
+// WARN: temp
+
+b8 debug_event_handler(u16 code, void *sender, void *listener_inst, event_context data)
+{
+    const char *names[3] = {"cobblestone", "paving", "paving2"};
+    static s8   choice   = 0;
+
+    load_texture(names[choice], &backend_state_ptr->test_diffuse);
+
+    choice++;
+    choice %= 3;
+
+    return true;
+}
+
+//
 
 b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const char *application_name)
 {
@@ -32,7 +139,19 @@ b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const
 
     backend_state_ptr = state;
 
-    // TODO: make this configurable.
+    backend_state_ptr->near_clip = 0.1f;
+    backend_state_ptr->far_clip  = 1000.0f;
+
+    event_register(EVENT_CODE_DEBUG0, NULL, debug_event_handler);
+
+    mat4 projection               = mat4_perspective(deg_to_rad(45.0f), 1280.0f / 700.0f, backend_state_ptr->near_clip, backend_state_ptr->far_clip);
+    backend_state_ptr->projection = projection;
+
+    backend_state_ptr->view = mat4_translation((vec3){0.0f, 0.0f, 30.0f});
+    backend_state_ptr->view = mat4_inverse(backend_state_ptr->view);
+
+    backend_state_ptr->backend.default_diffuse = &backend_state_ptr->default_texture;
+
     renderer_backend_create(RENDERER_BACKEND_TYPE_VULKAN, &backend_state_ptr->backend);
     backend_state_ptr->backend.frame_number = 0;
 
@@ -41,18 +160,10 @@ b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const
         DFATAL("Renderer backend failed to initialize. Shutting down.");
         return false;
     }
-    backend_state_ptr->near_clip = 0.1f;
-    backend_state_ptr->far_clip  = 1000.0f;
-
-    mat4 projection               = mat4_perspective(deg_to_rad(45.0f), 1280.0f / 700.0f, backend_state_ptr->near_clip, backend_state_ptr->far_clip);
-    backend_state_ptr->projection = projection;
-
-    backend_state_ptr->view = mat4_translation((vec3){0.0f, 0.0f, 30.0f});
-    backend_state_ptr->view = mat4_inverse(backend_state_ptr->view);
 
     // NOTE: Create default texture, a 256x256 blue/white checkerboard pattern.
     // This is done in code to eliminate asset dependencies.
-    DTRACE("Creating default texture...");
+    DDEBUG("Creating default texture...");
     const u32 tex_dimension = 256;
     const u32 channels      = 4;
     const u32 pixel_count   = tex_dimension * tex_dimension;
@@ -86,15 +197,22 @@ b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const
         }
     }
     renderer_create_texture("default", false, tex_dimension, tex_dimension, 4, pixels, false, &backend_state_ptr->default_texture);
+    // because its a default texture and it shouldnt have a valid id and the function above sets it to 0
+    backend_state_ptr->default_texture.generation = INVALID_ID;
+
+    create_texture(&backend_state_ptr->test_diffuse);
+
+    // TODO: make this configurable.
 
     return true;
 }
-
 void renderer_system_shutdown()
 {
     if (backend_state_ptr)
     {
+        event_unregister(EVENT_CODE_DEBUG0, NULL, debug_event_handler);
         renderer_destroy_texture(&backend_state_ptr->default_texture);
+        renderer_destroy_texture(&backend_state_ptr->test_diffuse);
         backend_state_ptr->backend.shutdown(&backend_state_ptr->backend);
     }
     backend_state_ptr = 0;
@@ -144,15 +262,12 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
     {
         backend_state_ptr->backend.update_global_game_state(backend_state_ptr->projection, backend_state_ptr->view);
 
-        static f32 angle = 0.01f;
-        angle += 0.001f;
-
-        quat                 quat_axis = quat_from_axis_angle(vec3_forward(), angle, false);
+        quat                 quat_axis = quat_from_axis_angle(vec3_forward(), 0.0f, false);
         mat4                 model     = quat_to_rotation_matrix(quat_axis, vec3_zero());
         geometry_render_data data      = {};
         data.object_id                 = 0;
         data.model                     = model;
-        data.textures[0]               = &backend_state_ptr->default_texture;
+        data.textures[0]               = &backend_state_ptr->test_diffuse;
         backend_state_ptr->backend.update_object(data);
 
         // End the frame. If this fails, it is likely unrecoverable.

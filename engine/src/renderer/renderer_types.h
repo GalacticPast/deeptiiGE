@@ -55,13 +55,11 @@ typedef struct renderer_backend
 
     void (*update_object)(geometry_render_data data);
 
-    // forwrd declration to supress the errors
-    struct texture *out_texture;
-
-    void (*create_texture)(const char *texture_name, b8 auto_release, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_tranparency, texture *out_texture);
+    void (*create_texture)(const char *texture_name, b8 auto_release, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_tranparency, struct texture *out_texture);
 
     void (*destroy_texture)(texture *out_texture);
 
+    texture *default_diffuse;
 } renderer_backend;
 
 typedef struct render_packet

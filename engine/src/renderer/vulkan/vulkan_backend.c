@@ -227,7 +227,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
         context.images_in_flight[i] = 0;
     }
 
-    if (!vulkan_object_shader_create(&context, &context.object_shader))
+    if (!vulkan_object_shader_create(&context, backend->default_diffuse, &context.object_shader))
     {
         DERROR("Error loading built-in basic lightning shader");
         return false;
@@ -802,11 +802,14 @@ void vulkan_renderer_destroy_texture(texture *texture)
 
     vulkan_texture_data *data = texture->internal_data;
 
-    vulkan_image_destroy(&context, &data->image);
-    dzero_memory(&data->image, sizeof(vulkan_image));
-    vkDestroySampler(context.device.logical_device, data->sampler, context.allocator);
-    data->sampler = 0;
+    if (data)
+    {
+        vulkan_image_destroy(&context, &data->image);
+        dzero_memory(&data->image, sizeof(vulkan_image));
+        vkDestroySampler(context.device.logical_device, data->sampler, context.allocator);
+        data->sampler = 0;
 
-    dfree(texture->internal_data, sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
+        dfree(texture->internal_data, sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
+    }
     dzero_memory(texture, sizeof(struct texture));
 }

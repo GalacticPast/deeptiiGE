@@ -189,6 +189,8 @@ typedef struct vulkan_object_shader
 
     vulkan_object_shader_object_state object_states[VULKAN_OBJECT_MAX_OBJECT_COUNT];
 
+    texture *default_diffuse;
+
 } vulkan_object_shader;
 
 typedef struct vulkan_context

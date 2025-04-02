@@ -88,6 +88,12 @@ b8 game_update(game *game_inst, f32 delta_time)
         camera_yaw(state, -camera_sensitivity * delta_time);
     }
 
+    if (input_was_key_down('T') && input_is_key_up('T'))
+    {
+        event_context context = {};
+        event_fire(EVENT_CODE_DEBUG0, 0, context);
+    }
+
     // INFO: up and down
     if (input_is_key_down(KEY_UP))
     {
