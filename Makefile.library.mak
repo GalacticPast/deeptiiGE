@@ -46,7 +46,7 @@ linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 ifeq ($(linux_platform),wayland)		
 
 defines += -DDPLATFORM_LINUX_WAYLAND
-linker_flags += -lwayland-client 
+linker_flags += -lwayland-client -lxkbcommon
 
 else ifeq ($(linux_platform),x11)		
 

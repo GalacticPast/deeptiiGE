@@ -553,7 +553,6 @@ keys translate_keycode(u32 wl_keycode)
 #include <wayland-client.h>
 #include <xkbcommon/xkbcommon.h>
 
-#include <errno.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -583,6 +582,9 @@ typedef struct platform_state
     /* input */
     struct wl_keyboard *wl_keyboard;
     struct wl_mouse    *wl_mouse;
+    struct xkb_state   *xkb_state;
+    struct xkb_context *xkb_context;
+    struct xkb_keymap  *xkb_keymap;
 
     /* dimensions */
     u32 width;
@@ -597,6 +599,20 @@ u32 translate_keycode(u32 key);
 
 static void wl_keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard, u32 format, s32 fd, u32 size)
 {
+    DASSERT(format == WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1);
+
+    char *map_shm = mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+    DASSERT(map_shm != MAP_FAILED);
+
+    struct xkb_keymap *xkb_keymap = xkb_keymap_new_from_string(platform_state_ptr->xkb_context, map_shm, XKB_KEYMAP_FORMAT_TEXT_V1, XKB_KEYMAP_COMPILE_NO_FLAGS);
+    munmap(map_shm, size);
+    close(fd);
+
+    struct xkb_state *xkb_state = xkb_state_new(xkb_keymap);
+    xkb_keymap_unref(platform_state_ptr->xkb_keymap);
+    xkb_state_unref(platform_state_ptr->xkb_state);
+    platform_state_ptr->xkb_keymap = xkb_keymap;
+    platform_state_ptr->xkb_state  = xkb_state;
 }
 
 static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, u32 serial, struct wl_surface *surface, struct wl_array *keys)
@@ -606,9 +622,16 @@ static void wl_keyboard_enter(void *data, struct wl_keyboard *wl_keyboard, u32 s
 
 static void wl_keyboard_key(void *data, struct wl_keyboard *wl_keyboard, u32 serial, u32 time, u32 key, u32 state)
 {
-    // struct platform_state *platform_state = data;
 
-    keys code = translate_keycode(key);
+    char     buf[128];
+    uint32_t keycode = key + 8;
+
+    xkb_keysym_t sym = xkb_state_key_get_one_sym(platform_state_ptr->xkb_state, keycode);
+    xkb_keysym_get_name(sym, buf, sizeof(buf));
+
+    const char *action = state == WL_KEYBOARD_KEY_STATE_PRESSED ? "press" : "release";
+
+    keys code = translate_keycode(keycode);
 
     input_process_key(code, (b8)state);
 }
@@ -708,7 +731,7 @@ static const struct xdg_wm_base_listener xdg_wm_base_listener = {
 
 static void registry_global(void *data, struct wl_registry *wl_registry, u32 name, const char *interface, u32 version)
 {
-
+    // DDEBUG("Print to see the version code for specific interfaces: Interface:%s Version:%d",interface, version);
     if (string_compare(interface, wl_compositor_interface.name))
     {
         platform_state_ptr->wl_compositor = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
@@ -720,7 +743,7 @@ static void registry_global(void *data, struct wl_registry *wl_registry, u32 nam
     }
     else if (string_compare(interface, wl_seat_interface.name))
     {
-        platform_state_ptr->wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 1);
+        platform_state_ptr->wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 7);
         wl_seat_add_listener(platform_state_ptr->wl_seat, &wl_seat_listener, platform_state_ptr);
     }
 }
@@ -757,6 +780,13 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     {
         return false;
     }
+
+    platform_state_ptr->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+    if (!platform_state_ptr->xkb_context)
+    {
+        return false;
+    }
+
     wl_registry_add_listener(platform_state_ptr->wl_registry, &wl_registry_listener, platform_state_ptr);
 
     wl_display_roundtrip(platform_state_ptr->wl_display);
