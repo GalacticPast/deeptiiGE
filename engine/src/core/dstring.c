@@ -12,18 +12,28 @@ u64 string_length(const char *str)
     return strlen(str);
 }
 
-b8 string_compare(const char *str1, const char *str2)
-{
-    s32 result = strcmp(str1, str2);
-    return result == 0 ? true : false;
-}
-
 char *string_duplicate(const char *str)
 {
     u64   length = string_length(str);
     char *copy   = dallocate(length + 1, MEMORY_TAG_STRING);
     dcopy_memory(copy, str, length + 1);
     return copy;
+}
+
+// Case sensitive
+b8 strings_equal(const char *str1, const char *str2)
+{
+    s32 result = strcmp(str1, str2);
+    return result == 0 ? true : false;
+}
+// Case insensitive
+b8 strings_equali(const char *str1, const char *str2)
+{
+#if defined(__GNUC__)
+    return strcasecmp(str1, str2) == 0;
+#elif (defined _MSC_VER)
+    return _strcmpi(str1, str2) == 0;
+#endif
 }
 
 s32 string_format(char *dest, const char *format, ...)

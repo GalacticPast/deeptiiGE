@@ -729,16 +729,16 @@ static const struct xdg_wm_base_listener xdg_wm_base_listener = {
 static void registry_global(void *data, struct wl_registry *wl_registry, u32 name, const char *interface, u32 version)
 {
     // DDEBUG("Print to see the version code for specific interfaces: Interface:%s Version:%d",interface, version);
-    if (string_compare(interface, wl_compositor_interface.name))
+    if (strings_equal(interface, wl_compositor_interface.name))
     {
         platform_state_ptr->wl_compositor = wl_registry_bind(wl_registry, name, &wl_compositor_interface, 4);
     }
-    else if (string_compare(interface, xdg_wm_base_interface.name))
+    else if (strings_equal(interface, xdg_wm_base_interface.name))
     {
         platform_state_ptr->xdg_wm_base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
         xdg_wm_base_add_listener(platform_state_ptr->xdg_wm_base, &xdg_wm_base_listener, platform_state_ptr);
     }
-    else if (string_compare(interface, wl_seat_interface.name))
+    else if (strings_equal(interface, wl_seat_interface.name))
     {
         platform_state_ptr->wl_seat = wl_registry_bind(wl_registry, name, &wl_seat_interface, 7);
         wl_seat_add_listener(platform_state_ptr->wl_seat, &wl_seat_listener, platform_state_ptr);

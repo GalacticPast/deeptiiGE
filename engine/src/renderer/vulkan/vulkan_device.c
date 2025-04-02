@@ -437,7 +437,7 @@ b8 physical_device_meets_requirements(VkPhysicalDevice device, VkSurfaceKHR surf
                     b8 found = false;
                     for (u32 j = 0; j < available_extension_count; ++j)
                     {
-                        if (string_compare(requirements->device_extension_names[i], available_extensions[j].extensionName))
+                        if (strings_equal(requirements->device_extension_names[i], available_extensions[j].extensionName))
                         {
                             found = true;
                             break;
