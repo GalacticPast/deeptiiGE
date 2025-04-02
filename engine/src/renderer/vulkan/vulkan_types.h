@@ -149,19 +149,19 @@ typedef struct vulkan_pipeline
 
 #define OBJECT_SHADER_STAGE_COUNT 2
 
-#define VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT 1
+#define VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT 2
 
 typedef struct vulkan_descriptor_state
 {
     u32 generations[3];
 } vulkan_descriptor_state;
 
-typedef struct vulkan_object_shader_object_stage
+typedef struct vulkan_object_shader_object_state
 {
     VkDescriptorSet descriptor_sets[3];
 
     vulkan_descriptor_state descriptor_states[VULKAN_OBJECT_SHADER_DESCRIPTOR_COUNT];
-} vulkan_object_shader_object_stage;
+} vulkan_object_shader_object_state;
 
 // Max number of objects
 #define VULKAN_OBJECT_MAX_OBJECT_COUNT 1024
@@ -180,6 +180,14 @@ typedef struct vulkan_object_shader
     global_uniform_object global_ubo;
     // INFO: for our global uniform object
     vulkan_buffer global_uniform_buffer;
+
+    VkDescriptorPool      object_descriptor_pool;
+    VkDescriptorSetLayout object_descriptor_set_layout;
+
+    vulkan_buffer object_uniform_buffer;
+    u32           object_uniform_buffer_index;
+
+    vulkan_object_shader_object_state object_states[VULKAN_OBJECT_MAX_OBJECT_COUNT];
 
 } vulkan_object_shader;
 

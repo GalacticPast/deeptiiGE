@@ -98,7 +98,7 @@ b8 game_update(game *game_inst, f32 delta_time)
         camera_pitch(state, -camera_sensitivity * delta_time);
     }
 
-    f32  temp_move_speed = 50.0f;
+    f32  temp_move_speed = 10.0f;
     vec3 velocity        = vec3_zero();
 
     if (input_is_key_down('W'))

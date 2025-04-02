@@ -16,6 +16,8 @@ typedef struct renderer_backend_state
     mat4 view;
     f32  near_clip;
     f32  far_clip;
+
+    texture default_texture;
 } renderer_backend_state;
 
 static renderer_backend_state *backend_state_ptr;
@@ -48,12 +50,53 @@ b8 renderer_system_initialize(u64 *renderer_mem_requirements, void *state, const
     backend_state_ptr->view = mat4_translation((vec3){0.0f, 0.0f, 30.0f});
     backend_state_ptr->view = mat4_inverse(backend_state_ptr->view);
 
+    // NOTE: Create default texture, a 256x256 blue/white checkerboard pattern.
+    // This is done in code to eliminate asset dependencies.
+    DTRACE("Creating default texture...");
+    const u32 tex_dimension = 256;
+    const u32 channels      = 4;
+    const u32 pixel_count   = tex_dimension * tex_dimension;
+    u8        pixels[pixel_count * channels];
+    // u8* pixels = kallocate(sizeof(u8) * pixel_count * bpp, MEMORY_TAG_TEXTURE);
+    dset_memory(pixels, 255, sizeof(u8) * pixel_count * channels);
+
+    // Each pixel.
+    for (u64 row = 0; row < tex_dimension; ++row)
+    {
+        for (u64 col = 0; col < tex_dimension; ++col)
+        {
+            u64 index     = (row * tex_dimension) + col;
+            u64 index_bpp = index * channels;
+            if (row % 2)
+            {
+                if (col % 2)
+                {
+                    pixels[index_bpp + 0] = 0;
+                    pixels[index_bpp + 1] = 0;
+                }
+            }
+            else
+            {
+                if (!(col % 2))
+                {
+                    pixels[index_bpp + 0] = 0;
+                    pixels[index_bpp + 1] = 0;
+                }
+            }
+        }
+    }
+    renderer_create_texture("default", false, tex_dimension, tex_dimension, 4, pixels, false, &backend_state_ptr->default_texture);
+
     return true;
 }
 
 void renderer_system_shutdown()
 {
-    backend_state_ptr->backend.shutdown(&backend_state_ptr->backend);
+    if (backend_state_ptr)
+    {
+        renderer_destroy_texture(&backend_state_ptr->default_texture);
+        backend_state_ptr->backend.shutdown(&backend_state_ptr->backend);
+    }
     backend_state_ptr = 0;
 }
 
@@ -104,9 +147,13 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
         static f32 angle = 0.01f;
         angle += 0.001f;
 
-        quat quat_axis = quat_from_axis_angle(vec3_forward(), angle, false);
-        mat4 model     = quat_to_rotation_matrix(quat_axis, vec3_zero());
-        backend_state_ptr->backend.update_object(model);
+        quat                 quat_axis = quat_from_axis_angle(vec3_forward(), angle, false);
+        mat4                 model     = quat_to_rotation_matrix(quat_axis, vec3_zero());
+        geometry_render_data data      = {};
+        data.object_id                 = 0;
+        data.model                     = model;
+        data.textures[0]               = &backend_state_ptr->default_texture;
+        backend_state_ptr->backend.update_object(data);
 
         // End the frame. If this fails, it is likely unrecoverable.
         b8 result = renderer_end_frame(packet->delta_time);
