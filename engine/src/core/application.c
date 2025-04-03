@@ -12,6 +12,8 @@
 
 #include "renderer/renderer_frontend.h"
 
+#include "systems/texture_system.h"
+
 typedef struct application_state
 {
     // INFO: copy of the game_inst. Ik i have a copy of a parent that contains iteslf so its kind of confusing...
@@ -41,6 +43,9 @@ typedef struct application_state
 
     u64   renderer_mem_requirements;
     void *renderer_state;
+
+    u64   texture_system_mem_requirements;
+    void *texture_system_state;
 
 } application_state;
 
@@ -141,6 +146,16 @@ b8 application_create(game *game_inst)
         return false;
     }
 
+    texture_system_config texture_sys_config;
+    texture_sys_config.max_texture_count = 65536;
+    texture_system_initialize(&app_state->texture_system_mem_requirements, 0, texture_sys_config);
+    app_state->texture_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->texture_system_mem_requirements);
+    if (!texture_system_initialize(&app_state->texture_system_mem_requirements, app_state->texture_system_state, texture_sys_config))
+    {
+        DFATAL("Failed to initialize texture system. Application cannot continue.");
+        return false;
+    }
+
     // Initialize the game.
     if (!app_state->game_inst->initialize(app_state->game_inst))
     {
@@ -216,16 +231,21 @@ b8 application_run()
     event_unregister(EVENT_CODE_KEY_PRESSED, 0, application_on_key);
     event_unregister(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
-    event_system_shutdown(app_state->event_system_state);
     input_system_shutdown(app_state->input_system_state);
+
+    texture_system_shutdown(app_state->texture_system_state);
 
     renderer_system_shutdown();
 
     platform_shutdown();
 
+    event_system_shutdown(app_state->event_system_state);
+
     memory_shutdown(app_state->memory_system_state);
-    logger_system_shutdown(app_state->logging_system_state);
+
     clock_stop(&app_state->clock);
+
+    logger_system_shutdown(app_state->logging_system_state);
 
     return true;
 }

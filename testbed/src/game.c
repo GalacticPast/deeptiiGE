@@ -92,6 +92,7 @@ b8 game_update(game *game_inst, f32 delta_time)
     {
         event_context context = {};
         event_fire(EVENT_CODE_DEBUG0, 0, context);
+        DDEBUG("Swapping textures.");
     }
 
     // INFO: up and down

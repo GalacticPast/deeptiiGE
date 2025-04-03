@@ -227,7 +227,7 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
         context.images_in_flight[i] = 0;
     }
 
-    if (!vulkan_material_shader_create(&context, backend->default_diffuse, &context.material_shader))
+    if (!vulkan_material_shader_create(&context, &context.material_shader))
     {
         DERROR("Error loading built-in basic lightning shader");
         return false;
@@ -728,7 +728,7 @@ b8 create_buffers(vulkan_context *context)
     return true;
 }
 
-void vulkan_renderer_create_texture(const char *texture_name, b8 auto_release, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_transparency, texture *out_texture)
+void vulkan_renderer_create_texture(const char *texture_name, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_transparency, texture *out_texture)
 {
     out_texture->width         = width;
     out_texture->height        = height;

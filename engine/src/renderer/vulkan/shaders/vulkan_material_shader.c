@@ -6,12 +6,13 @@
 #include "renderer/vulkan/vulkan_pipeline.h"
 #include "renderer/vulkan/vulkan_shader_utils.h"
 
+#include "systems/texture_system.h"
+
 #define BUILTIN_SHADER_MATERIAL_NAME "Builtin.MaterialShader"
 #define ATTRIBUTE_COUNT 2
 
-b8 vulkan_material_shader_create(vulkan_context *context, texture *default_diffuse, vulkan_material_shader *out_shader)
+b8 vulkan_material_shader_create(vulkan_context *context, vulkan_material_shader *out_shader)
 {
-    out_shader->default_diffuse = default_diffuse;
 
     char                  stage_type_strings[OBJECT_SHADER_STAGE_COUNT][5] = {"vert", "frag"};
     VkShaderStageFlagBits stage_types[OBJECT_SHADER_STAGE_COUNT]           = {VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT};
@@ -314,13 +315,14 @@ void vulkan_material_shader_update_object(vulkan_context *context, vulkan_materi
     {
         texture *t                     = data.textures[sampler_index];
         u32     *descriptor_generation = &object_state->descriptor_states[descriptor_index].generations[image_index];
+        u32     *descriptor_id         = &object_state->descriptor_states[descriptor_index].ids[image_index];
 
         // Check if the descriptor needs updating first.
-        if (t && (*descriptor_generation != t->generation || *descriptor_generation == INVALID_ID))
+        if (t && (*descriptor_generation != t->generation || *descriptor_id != t->id || *descriptor_generation == INVALID_ID))
         {
             if (t->generation == INVALID_ID)
             {
-                t = shader->default_diffuse;
+                t = texture_system_get_default_texture();
 
                 *descriptor_generation = INVALID_ID;
             }
@@ -346,6 +348,7 @@ void vulkan_material_shader_update_object(vulkan_context *context, vulkan_materi
             if (t->generation != INVALID_ID)
             {
                 *descriptor_generation = t->generation;
+                *descriptor_id         = t->id;
             }
             descriptor_index++;
         }
@@ -373,6 +376,7 @@ b8 vulkan_material_shader_acquire_resources(vulkan_context *context, vulkan_mate
         for (u32 j = 0; j < 3; ++j)
         {
             object_state->descriptor_states[i].generations[j] = INVALID_ID;
+            object_state->descriptor_states[i].ids[j]         = INVALID_ID;
         }
     }
 
@@ -410,6 +414,7 @@ void vulkan_material_shader_release_resources(vulkan_context *context, vulkan_ma
         for (u32 j = 0; j < 3; ++j)
         {
             object_state->descriptor_states[i].generations[j] = INVALID_ID;
+            object_state->descriptor_states[i].ids[j]         = INVALID_ID;
         }
     }
 
