@@ -81,6 +81,7 @@ void *dallocate(u64 size, memory_tag tag)
         mem_state_ptr->stats.tagged_allocations[tag] += size;
         mem_state_ptr->alloc_count++;
     }
+    DWARN("Allocating %llu bytes", size);
 
     // TODO: Memory alignment
     void *block = platform_allocate(size, false);

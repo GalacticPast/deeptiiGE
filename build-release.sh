@@ -8,7 +8,7 @@ echo "Building everything..."
 # pushd engine
 # source build.sh
 # popd
-make -f Makefile.library.mak all addl_define_flags= -DDEBUG\ -DDEXPORT
+make -f Makefile.library.mak all addl_define_flags= 
 
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
@@ -20,7 +20,7 @@ fi
 # source build.sh
 # popd
 
-make -f Makefile.executable.mak all
+make -f Makefile.executable.mak all addl_define_flags= 
 ERRORLEVEL=$?
 if [ $ERRORLEVEL -ne 0 ]
 then
