@@ -246,6 +246,7 @@ b8 select_physical_device(vulkan_context *context)
         requirements.graphics                            = true;
         requirements.present                             = true;
         requirements.transfer                            = true;
+
         // NOTE: Enable this if compute will be required.
         // requirements.compute = true;
         requirements.sampler_anisotropy     = true;
@@ -255,6 +256,7 @@ b8 select_physical_device(vulkan_context *context)
 
         vulkan_physical_device_queue_family_info queue_info = {};
         b8                                       result = physical_device_meets_requirements(physical_devices[i], context->surface, &properties, &features, &requirements, &queue_info, &context->device.swapchain_support);
+        darray_destroy(requirements.device_extension_names);
 
         if (result)
         {
@@ -310,6 +312,7 @@ b8 select_physical_device(vulkan_context *context)
             context->device.features   = features;
             context->device.memory     = memory;
             break;
+            // free allocated darrays
         }
     }
 

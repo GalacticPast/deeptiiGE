@@ -62,6 +62,12 @@ b8 game_initialize(game *game_inst)
     return true;
 }
 
+void game_shutdown(game *game_inst)
+{
+    DDEBUG("Shutting down game.");
+    dfree(game_inst->state, sizeof(game_state), MEMORY_TAG_GAME);
+}
+
 b8 game_update(game *game_inst, f32 delta_time)
 {
     game_state *state              = (game_state *)game_inst->state;

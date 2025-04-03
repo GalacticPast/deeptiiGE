@@ -147,6 +147,12 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
         }
     }
     DINFO("All required validation layers are present.");
+
+    if (available_layers)
+    {
+        darray_destroy(available_layers);
+    }
+
 #endif
 
     create_info.enabledLayerCount   = required_validation_layer_count;
@@ -154,6 +160,15 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
 
     VK_CHECK(vkCreateInstance(&create_info, context.allocator, &context.instance));
     DINFO("Vulkan Instance created.");
+
+    if (required_validation_layer_names)
+    {
+        darray_destroy(required_validation_layer_names);
+    }
+    if (required_extensions)
+    {
+        darray_destroy(required_extensions);
+    }
 
     // Debugger
 #if defined(DEBUG)
@@ -337,6 +352,8 @@ void vulkan_renderer_backend_shutdown(renderer_backend *backend)
     {
         vulkan_framebuffer_destroy(&context, &context.swapchain.framebuffers[i]);
     }
+    darray_destroy(context.swapchain.framebuffers);
+    context.swapchain.framebuffers = 0;
 
     // Renderpass
     vulkan_renderpass_destroy(&context, &context.main_renderpass);

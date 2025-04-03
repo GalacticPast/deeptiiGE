@@ -1,4 +1,5 @@
 #include "application.h"
+#include "core/dstring.h"
 #include "game_types.h"
 
 #include "logger.h"
@@ -182,7 +183,9 @@ b8 application_run()
     clock_update(&app_state->clock);
     app_state->last_time = app_state->clock.elapsed;
 
-    DINFO(get_memory_usage_str());
+    char *mem_stats = get_memory_usage_str();
+    DINFO(mem_stats);
+    dfree(mem_stats, string_length(mem_stats), MEMORY_TAG_STRING);
 
     while (app_state->is_running)
     {
@@ -246,6 +249,13 @@ b8 application_run()
     clock_stop(&app_state->clock);
 
     logger_system_shutdown(app_state->logging_system_state);
+
+    app_state->game_inst->shutdown(app_state->game_inst);
+
+    linear_allocator_destroy(&app_state->systems_allocator);
+
+    dfree(app_state->game_inst->application_state, sizeof(application_state), MEMORY_TAG_APPLICATION);
+    app_state = 0;
 
     return true;
 }
