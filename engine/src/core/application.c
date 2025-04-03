@@ -273,6 +273,7 @@ b8 application_on_event(u16 code, void *sender, void *listener_inst, event_conte
             DINFO("EVENT_CODE_RESIZED recieved, resizing");
             u32 width  = context.data.u32[0];
             u32 height = context.data.u32[1];
+            DINFO("Recieved event resize of width: %d height: %d", width, height);
             if (width == 0 || height == 0)
             {
                 DWARN("Recieved event resize of width: %d height: %d", width, height);

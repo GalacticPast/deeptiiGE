@@ -41,6 +41,9 @@ typedef struct platform_state
     xcb_screen_t     *screen;
     xcb_atom_t        wm_protocols;
     xcb_atom_t        wm_delete_win;
+
+    u32 width;
+    u32 height;
 } platform_state;
 
 static platform_state *platform_state_ptr;
@@ -223,7 +226,22 @@ b8 platform_pump_messages()
             }
             break;
             case XCB_CONFIGURE_NOTIFY: {
-                // TODO: Resizing
+                // Resizing - note that this is also triggered by moving the window, but should be
+                // passed anyway since a change in the x/y could mean an upper-left resize.
+                // The application layer can decide what to do with this.
+                xcb_configure_notify_event_t *configure_event = (xcb_configure_notify_event_t *)event;
+
+                // Fire the event. The application layer should pick this up, but not handle it
+                // as it shouldn be visible to other parts of the application.
+                event_context context;
+
+                platform_state_ptr->width  = configure_event->width;
+                platform_state_ptr->height = configure_event->height;
+
+                context.data.u32[0] = configure_event->width;
+                context.data.u32[1] = configure_event->height;
+
+                event_fire(EVENT_CODE_RESIZED, 0, context);
             }
             break;
 
@@ -271,10 +289,19 @@ b8 platform_create_vulkan_surface(struct vulkan_context *context)
     return true;
 }
 
-// Key translation
-keys translate_keycode(u32 wl_keycode)
+void platform_get_window_dimensions(u32 *width, u32 *height)
 {
-    switch (wl_keycode)
+    if (platform_state_ptr->width != 0 || platform_state_ptr->height != 0)
+    {
+        *width  = platform_state_ptr->width;
+        *height = platform_state_ptr->height;
+    }
+}
+
+// Key translation
+keys translate_keycode(u32 xk_keycode)
+{
+    switch (xk_keycode)
     {
         case XK_BackSpace:
             return KEY_BACKSPACE;

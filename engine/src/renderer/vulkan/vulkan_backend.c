@@ -68,11 +68,8 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     context.allocator = 0;
 
     // application_get_framebuffer_size(&cached_framebuffer_width, &cached_framebuffer_height);
-    u32 width;
-    u32 height;
-    platform_get_window_dimensions(&width, &height);
-    context.framebuffer_width  = (cached_framebuffer_width != 0) ? cached_framebuffer_width : width;
-    context.framebuffer_height = (cached_framebuffer_height != 0) ? cached_framebuffer_height : height;
+    context.framebuffer_width  = (cached_framebuffer_width != 0) ? cached_framebuffer_width : 800;
+    context.framebuffer_height = (cached_framebuffer_height != 0) ? cached_framebuffer_height : 400;
     cached_framebuffer_width   = 0;
     cached_framebuffer_height  = 0;
 
