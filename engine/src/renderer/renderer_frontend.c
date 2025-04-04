@@ -160,7 +160,7 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
                 // Manual config
                 material_config config;
                 string_ncopy(config.name, "test_material", MATERIAL_NAME_MAX_LENGTH);
-                config.auto_release   = false;
+                config.auto_release  = false;
                 config.diffuse_color = vec4_one(); // white
                 string_ncopy(config.diffuse_map_name, DEFAULT_TEXTURE_NAME, TEXTURE_NAME_MAX_LENGTH);
                 backend_state_ptr->test_material = material_system_acquire_from_config(config);
