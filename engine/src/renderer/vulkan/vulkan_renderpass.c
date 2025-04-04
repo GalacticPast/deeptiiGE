@@ -73,7 +73,7 @@ void vulkan_renderpass_create(vulkan_context *context, vulkan_renderpass *out_re
     subpass.inputAttachmentCount = 0;
     subpass.pInputAttachments    = 0;
 
-    // Attachments used for multisampling colour attachments
+    // Attachments used for multisampling color attachments
     subpass.pResolveAttachments = 0;
 
     // Attachments not used in this subpass, but must be preserved for the next.

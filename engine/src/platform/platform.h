@@ -14,8 +14,8 @@ void *platform_zero_memory(void *block, u64 size);
 void *platform_copy_memory(void *dest, const void *source, u64 size);
 void *platform_set_memory(void *dest, s32 value, u64 size);
 
-void platform_console_write(const char *message, u8 colour);
-void platform_console_write_error(const char *message, u8 colour);
+void platform_console_write(const char *message, u8 color);
+void platform_console_write_error(const char *message, u8 color);
 
 f64 platform_get_absolute_time();
 

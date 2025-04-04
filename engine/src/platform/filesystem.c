@@ -1,14 +1,21 @@
 #include "filesystem.h"
+
 #include "core/dmemory.h"
 #include "core/logger.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 
 b8 filesystem_exists(const char *path)
 {
+#ifdef _MSC_VER
+    struct _stat buffer;
+    return _stat(path, &buffer);
+#else
     struct stat buffer;
     return stat(path, &buffer) == 0;
+#endif
 }
 
 b8 filesystem_open(const char *path, file_modes mode, b8 binary, file_handle *out_handle)
@@ -16,6 +23,7 @@ b8 filesystem_open(const char *path, file_modes mode, b8 binary, file_handle *ou
     out_handle->is_valid = false;
     out_handle->handle   = 0;
     const char *mode_str;
+
     if ((mode & FILE_MODE_READ) != 0 && (mode & FILE_MODE_WRITE) != 0)
     {
         mode_str = binary ? "w+b" : "w+";
@@ -33,6 +41,7 @@ b8 filesystem_open(const char *path, file_modes mode, b8 binary, file_handle *ou
         DERROR("Invalid mode passed while trying to open file: '%s'", path);
         return false;
     }
+
     // Attempt to open the file.
     FILE *file = fopen(path, mode_str);
     if (!file)
@@ -43,8 +52,10 @@ b8 filesystem_open(const char *path, file_modes mode, b8 binary, file_handle *ou
 
     out_handle->handle   = file;
     out_handle->is_valid = true;
+
     return true;
 }
+
 void filesystem_close(file_handle *handle)
 {
     if (handle->handle)
@@ -54,22 +65,21 @@ void filesystem_close(file_handle *handle)
         handle->is_valid = false;
     }
 }
-b8 filesystem_read_line(file_handle *handle, char **line_buf)
+
+b8 filesystem_read_line(file_handle *handle, u64 max_length, char **line_buf, u64 *out_line_length)
 {
-    if (handle->handle)
+    if (handle->handle && line_buf && out_line_length && max_length > 0)
     {
-        // Since we are reading a single line, it should be safe to assume this is enough characters.
-        char buffer[32000];
-        if (fgets(buffer, 32000, (FILE *)handle->handle) != 0)
+        char *buf = *line_buf;
+        if (fgets(buf, max_length, (FILE *)handle->handle) != 0)
         {
-            u64 length = strlen(buffer);
-            *line_buf  = dallocate((sizeof(char) * length) + 1, MEMORY_TAG_STRING);
-            strcpy(*line_buf, buffer);
+            *out_line_length = strlen(*line_buf);
             return true;
         }
     }
     return false;
 }
+
 b8 filesystem_write_line(file_handle *handle, const char *text)
 {
     if (handle->handle)
@@ -79,6 +89,7 @@ b8 filesystem_write_line(file_handle *handle, const char *text)
         {
             result = fputc('\n', (FILE *)handle->handle);
         }
+
         // Make sure to flush the stream so it is written to the file immediately.
         // This prevents data loss in the event of a crash.
         fflush((FILE *)handle->handle);
@@ -86,6 +97,7 @@ b8 filesystem_write_line(file_handle *handle, const char *text)
     }
     return false;
 }
+
 b8 filesystem_read(file_handle *handle, u64 data_size, void *out_data, u64 *out_bytes_read)
 {
     if (handle->handle && out_data)
@@ -99,6 +111,7 @@ b8 filesystem_read(file_handle *handle, u64 data_size, void *out_data, u64 *out_
     }
     return false;
 }
+
 b8 filesystem_read_all_bytes(file_handle *handle, u8 **out_bytes, u64 *out_bytes_read)
 {
     if (handle->handle)
@@ -110,16 +123,15 @@ b8 filesystem_read_all_bytes(file_handle *handle, u8 **out_bytes, u64 *out_bytes
 
         *out_bytes      = dallocate(sizeof(u8) * size, MEMORY_TAG_STRING);
         *out_bytes_read = fread(*out_bytes, 1, size, (FILE *)handle->handle);
-
         if (*out_bytes_read != size)
         {
             return false;
         }
-
         return true;
     }
     return false;
 }
+
 b8 filesystem_write(file_handle *handle, u64 data_size, const void *data, u64 *out_bytes_written)
 {
     if (handle->handle)

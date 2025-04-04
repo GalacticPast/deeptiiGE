@@ -280,15 +280,6 @@ b8 vulkan_renderer_backend_initialize(renderer_backend *backend, const char *app
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_vertex_buffer, 0, sizeof(vertex_3d) * vert_count, verts);
     upload_data_range(&context, context.device.graphics_command_pool, 0, context.device.graphics_queue, &context.object_index_buffer, 0, sizeof(u32) * index_count, indices);
 
-    u32 object_id = 0;
-    b8  result    = vulkan_material_shader_acquire_resources(&context, &context.material_shader, &object_id);
-
-    if (!result)
-    {
-        DERROR("Failed to acquire shader resources.");
-        return false;
-    }
-
     // TODO: end temp code
 
     DINFO("Vulkan renderer initialized successfully.");
@@ -548,7 +539,7 @@ b8 vulkan_renderer_backend_end_frame(renderer_backend *backend, f32 delta_time)
     submit_info.pWaitSemaphores    = &context.image_available_semaphores[context.current_frame];
 
     // Each semaphore waits on the corresponding pipeline stage to complete. 1:1 ratio.
-    // VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT prevents subsequent colour attachment
+    // VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT prevents subsequent color attachment
     // writes from executing until the semaphore signals (i.e. one frame is presented at a time)
     VkPipelineStageFlags flags[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     submit_info.pWaitDstStageMask = flags;
@@ -742,18 +733,14 @@ b8 create_buffers(vulkan_context *context)
     return true;
 }
 
-void vulkan_renderer_create_texture(const char *texture_name, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_transparency, texture *out_texture)
+void vulkan_renderer_create_texture(texture *texture, const u8 *pixels)
 {
-    out_texture->width         = width;
-    out_texture->height        = height;
-    out_texture->channel_count = channel_count;
-    out_texture->generation    = INVALID_ID;
 
     // TODO: Use and allocator for this
-    out_texture->internal_data = (vulkan_texture_data *)dallocate(sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
-    vulkan_texture_data *data  = out_texture->internal_data;
+    texture->internal_data    = (vulkan_texture_data *)dallocate(sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
+    vulkan_texture_data *data = texture->internal_data;
 
-    VkDeviceSize image_size = width * height * channel_count;
+    VkDeviceSize image_size = texture->width * texture->height * texture->channel_count;
 
     VkFormat image_format = VK_FORMAT_R8G8B8A8_UNORM;
 
@@ -765,7 +752,7 @@ void vulkan_renderer_create_texture(const char *texture_name, s32 width, s32 hei
 
     vulkan_buffer_load_data(&context, &staging, 0, image_size, 0, pixels);
 
-    vulkan_image_create(&context, VK_IMAGE_TYPE_2D, width, height, image_format, VK_IMAGE_TILING_OPTIMAL,
+    vulkan_image_create(&context, VK_IMAGE_TYPE_2D, texture->width, texture->height, image_format, VK_IMAGE_TILING_OPTIMAL,
                         VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, true,
                         VK_IMAGE_ASPECT_COLOR_BIT, &data->image);
 
@@ -806,8 +793,7 @@ void vulkan_renderer_create_texture(const char *texture_name, s32 width, s32 hei
 
     VK_CHECK(vkCreateSampler(context.device.logical_device, &sampler_info, context.allocator, &data->sampler));
 
-    out_texture->has_transparency = has_transparency;
-    out_texture->has_transparency++;
+    texture->generation++;
 }
 
 void vulkan_renderer_destroy_texture(texture *texture)
@@ -826,4 +812,41 @@ void vulkan_renderer_destroy_texture(texture *texture)
         dfree(texture->internal_data, sizeof(vulkan_texture_data), MEMORY_TAG_TEXTURE);
     }
     dzero_memory(texture, sizeof(struct texture));
+}
+
+b8 vulkan_renderer_create_material(struct material *material)
+{
+    if (material)
+    {
+        if (!vulkan_material_shader_acquire_resources(&context, &context.material_shader, material))
+        {
+            DERROR("vulkan_renderer_create_material - Failed to acquire shader resources.");
+            return false;
+        }
+
+        DTRACE("Renderer: Material created.");
+        return true;
+    }
+
+    DERROR("vulkan_renderer_create_material called with nullptr. Creation failed.");
+    return false;
+}
+
+void vulkan_renderer_destroy_material(struct material *material)
+{
+    if (material)
+    {
+        if (material->internal_id != INVALID_ID)
+        {
+            vulkan_material_shader_release_resources(&context, &context.material_shader, material);
+        }
+        else
+        {
+            DWARN("vulkan_renderer_destroy_material called with internal_id=INVALID_ID. Nothing was done.");
+        }
+    }
+    else
+    {
+        DWARN("vulkan_renderer_destroy_material called with nullptr. Nothing was done.");
+    }
 }

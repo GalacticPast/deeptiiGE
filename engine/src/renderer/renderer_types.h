@@ -19,19 +19,18 @@ typedef struct global_uniform_object
     mat4 m_reserved1;
 } global_uniform_object;
 
-typedef struct object_uniform_object
+typedef struct material_uniform_object
 {
     vec4 diffuse_color; // 16 bytes
     vec4 m_reserved0;   // INFO: padding because nvidia requires local uniform object to be 64 bytes wide
     vec4 m_reserved1;
     vec4 m_reserved2;
-} object_uniform_object;
+} material_uniform_object;
 
 typedef struct geometry_render_data
 {
-    u32      object_id;
-    mat4     model;
-    texture *textures[16];
+    mat4      model;
+    material *material;
 } geometry_render_data;
 
 // declaration so that we dont have to forward define and include bunch of header files
@@ -55,9 +54,13 @@ typedef struct renderer_backend
 
     void (*update_object)(geometry_render_data data);
 
-    void (*create_texture)(const char *texture_name, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_tranparency, struct texture *out_texture);
+    void (*create_texture)(texture *out_texture, const u8 *pixels);
 
     void (*destroy_texture)(texture *out_texture);
+
+    b8 (*create_material)(material *material);
+
+    void (*destroy_material)(material *material);
 
 } renderer_backend;
 

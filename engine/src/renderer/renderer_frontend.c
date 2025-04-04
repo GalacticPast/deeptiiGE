@@ -11,6 +11,7 @@
 #include "core/dstring.h"
 #include "core/event.h"
 
+#include "systems/material_system.h"
 #include "systems/texture_system.h"
 
 // Backend render state.
@@ -24,7 +25,7 @@ typedef struct renderer_backend_state
     f32  far_clip;
 
     // TODO: temporary
-    texture *test_diffuse;
+    material *test_material;
     //
 } renderer_backend_state;
 
@@ -40,7 +41,13 @@ b8 debug_event_handler(u16 code, void *sender, void *listener_inst, event_contex
     choice++;
     choice %= 3;
 
-    backend_state_ptr->test_diffuse = texture_system_acquire(names[choice], true);
+    backend_state_ptr->test_material->diffuse_map.texture = texture_system_acquire(names[choice], true);
+
+    if (!backend_state_ptr->test_material->diffuse_map.texture)
+    {
+        DWARN("debug_event_handler i.e(texture switching) no texture! Using default texture");
+        backend_state_ptr->test_material->diffuse_map.texture = texture_system_get_default_texture();
+    }
 
     texture_system_release(old_name);
 
@@ -135,18 +142,32 @@ DAPI b8 renderer_draw_frame(render_packet *packet)
     {
         backend_state_ptr->backend.update_global_game_state(backend_state_ptr->projection, backend_state_ptr->view);
 
-        quat                 quat_axis = quat_from_axis_angle(vec3_forward(), 0.0f, false);
-        mat4                 model     = quat_to_rotation_matrix(quat_axis, vec3_zero());
-        geometry_render_data data      = {};
-        data.object_id                 = 0;
-        data.model                     = model;
+        quat quat_axis = quat_from_axis_angle(vec3_forward(), 0.0f, false);
+        mat4 model     = quat_to_rotation_matrix(quat_axis, vec3_zero());
 
-        if (backend_state_ptr->test_diffuse == 0)
+        geometry_render_data data = {};
+        data.model                = model;
+
+        // TODO: temporary.
+        // Create a default material if does not exist.
+        if (!backend_state_ptr->test_material)
         {
-            backend_state_ptr->test_diffuse = texture_system_get_default_texture();
+            // Automatic config
+            backend_state_ptr->test_material = material_system_acquire("test_material");
+            if (!backend_state_ptr->test_material)
+            {
+                DWARN("Automatic material load failed, falling back to manual default material.");
+                // Manual config
+                material_config config;
+                string_ncopy(config.name, "test_material", MATERIAL_NAME_MAX_LENGTH);
+                config.auto_release   = false;
+                config.diffuse_color = vec4_one(); // white
+                string_ncopy(config.diffuse_map_name, DEFAULT_TEXTURE_NAME, TEXTURE_NAME_MAX_LENGTH);
+                backend_state_ptr->test_material = material_system_acquire_from_config(config);
+            }
         }
 
-        data.textures[0] = backend_state_ptr->test_diffuse;
+        data.material = backend_state_ptr->test_material;
         backend_state_ptr->backend.update_object(data);
 
         // End the frame. If this fails, it is likely unrecoverable.
@@ -167,11 +188,21 @@ void renderer_set_view(mat4 view)
     backend_state_ptr->view = view;
 }
 
-void renderer_create_texture(const char *texture_name, s32 width, s32 height, s32 channel_count, const u8 *pixels, b8 has_tranparency, struct texture *out_texture)
+void renderer_create_texture(struct texture *out_texture, const u8 *pixels)
 {
-    backend_state_ptr->backend.create_texture(texture_name, width, height, channel_count, pixels, has_tranparency, out_texture);
+    backend_state_ptr->backend.create_texture(out_texture, pixels);
 }
 void renderer_destroy_texture(struct texture *out_texture)
 {
     backend_state_ptr->backend.destroy_texture(out_texture);
+}
+
+b8 renderer_create_material(struct material *material)
+{
+    b8 result = backend_state_ptr->backend.create_material(material);
+    return result;
+}
+void renderer_destroy_material(struct material *material)
+{
+    backend_state_ptr->backend.destroy_material(material);
 }

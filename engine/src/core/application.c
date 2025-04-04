@@ -13,6 +13,7 @@
 
 #include "renderer/renderer_frontend.h"
 
+#include "systems/material_system.h"
 #include "systems/texture_system.h"
 
 typedef struct application_state
@@ -47,6 +48,9 @@ typedef struct application_state
 
     u64   texture_system_mem_requirements;
     void *texture_system_state;
+
+    u64   material_system_mem_requirements;
+    void *material_system_state;
 
 } application_state;
 
@@ -157,6 +161,16 @@ b8 application_create(game *game_inst)
         return false;
     }
 
+    material_system_config material_sys_config;
+    material_sys_config.max_material_count = 4096;
+    material_system_initialize(&app_state->material_system_mem_requirements, 0, material_sys_config);
+    app_state->material_system_state = linear_allocator_allocate(&app_state->systems_allocator, app_state->material_system_mem_requirements);
+    if (!material_system_initialize(&app_state->material_system_mem_requirements, app_state->material_system_state, material_sys_config))
+    {
+        DFATAL("Failed to initialize material system. Application cannot continue.");
+        return false;
+    }
+
     // Initialize the game.
     if (!app_state->game_inst->initialize(app_state->game_inst))
     {
@@ -235,6 +249,8 @@ b8 application_run()
     event_unregister(EVENT_CODE_KEY_RELEASED, 0, application_on_key);
 
     input_system_shutdown(app_state->input_system_state);
+
+    material_system_shutdown(app_state->material_system_state);
 
     texture_system_shutdown(app_state->texture_system_state);
 

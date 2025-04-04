@@ -93,7 +93,7 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     platform_state_ptr->window = xcb_generate_id(platform_state_ptr->connection);
 
     // Register event types.
-    // XCB_CW_BACK_PIXEL = filling then window bg with a single colour
+    // XCB_CW_BACK_PIXEL = filling then window bg with a single color
     // XCB_CW_EVENT_MASK is required.
     u32 event_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
 
@@ -101,7 +101,7 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     u32 event_values =
         XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
-    // Values to be sent over XCB (bg colour, events)
+    // Values to be sent over XCB (bg color, events)
     u32 value_list[] = {platform_state_ptr->screen->black_pixel, event_values};
 
     // Create the window
@@ -1070,17 +1070,17 @@ void *platform_set_memory(void *dest, s32 value, u64 size)
     return memset(dest, value, size);
 }
 
-void platform_console_write(const char *message, u8 colour)
+void platform_console_write(const char *message, u8 color)
 {
     // FATAL,ERROR,WARN,INFO,DDEBUG,TRACE
-    const char *colour_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "35;1"};
-    printf("\033[%sm%s\033[0m", colour_strings[colour], message);
+    const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "35;1"};
+    printf("\033[%sm%s\033[0m", color_strings[color], message);
 }
-void platform_console_write_error(const char *message, u8 colour)
+void platform_console_write_error(const char *message, u8 color)
 {
     // FATAL,ERROR,WARN,INFO,DEBUG,TRACE
-    const char *colour_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "35;1"};
-    printf("\033[%sm%s\033[0m", colour_strings[colour], message);
+    const char *color_strings[] = {"0;41", "1;31", "1;33", "1;32", "1;34", "35;1"};
+    printf("\033[%sm%s\033[0m", color_strings[color], message);
 }
 
 f64 platform_get_absolute_time()
