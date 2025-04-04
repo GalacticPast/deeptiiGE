@@ -40,7 +40,7 @@ extension := .so
 include_flags := -Iengine/src -I$(VULKAN_SDK)/include
 compiler_flags := -g -fdeclspec -fPIC
 defines := $(addl_define_flags) 
-linker_flags :=-Wl,--no-undefined,--no-allow-shlib-undefined -shared -lm -L./$(bind_dir) -g -lvulkan 
+linker_flags :=-Wl,--no-undefined,--no-allow-shlib-undefined -shared -lm -L./$(bind_dir) -g -lvulkan -lm
 
 linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
 

@@ -1,5 +1,6 @@
 #include "game.h"
 #include "core/dmemory.h"
+#include "math/dmath.h"
 
 #include <core/event.h>
 #include <core/logger.h>

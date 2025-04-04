@@ -782,7 +782,7 @@ static const struct wl_registry_listener wl_registry_listener = {
     .global_remove = registry_global_remove,
 };
 
-b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
+b8 platform_system_startup(u64 *platform_mem_requirements, void *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
 {
     *platform_mem_requirements = sizeof(platform_state);
     if (plat_state == 0)
@@ -855,12 +855,13 @@ b8 platform_pump_messages()
     return result == -1 ? false : true;
 }
 
-void platform_shutdown()
+void platform_system_shutdown(void *state)
 {
     xdg_toplevel_destroy(platform_state_ptr->xdg_toplevel);
     xdg_surface_destroy(platform_state_ptr->xdg_surface);
     wl_surface_destroy(platform_state_ptr->wl_surface);
     wl_display_disconnect(platform_state_ptr->wl_display);
+    platform_state_ptr = 0;
 }
 
 void platform_get_required_extension_names(const char ***names_darray)
@@ -1035,10 +1036,10 @@ u32 translate_keycode(xkb_keysym_t xkb_sym)
             return KEY_CAPITAL;
         }
         case XKB_KEY_Alt_L: {
-            return KEY_LMENU;
+            return KEY_LALT;
         }
         case XKB_KEY_Alt_R: {
-            return KEY_RMENU;
+            return KEY_RALT;
         }
 
         defualt:

@@ -17,8 +17,8 @@ typedef float  f32;
 typedef double f64;
 
 // Boolean types
-typedef int  b32;
-typedef char b8;
+typedef int   b32;
+typedef _Bool b8;
 
 // Properly define static assertions.
 #if defined(__clang__) || defined(__gcc__)
@@ -44,11 +44,15 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #define true 1
 #define false 0
 
-// any id set to this should be considered invalid
+/**
+ * @brief Any id set to this should be considered invalid,
+ * and not actually pointing to a real object.
+ */
 #define INVALID_ID 4294967295U
 
 // Platform detection
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__)
+#define DPLATFORM_WINDOWS 1
 #ifndef _WIN64
 #error "64-bit is required on Windows!"
 #endif
@@ -60,20 +64,20 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #endif
 #elif defined(__unix__)
 // Catch anything not caught by the above.
-#define DPLATFORM_UNIX 1
+#define KPLATFORM_UNIX 1
 #elif defined(_POSIX_VERSION)
 // Posix
-#define DPLATFORM_POSIX 1
+#define KPLATFORM_POSIX 1
 #elif __APPLE__
 // Apple platforms
-#define DPLATFORM_APPLE 1
+#define KPLATFORM_APPLE 1
 #include <TargetConditionals.h>
 #if TARGET_IPHONE_SIMULATOR
 // iOS Simulator
-#define DPLATFORM_IOS 1
-#define DPLATFORM_IOS_SIMULATOR 1
+#define KPLATFORM_IOS 1
+#define KPLATFORM_IOS_SIMULATOR 1
 #elif TARGET_OS_IPHONE
-#define DPLATFORM_IOS 1
+#define KPLATFORM_IOS 1
 // iOS device
 #elif TARGET_OS_MAC
 // Other kinds of Mac OS
@@ -84,7 +88,7 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #error "Unknown platform!"
 #endif
 
-#ifdef DEXPORT
+#ifdef KEXPORT
 // Exports
 #ifdef _MSC_VER
 #define DAPI __declspec(dllexport)
@@ -99,12 +103,17 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 bytes.");
 #define DAPI
 #endif
 #endif
+
 #define DCLAMP(value, min, max) (value <= min) ? min : (value >= max) ? max : value;
 
-#ifdef _MSC_VER
+// Inlining
+#if defined(__clang__) || defined(__gcc__)
+#define DINLINE __attribute__((always_inline)) inline
+#define DNOINLINE __attribute__((noinline))
+#elif defined(_MSC_VER)
 #define DINLINE __forceinline
-#define KNOINLINE __declspec(noinline)
+#define DNOINLINE __declspec(noinline)
 #else
 #define DINLINE static inline
-#define KNOINLINE
+#define DNOINLINE
 #endif

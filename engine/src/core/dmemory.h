@@ -27,17 +27,8 @@ typedef enum memory_tag
     MEMORY_TAG_MAX_TAGS
 } memory_tag;
 
-/*
- * init memory system. call first with state = 0 to get the mem requirements.
- * then a second time passing allocated memory to state
- *@param: memory_requiremnt: pointer to a u64 to hold the size of the internal state
- *@param: state, send zero to get the mem size, if not send the allocated memory.
- *@param: b8, returns success if true.
- *
- */
-DAPI b8 memory_system_initialize(u64 *memory_system_mem_requirements, void *mem_state);
-
-DAPI void memory_shutdown(void *mem_state);
+DAPI void memory_system_initialize(u64 *memory_requirement, void *state);
+DAPI void memory_system_shutdown(void *state);
 
 DAPI void *dallocate(u64 size, memory_tag tag);
 
@@ -52,6 +43,3 @@ DAPI void *dset_memory(void *dest, s32 value, u64 size);
 DAPI char *get_memory_usage_str();
 
 DAPI u64 get_memory_alloc_count();
-
-// WARN: hack to correctly report the lienar allocator size because we allocate the linear allocator before the memory subsystem gets initialized
-void add_stats(u64 size, memory_tag tag);

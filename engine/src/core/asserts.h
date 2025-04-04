@@ -3,9 +3,9 @@
 #include "defines.h"
 
 // Disable assertions by commenting out the below line.
-#define DASSERTIONS_ENABLED
+#define KASSERTIONS_ENABLED
 
-#ifdef DASSERTIONS_ENABLED
+#ifdef KASSERTIONS_ENABLED
 #if _MSC_VER
 #include <intrin.h>
 #define debugBreak() __debugbreak()

@@ -8,7 +8,7 @@
 #define LOG_TRACE_ENABLED 1
 
 // Disable debug and trace logging for release builds.
-#if DRELEASE == 1
+#if KRELEASE == 1
 #define LOG_DEBUG_ENABLED 0
 #define LOG_TRACE_ENABLED 0
 #endif
@@ -23,16 +23,16 @@ typedef enum log_level
     LOG_LEVEL_TRACE = 5
 } log_level;
 
-/*
- * init logging system. call first with state = 0 to get the mem requirements.
- * then a second time passing allocated memory to state
- *@param: memory_requiremnt: pointer to a u64 to hold the size of the internal state
- *@param: state, send zero to get the mem size, if not send the allocated memory.
- *@param: b8, returns success if true.
+/**
+ * @brief Initializes logging system. Call twice; once with state = 0 to get required memory size,
+ * then a second time passing allocated memory to state.
  *
+ * @param memory_requirement A pointer to hold the required memory size of internal state.
+ * @param state 0 if just requesting memory requirement, otherwise allocated block of memory.
+ * @return b8 True on success; otherwise false.
  */
-b8   logging_system_initialize(u64 *memory_requirement, void *state);
-void logger_system_shutdown(void *state);
+b8   initialize_logging(u64 *memory_requirement, void *state);
+void shutdown_logging(void *state);
 
 DAPI void log_output(log_level level, const char *message, ...);
 

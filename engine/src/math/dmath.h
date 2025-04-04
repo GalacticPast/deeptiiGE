@@ -5,30 +5,30 @@
 
 #include "core/dmemory.h"
 
-#define K_PI 3.14159265358979323846f
-#define K_PI_2 2.0f * K_PI
-#define K_HALF_PI 0.5f * K_PI
-#define K_QUARTER_PI 0.25f * K_PI
-#define K_ONE_OVER_PI 1.0f / K_PI
-#define K_ONE_OVER_TWO_PI 1.0f / K_PI_2
-#define K_SQRT_TWO 1.41421356237309504880f
-#define K_SQRT_THREE 1.73205080756887729352f
-#define K_SQRT_ONE_OVER_TWO 0.70710678118654752440f
-#define K_SQRT_ONE_OVER_THREE 0.57735026918962576450f
-#define K_DEG2RAD_MULTIPLIER K_PI / 180.0f
-#define K_RAD2DEG_MULTIPLIER 180.0f / K_PI
+#define D_PI 3.14159265358979323846f
+#define D_PI_2 2.0f * D_PI
+#define D_HALF_PI 0.5f * D_PI
+#define D_QUARTER_PI 0.25f * D_PI
+#define D_ONE_OVER_PI 1.0f / D_PI
+#define D_ONE_OVER_TWO_PI 1.0f / K_PI_2
+#define D_SQRT_TWO 1.41421356237309504880f
+#define D_SQRT_THREE 1.73205080756887729352f
+#define D_SQRT_ONE_OVER_TWO 0.70710678118654752440f
+#define D_SQRT_ONE_OVER_THREE 0.57735026918962576450f
+#define D_DEG2RAD_MULTIPLIER D_PI / 180.0f
+#define D_RAD2DEG_MULTIPLIER 180.0f / D_PI
 
 // The multiplier to convert seconds to milliseconds.
-#define K_SEC_TO_MS_MULTIPLIER 1000.0f
+#define D_SEC_TO_MS_MULTIPLIER 1000.0f
 
 // The multiplier to convert milliseconds to seconds.
-#define K_MS_TO_SEC_MULTIPLIER 0.001f
+#define D_MS_TO_SEC_MULTIPLIER 0.001f
 
 // A huge number that should be larger than any valid number used.
-#define K_INFINITY 1e30f
+#define D_INFINITY 1e30f
 
 // Smallest positive number where 1.0 + FLOAT_EPSILON != 0
-#define K_FLOAT_EPSILON 1.192092896e-07f
+#define D_FLOAT_EPSILON 1.192092896e-07f
 
 // ------------------------------------------
 // General math functions
@@ -50,11 +50,11 @@ DINLINE b8 is_power_of_2(u64 value)
     return (value != 0) && ((value & (value - 1)) == 0);
 }
 
-DAPI s32 krandom();
-DAPI s32 krandom_in_range(s32 min, s32 max);
+DAPI s32 drandom();
+DAPI s32 drandom_in_range(s32 min, s32 max);
 
-DAPI f32 fkrandom();
-DAPI f32 fkrandom_in_range(f32 min, f32 max);
+DAPI f32 fdrandom();
+DAPI f32 dkrandom_in_range(f32 min, f32 max);
 
 // ------------------------------------------
 // Vector 2
@@ -223,8 +223,9 @@ DINLINE vec2 vec2_normalized(vec2 vector)
  *
  * @param vector_0 The first vector.
  * @param vector_1 The second vector.
- * @param tolerance The difference tolerance. Typically K_FLOAT_EPSILON or similar. @return True if within tolerance;
- * otherwise false. */
+ * @param tolerance The difference tolerance. Typically K_FLOAT_EPSILON or similar.
+ * @return True if within tolerance; otherwise false.
+ */
 DINLINE b8 vec2_compare(vec2 vector_0, vec2 vector_1, f32 tolerance)
 {
     if (dabs(vector_0.x - vector_1.x) > tolerance)
@@ -1112,12 +1113,12 @@ DINLINE vec3 mat4_down(mat4 matrix)
  */
 DINLINE vec3 mat4_left(mat4 matrix)
 {
-    vec3 right;
-    right.x = -matrix.data[0];
-    right.y = -matrix.data[4];
-    right.z = -matrix.data[8];
-    vec3_normalize(&right);
-    return right;
+    vec3 left;
+    left.x = -matrix.data[0];
+    left.y = -matrix.data[4];
+    left.z = -matrix.data[8];
+    vec3_normalize(&left);
+    return left;
 }
 
 /**
@@ -1128,12 +1129,12 @@ DINLINE vec3 mat4_left(mat4 matrix)
  */
 DINLINE vec3 mat4_right(mat4 matrix)
 {
-    vec3 left;
-    left.x = matrix.data[0];
-    left.y = matrix.data[4];
-    left.z = matrix.data[8];
-    vec3_normalize(&left);
-    return left;
+    vec3 right;
+    right.x = matrix.data[0];
+    right.y = matrix.data[4];
+    right.z = matrix.data[8];
+    vec3_normalize(&right);
+    return right;
 }
 
 // ------------------------------------------
@@ -1306,7 +1307,7 @@ DINLINE quat quat_slerp(quat q_0, quat q_1, f32 percentage)
  */
 DINLINE f32 deg_to_rad(f32 degrees)
 {
-    return degrees * K_DEG2RAD_MULTIPLIER;
+    return degrees * D_DEG2RAD_MULTIPLIER;
 }
 
 /**
@@ -1317,5 +1318,5 @@ DINLINE f32 deg_to_rad(f32 degrees)
  */
 DINLINE f32 rad_to_deg(f32 radians)
 {
-    return radians * K_RAD2DEG_MULTIPLIER;
+    return radians * D_RAD2DEG_MULTIPLIER;
 }

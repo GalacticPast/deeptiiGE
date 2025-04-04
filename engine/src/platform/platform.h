@@ -2,9 +2,9 @@
 
 #include "defines.h"
 
-b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height);
+b8 platform_system_startup(u64 *platform_mem_requirements, void *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height);
 
-void platform_shutdown();
+void platform_system_shutdown(void *state);
 
 b8 platform_pump_messages();
 

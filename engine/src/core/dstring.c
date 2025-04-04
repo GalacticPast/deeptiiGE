@@ -1,50 +1,42 @@
 #include "core/dstring.h"
 #include "core/dmemory.h"
 
-#include <ctype.h> // isspace
-#include <stdarg.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <ctype.h>   // isspace
 
 #ifndef _MSC_VER
 #include <strings.h>
 #endif
 
-s32 string_format_v(char *dest, const char *format, void *va_listp);
-
-u64 string_length(const char *str)
-{
+u64 string_length(const char* str) {
     return strlen(str);
 }
 
-char *string_duplicate(const char *str)
-{
-    u64   length = string_length(str);
-    char *copy   = dallocate(length + 1, MEMORY_TAG_STRING);
+char* string_duplicate(const char* str) {
+    u64 length = string_length(str);
+    char* copy = dallocate(length + 1, MEMORY_TAG_STRING);
     dcopy_memory(copy, str, length + 1);
     return copy;
 }
 
-// Case sensitive
-b8 strings_equal(const char *str1, const char *str2)
-{
-    s32 result = strcmp(str1, str2);
-    return result == 0 ? true : false;
+// Case-sensitive string comparison. True if the same, otherwise false.
+b8 strings_equal(const char* str0, const char* str1) {
+    return strcmp(str0, str1) == 0;
 }
-// Case insensitive
-b8 strings_equali(const char *str1, const char *str2)
-{
+
+// Case-insensitive string comparison. True if the same, otherwise false.
+b8 strings_equali(const char* str0, const char* str1) {
 #if defined(__GNUC__)
-    return strcasecmp(str1, str2) == 0;
+    return strcasecmp(str0, str1) == 0;
 #elif (defined _MSC_VER)
-    return _strcmpi(str1, str2) == 0;
+    return _strcmpi(str0, str1) == 0;
 #endif
 }
 
-s32 string_format(char *dest, const char *format, ...)
-{
-    if (dest)
-    {
+s32 string_format(char* dest, const char* format, ...) {
+    if (dest) {
         __builtin_va_list arg_ptr;
         va_start(arg_ptr, format);
         s32 written = string_format_v(dest, format, arg_ptr);
@@ -54,13 +46,11 @@ s32 string_format(char *dest, const char *format, ...)
     return -1;
 }
 
-s32 string_format_v(char *dest, const char *format, void *va_listp)
-{
-    if (dest)
-    {
+s32 string_format_v(char* dest, const char* format, void* va_listp) {
+    if (dest) {
         // Big, but can fit on the stack.
         char buffer[32000];
-        s32  written    = vsnprintf(buffer, 32000, format, va_listp);
+        s32 written = vsnprintf(buffer, 32000, format, va_listp);
         buffer[written] = 0;
         dcopy_memory(dest, buffer, written + 1);
 
@@ -69,27 +59,29 @@ s32 string_format_v(char *dest, const char *format, void *va_listp)
     return -1;
 }
 
-char *string_copy(char *dest, const char *source)
-{
+char* string_empty(char* str) {
+    if (str) {
+        str[0] = 0;
+    }
+
+    return str;
+}
+
+char* string_copy(char* dest, const char* source) {
     return strcpy(dest, source);
 }
 
-char *string_ncopy(char *dest, const char *source, s64 length)
-{
+char* string_ncopy(char* dest, const char* source, s64 length) {
     return strncpy(dest, source, length);
 }
 
-char *string_trim(char *str)
-{
-    while (isspace((unsigned char)*str))
-    {
+char* string_trim(char* str) {
+    while (isspace((unsigned char)*str)) {
         str++;
     }
-    if (*str)
-    {
-        char *p = str;
-        while (*p)
-        {
+    if (*str) {
+        char* p = str;
+        while (*p) {
             p++;
         }
         while (isspace((unsigned char)*(--p)))
@@ -101,51 +93,38 @@ char *string_trim(char *str)
     return str;
 }
 
-void string_mid(char *dest, const char *source, s32 start, s32 length)
-{
-    if (length == 0)
-    {
+void string_mid(char* dest, const char* source, s32 start, s32 length) {
+    if (length == 0) {
         return;
     }
     u64 src_length = string_length(source);
-    if (start >= src_length)
-    {
+    if (start >= src_length) {
         dest[0] = 0;
         return;
     }
-    if (length > 0)
-    {
-        for (u64 i = start, j = 0; j < length && source[i]; ++i, ++j)
-        {
+    if (length > 0) {
+        for (u64 i = start, j = 0; j < length && source[i]; ++i, ++j) {
             dest[j] = source[i];
         }
         dest[start + length] = 0;
-    }
-    else
-    {
+    } else {
         // If a negative value is passed, proceed to the end of the string.
         u64 j = 0;
-        for (u64 i = start; source[i]; ++i, ++j)
-        {
+        for (u64 i = start; source[i]; ++i, ++j) {
             dest[j] = source[i];
         }
         dest[start + j] = 0;
     }
 }
 
-s32 string_index_of(char *str, char c)
-{
-    if (!str)
-    {
+s32 string_index_of(char* str, char c) {
+    if (!str) {
         return -1;
     }
     u32 length = string_length(str);
-    if (length > 0)
-    {
-        for (u32 i = 0; i < length; ++i)
-        {
-            if (str[i] == c)
-            {
+    if (length > 0) {
+        for (u32 i = 0; i < length; ++i) {
+            if (str[i] == c) {
                 return i;
             }
         }
@@ -154,10 +133,8 @@ s32 string_index_of(char *str, char c)
     return -1;
 }
 
-b8 string_to_vec4(char *str, vec4 *out_vector)
-{
-    if (!str)
-    {
+b8 string_to_vec4(char* str, vec4* out_vector) {
+    if (!str) {
         return false;
     }
 
@@ -166,10 +143,8 @@ b8 string_to_vec4(char *str, vec4 *out_vector)
     return result != -1;
 }
 
-b8 string_to_vec3(char *str, vec3 *out_vector)
-{
-    if (!str)
-    {
+b8 string_to_vec3(char* str, vec3* out_vector) {
+    if (!str) {
         return false;
     }
 
@@ -178,10 +153,8 @@ b8 string_to_vec3(char *str, vec3 *out_vector)
     return result != -1;
 }
 
-b8 string_to_vec2(char *str, vec2 *out_vector)
-{
-    if (!str)
-    {
+b8 string_to_vec2(char* str, vec2* out_vector) {
+    if (!str) {
         return false;
     }
 
@@ -190,130 +163,108 @@ b8 string_to_vec2(char *str, vec2 *out_vector)
     return result != -1;
 }
 
-b8 string_to_f32(char *str, f32 *f)
-{
-    if (!str)
-    {
+b8 string_to_f32(char* str, f32* f) {
+    if (!str) {
         return false;
     }
 
-    *f         = 0;
+    *f = 0;
     s32 result = sscanf(str, "%f", f);
     return result != -1;
 }
 
-b8 string_to_f64(char *str, f64 *f)
-{
-    if (!str)
-    {
+b8 string_to_f64(char* str, f64* f) {
+    if (!str) {
         return false;
     }
 
-    *f         = 0;
+    *f = 0;
     s32 result = sscanf(str, "%lf", f);
     return result != -1;
 }
 
-b8 string_to_s8(char *str, s8 *i)
-{
-    if (!str)
-    {
+b8 string_to_s8(char* str, s8* i) {
+    if (!str) {
         return false;
     }
 
-    *i         = 0;
+    *i = 0;
     s32 result = sscanf(str, "%hhi", i);
     return result != -1;
 }
 
-b8 string_to_s16(char *str, s16 *i)
-{
-    if (!str)
-    {
+b8 string_to_s16(char* str, s16* i) {
+    if (!str) {
         return false;
     }
 
-    *i         = 0;
+    *i = 0;
     s32 result = sscanf(str, "%hi", i);
     return result != -1;
 }
 
-b8 string_to_s32(char *str, s32 *i)
-{
-    if (!str)
-    {
+b8 string_to_s32(char* str, s32* i) {
+    if (!str) {
         return false;
     }
 
-    *i         = 0;
+    *i = 0;
     s32 result = sscanf(str, "%i", i);
     return result != -1;
 }
 
-b8 string_to_s64(char *str, s64 *i)
-{
-    if (!str)
-    {
+b8 string_to_s64(char* str, s64* i) {
+    if (!str) {
         return false;
     }
 
-    *i         = 0;
+    *i = 0;
     s32 result = sscanf(str, "%lli", i);
     return result != -1;
 }
 
-b8 string_to_u8(char *str, u8 *u)
-{
-    if (!str)
-    {
+b8 string_to_u8(char* str, u8* u) {
+    if (!str) {
         return false;
     }
 
-    *u         = 0;
+    *u = 0;
     s32 result = sscanf(str, "%hhu", u);
     return result != -1;
 }
 
-b8 string_to_u16(char *str, u16 *u)
-{
-    if (!str)
-    {
+b8 string_to_u16(char* str, u16* u) {
+    if (!str) {
         return false;
     }
 
-    *u         = 0;
+    *u = 0;
     s32 result = sscanf(str, "%hu", u);
     return result != -1;
 }
 
-b8 string_to_u32(char *str, u32 *u)
-{
-    if (!str)
-    {
+b8 string_to_u32(char* str, u32* u) {
+    if (!str) {
         return false;
     }
 
-    *u         = 0;
+    *u = 0;
     s32 result = sscanf(str, "%u", u);
     return result != -1;
 }
 
-b8 string_to_u64(char *str, u64 *u)
-{
-    if (!str)
-    {
+b8 string_to_u64(char* str, u64* u) {
+    if (!str) {
         return false;
     }
 
-    *u         = 0;
+    *u = 0;
     s32 result = sscanf(str, "%llu", u);
     return result != -1;
 }
 
-b8 string_to_bool(char *str, b8 *b)
-{
-    if (!str)
-    {
+b8 string_to_bool(char* str, b8* b) {
+    if (!str) {
         return false;
     }
 

@@ -2,8 +2,7 @@
 
 #include "defines.h"
 
-typedef enum buttons
-{
+typedef enum buttons {
     BUTTON_LEFT,
     BUTTON_RIGHT,
     BUTTON_MIDDLE,
@@ -12,8 +11,7 @@ typedef enum buttons
 
 #define DEFINE_KEY(name, code) KEY_##name = code
 
-typedef enum keys
-{
+typedef enum keys {
     DEFINE_KEY(BACKSPACE, 0x08),
     DEFINE_KEY(ENTER, 0x0D),
     DEFINE_KEY(TAB, 0x09),
@@ -130,8 +128,8 @@ typedef enum keys
     DEFINE_KEY(RSHIFT, 0xA1),
     DEFINE_KEY(LCONTROL, 0xA2),
     DEFINE_KEY(RCONTROL, 0xA3),
-    DEFINE_KEY(LMENU, 0xA4),
-    DEFINE_KEY(RMENU, 0xA5),
+    DEFINE_KEY(LALT, 0xA4),
+    DEFINE_KEY(RALT, 0xA5),
 
     DEFINE_KEY(SEMICOLON, 0xBA),
     DEFINE_KEY(PLUS, 0xBB),
@@ -144,9 +142,15 @@ typedef enum keys
     KEYS_MAX_KEYS
 } keys;
 
-b8   input_system_initialize(u64 *input_state_mem_requirements, void *input_state);
-void input_system_shutdown(void *state);
-
+/**
+ * @brief Initializes the input system. Call twice; once to obtain memory requirement (passing
+ * state = 0), then a second time passing allocated memory to state.
+ * 
+ * @param memory_requirement The required size of the state memory.
+ * @param state Either 0 or the allocated block of state memory.
+ */
+void input_system_initialize(u64* memory_requirement, void* state);
+void input_system_shutdown(void* state);
 void input_update(f64 delta_time);
 
 // keyboard input
@@ -158,12 +162,12 @@ DAPI b8 input_was_key_up(keys key);
 void input_process_key(keys key, b8 pressed);
 
 // mouse input
-DAPI b8   input_is_button_down(buttons button);
-DAPI b8   input_is_button_up(buttons button);
-DAPI b8   input_was_button_down(buttons button);
-DAPI b8   input_was_button_up(buttons button);
-DAPI void input_get_mouse_position(s32 *x, s32 *y);
-DAPI void input_get_previous_mouse_position(s32 *x, s32 *y);
+DAPI b8 input_is_button_down(buttons button);
+DAPI b8 input_is_button_up(buttons button);
+DAPI b8 input_was_button_down(buttons button);
+DAPI b8 input_was_button_up(buttons button);
+DAPI void input_get_mouse_position(s32* x, s32* y);
+DAPI void input_get_previous_mouse_position(s32* x, s32* y);
 
 void input_process_button(buttons button, b8 pressed);
 void input_process_mouse_move(s16 x, s16 y);

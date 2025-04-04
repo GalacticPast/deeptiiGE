@@ -27,7 +27,7 @@ typedef struct event_context
 // Should return true if handled.
 typedef b8 (*PFN_on_event)(u16 code, void *sender, void *listener_inst, event_context data);
 
-b8   event_system_initialize(u64 *event_system_mem_requirements, void *state);
+void event_system_initialize(u64 *memory_requirement, void *state);
 void event_system_shutdown(void *state);
 
 /**
@@ -117,5 +117,4 @@ typedef enum system_event_code
     EVENT_CODE_DEBUG4 = 0x14,
 
     MAX_EVENT_CODE = 0xFF
-
 } system_event_code;
