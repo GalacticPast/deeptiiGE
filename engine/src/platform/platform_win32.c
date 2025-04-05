@@ -33,7 +33,7 @@ static platform_state *platform_state_ptr;
 
 LRESULT CALLBACK win32_process_message(HWND hwnd, u32 msg, WPARAM w_param, LPARAM l_param);
 
-b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
+b8 platform_system_startup(u64 *platform_mem_requirements, void *plat_state, const char *application_name, s32 x, s32 y, s32 width, s32 height)
 {
     *platform_mem_requirements = sizeof(platform_state);
     if (plat_state == 0)
@@ -124,7 +124,7 @@ b8 platform_startup(u64 *platform_mem_requirements, void *plat_state, const char
     return true;
 }
 
-void platform_shutdown()
+void platform_system_shutdown(void *state)
 {
     // Simply cold-cast to the known type.
 

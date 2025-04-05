@@ -12,7 +12,7 @@ DIR := $(subst /,\,${CURDIR})
 
 assembly := engine
 extension := .dll
-defines := -D_CRT_SECURE_NO_WARNINGS -DDPLATFORM_WINDOWS $(addl_define_flags)
+defines := -D_CRT_SECURE_NO_WARNINGS -DDPLATFORM_WINDOWS -DDEBUG -DDEXPORT 
 include_flags := -Iengine\src -I$(vulkan_sdk)\Include
 linker_flags := -g -shared -luser32 -lvulkan-1 -L$(VULKAN_SDK)\Lib -L$(obj_dir)\engine
 compiler_flags := -g -fdeclspec 
@@ -39,7 +39,7 @@ assembly := engine
 extension := .so
 include_flags := -Iengine/src -I$(VULKAN_SDK)/include
 compiler_flags := -g -fdeclspec -fPIC
-defines := $(addl_define_flags) 
+defines := -DDEBUG -DDEXPORT 
 linker_flags :=-Wl,--no-undefined,--no-allow-shlib-undefined -shared -lm -L./$(bind_dir) -g -lvulkan -lm
 
 linux_platform := $(shell echo "$$XDG_SESSION_TYPE")
