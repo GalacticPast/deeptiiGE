@@ -8,9 +8,9 @@
 b8 hashtable_should_create_and_destroy()
 {
     hashtable table;
-    u64       element_size  = sizeof(u64);
-    u64       element_count = 3;
-    u64       memory[3];
+    u64 element_size  = sizeof(u64);
+    u64 element_count = 3;
+    u64 memory[3];
 
     hashtable_create(element_size, element_count, memory, false, &table);
 
@@ -30,9 +30,9 @@ b8 hashtable_should_create_and_destroy()
 b8 hashtable_should_set_and_get_successfully()
 {
     hashtable table;
-    u64       element_size  = sizeof(u64);
-    u64       element_count = 3;
-    u64       memory[3];
+    u64 element_size  = sizeof(u64);
+    u64 element_count = 3;
+    u64 memory[3];
 
     hashtable_create(element_size, element_count, memory, false, &table);
 
@@ -57,16 +57,16 @@ b8 hashtable_should_set_and_get_successfully()
 
 typedef struct ht_test_struct
 {
-    b8  b_value;
+    b8 b_value;
     f32 f_value;
     u64 u_value;
 } ht_test_struct;
 
 b8 hashtable_should_set_and_get_ptr_successfully()
 {
-    hashtable       table;
-    u64             element_size  = sizeof(ht_test_struct *);
-    u64             element_count = 3;
+    hashtable table;
+    u64 element_size  = sizeof(ht_test_struct *);
+    u64 element_count = 3;
     ht_test_struct *memory[3];
 
     hashtable_create(element_size, element_count, memory, true, &table);
@@ -75,7 +75,7 @@ b8 hashtable_should_set_and_get_ptr_successfully()
     expect_should_be(sizeof(ht_test_struct *), table.element_size);
     expect_should_be(3, table.element_count);
 
-    ht_test_struct  t;
+    ht_test_struct t;
     ht_test_struct *testval1 = &t;
     testval1->b_value        = true;
     testval1->u_value        = 63;
@@ -100,9 +100,9 @@ b8 hashtable_should_set_and_get_ptr_successfully()
 b8 hashtable_should_set_and_get_nonexistant()
 {
     hashtable table;
-    u64       element_size  = sizeof(u64);
-    u64       element_count = 3;
-    u64       memory[3];
+    u64 element_size  = sizeof(u64);
+    u64 element_count = 3;
+    u64 memory[3];
 
     hashtable_create(element_size, element_count, memory, false, &table);
 
@@ -127,9 +127,9 @@ b8 hashtable_should_set_and_get_nonexistant()
 
 b8 hashtable_should_set_and_get_ptr_nonexistant()
 {
-    hashtable       table;
-    u64             element_size  = sizeof(ht_test_struct *);
-    u64             element_count = 3;
+    hashtable table;
+    u64 element_size  = sizeof(ht_test_struct *);
+    u64 element_count = 3;
     ht_test_struct *memory[3];
 
     hashtable_create(element_size, element_count, memory, true, &table);
@@ -138,7 +138,7 @@ b8 hashtable_should_set_and_get_ptr_nonexistant()
     expect_should_be(sizeof(ht_test_struct *), table.element_size);
     expect_should_be(3, table.element_count);
 
-    ht_test_struct  t;
+    ht_test_struct t;
     ht_test_struct *testval1 = &t;
     testval1->b_value        = true;
     testval1->u_value        = 63;
@@ -162,9 +162,9 @@ b8 hashtable_should_set_and_get_ptr_nonexistant()
 
 b8 hashtable_should_set_and_unset_ptr()
 {
-    hashtable       table;
-    u64             element_size  = sizeof(ht_test_struct *);
-    u64             element_count = 3;
+    hashtable table;
+    u64 element_size  = sizeof(ht_test_struct *);
+    u64 element_count = 3;
     ht_test_struct *memory[3];
 
     hashtable_create(element_size, element_count, memory, true, &table);
@@ -173,7 +173,7 @@ b8 hashtable_should_set_and_unset_ptr()
     expect_should_be(sizeof(ht_test_struct *), table.element_size);
     expect_should_be(3, table.element_count);
 
-    ht_test_struct  t;
+    ht_test_struct t;
     ht_test_struct *testval1 = &t;
     testval1->b_value        = true;
     testval1->u_value        = 63;
@@ -209,9 +209,9 @@ b8 hashtable_should_set_and_unset_ptr()
 
 b8 hashtable_try_call_non_ptr_on_ptr_table()
 {
-    hashtable       table;
-    u64             element_size  = sizeof(ht_test_struct *);
-    u64             element_count = 3;
+    hashtable table;
+    u64 element_size  = sizeof(ht_test_struct *);
+    u64 element_count = 3;
     ht_test_struct *memory[3];
 
     hashtable_create(element_size, element_count, memory, true, &table);
@@ -246,9 +246,9 @@ b8 hashtable_try_call_non_ptr_on_ptr_table()
 
 b8 hashtable_try_call_ptr_on_non_ptr_table()
 {
-    hashtable      table;
-    u64            element_size  = sizeof(ht_test_struct);
-    u64            element_count = 3;
+    hashtable table;
+    u64 element_size  = sizeof(ht_test_struct);
+    u64 element_count = 3;
     ht_test_struct memory[3];
 
     hashtable_create(element_size, element_count, memory, false, &table);
@@ -259,7 +259,7 @@ b8 hashtable_try_call_ptr_on_non_ptr_table()
 
     DDEBUG("The following 2 error messages are intentional.");
 
-    ht_test_struct  t;
+    ht_test_struct t;
     ht_test_struct *testval1 = &t;
     testval1->b_value        = true;
     testval1->u_value        = 63;
@@ -284,9 +284,9 @@ b8 hashtable_try_call_ptr_on_non_ptr_table()
 
 b8 hashtable_should_set_get_and_update_ptr_successfully()
 {
-    hashtable       table;
-    u64             element_size  = sizeof(ht_test_struct *);
-    u64             element_count = 3;
+    hashtable table;
+    u64 element_size  = sizeof(ht_test_struct *);
+    u64 element_count = 3;
     ht_test_struct *memory[3];
 
     hashtable_create(element_size, element_count, memory, true, &table);
@@ -295,7 +295,7 @@ b8 hashtable_should_set_get_and_update_ptr_successfully()
     expect_should_be(sizeof(ht_test_struct *), table.element_size);
     expect_should_be(3, table.element_count);
 
-    ht_test_struct  t;
+    ht_test_struct t;
     ht_test_struct *testval1 = &t;
     testval1->b_value        = true;
     testval1->u_value        = 63;
@@ -333,10 +333,16 @@ void hashtable_register_tests()
     test_manager_register_test(hashtable_should_create_and_destroy, "Hashtable should create and destroy");
     test_manager_register_test(hashtable_should_set_and_get_successfully, "Hashtable should set and get");
     test_manager_register_test(hashtable_should_set_and_get_ptr_successfully, "Hashtable should set and get pointer");
-    test_manager_register_test(hashtable_should_set_and_get_nonexistant, "Hashtable should set and get non-existent entry as nothing.");
-    test_manager_register_test(hashtable_should_set_and_get_ptr_nonexistant, "Hashtable should set and get non-existent pointer entry as nothing.");
-    test_manager_register_test(hashtable_should_set_and_unset_ptr, "Hashtable should set and unset pointer entry as nothing.");
-    test_manager_register_test(hashtable_try_call_non_ptr_on_ptr_table, "Hashtable try calling non-pointer functions on pointer type table.");
-    test_manager_register_test(hashtable_try_call_ptr_on_non_ptr_table, "Hashtable try calling pointer functions on non-pointer type table.");
-    test_manager_register_test(hashtable_should_set_get_and_update_ptr_successfully, "Hashtable Should get pointer, update, and get again successfully.");
+    test_manager_register_test(hashtable_should_set_and_get_nonexistant,
+                               "Hashtable should set and get non-existent entry as nothing.");
+    test_manager_register_test(hashtable_should_set_and_get_ptr_nonexistant,
+                               "Hashtable should set and get non-existent pointer entry as nothing.");
+    test_manager_register_test(hashtable_should_set_and_unset_ptr,
+                               "Hashtable should set and unset pointer entry as nothing.");
+    test_manager_register_test(hashtable_try_call_non_ptr_on_ptr_table,
+                               "Hashtable try calling non-pointer functions on pointer type table.");
+    test_manager_register_test(hashtable_try_call_ptr_on_non_ptr_table,
+                               "Hashtable try calling pointer functions on non-pointer type table.");
+    test_manager_register_test(hashtable_should_set_get_and_update_ptr_successfully,
+                               "Hashtable Should get pointer, update, and get again successfully.");
 }

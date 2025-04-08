@@ -5,7 +5,8 @@
 typedef union vec2_u {
     // An array of x, y
     f32 elements[2];
-    struct {
+    struct
+    {
         union {
             // The first element.
             f32 x, r, s, u;
@@ -20,7 +21,8 @@ typedef union vec2_u {
 typedef union vec3_u {
     // An array of x, y, z
     f32 elements[3];
-    struct {
+    struct
+    {
         union {
             // The first element.
             f32 x, r, s, u;
@@ -41,7 +43,8 @@ typedef union vec4_u {
     // An array of x, y, z, w
     f32 elements[4];
     union {
-        struct {
+        struct
+        {
             union {
                 // The first element.
                 f32 x, r, s;
@@ -68,7 +71,8 @@ typedef union mat4_u {
     f32 data[16];
 } mat4;
 
-typedef struct vertex_3d {
+typedef struct vertex_3d
+{
     vec3 position;
     vec2 texcoord;
 } vertex_3d;

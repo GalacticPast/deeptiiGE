@@ -115,7 +115,8 @@ WL_PRIVATE const struct wl_interface xdg_positioner_interface = {
 };
 
 static const struct wl_message xdg_surface_requests[] = {
-    {"destroy", "", xdg_shell_types + 0},        {"get_toplevel", "n", xdg_shell_types + 7}, {"get_popup", "n?oo", xdg_shell_types + 8}, {"set_window_geometry", "iiii", xdg_shell_types + 0},
+    {"destroy", "", xdg_shell_types + 0},        {"get_toplevel", "n", xdg_shell_types + 7},
+    {"get_popup", "n?oo", xdg_shell_types + 8},  {"set_window_geometry", "iiii", xdg_shell_types + 0},
     {"ack_configure", "u", xdg_shell_types + 0},
 };
 
@@ -128,11 +129,20 @@ WL_PRIVATE const struct wl_interface xdg_surface_interface = {
 };
 
 static const struct wl_message xdg_toplevel_requests[] = {
-    {"destroy", "", xdg_shell_types + 0},          {"set_parent", "?o", xdg_shell_types + 11},         {"set_title", "s", xdg_shell_types + 0},
-    {"set_app_id", "s", xdg_shell_types + 0},      {"show_window_menu", "ouii", xdg_shell_types + 12}, {"move", "ou", xdg_shell_types + 16},
-    {"resize", "ouu", xdg_shell_types + 18},       {"set_max_size", "ii", xdg_shell_types + 0},        {"set_min_size", "ii", xdg_shell_types + 0},
-    {"set_maximized", "", xdg_shell_types + 0},    {"unset_maximized", "", xdg_shell_types + 0},       {"set_fullscreen", "?o", xdg_shell_types + 21},
-    {"unset_fullscreen", "", xdg_shell_types + 0}, {"set_minimized", "", xdg_shell_types + 0},
+    {"destroy", "", xdg_shell_types + 0},
+    {"set_parent", "?o", xdg_shell_types + 11},
+    {"set_title", "s", xdg_shell_types + 0},
+    {"set_app_id", "s", xdg_shell_types + 0},
+    {"show_window_menu", "ouii", xdg_shell_types + 12},
+    {"move", "ou", xdg_shell_types + 16},
+    {"resize", "ouu", xdg_shell_types + 18},
+    {"set_max_size", "ii", xdg_shell_types + 0},
+    {"set_min_size", "ii", xdg_shell_types + 0},
+    {"set_maximized", "", xdg_shell_types + 0},
+    {"unset_maximized", "", xdg_shell_types + 0},
+    {"set_fullscreen", "?o", xdg_shell_types + 21},
+    {"unset_fullscreen", "", xdg_shell_types + 0},
+    {"set_minimized", "", xdg_shell_types + 0},
 };
 
 static const struct wl_message xdg_toplevel_events[] = {

@@ -12,15 +12,15 @@ typedef struct mouse_state
 {
     s16 x;
     s16 y;
-    u8  buttons[BUTTON_MAX_BUTTONS];
+    u8 buttons[BUTTON_MAX_BUTTONS];
 } mouse_state;
 
 typedef struct input_state
 {
     keyboard_state keyboard_current;
     keyboard_state keyboard_previous;
-    mouse_state    mouse_current;
-    mouse_state    mouse_previous;
+    mouse_state mouse_current;
+    mouse_state mouse_previous;
 } input_state;
 
 // Internal input state pointer

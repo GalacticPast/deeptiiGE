@@ -60,9 +60,9 @@ b8 game_initialize(game *game_inst)
 
 b8 game_update(game *game_inst, f32 delta_time)
 {
-    static u64 alloc_count      = 0;
-    u64        prev_alloc_count = alloc_count;
-    alloc_count                 = get_memory_alloc_count();
+    static u64 alloc_count = 0;
+    u64 prev_alloc_count   = alloc_count;
+    alloc_count            = get_memory_alloc_count();
     if (input_is_key_up('M') && input_was_key_down('M'))
     {
         DDEBUG("Allocations: %llu (%llu this frame)", alloc_count, alloc_count - prev_alloc_count);
@@ -100,8 +100,8 @@ b8 game_update(game *game_inst, f32 delta_time)
         camera_pitch(state, -1.0f * delta_time);
     }
 
-    f32  temp_move_speed = 50.0f;
-    vec3 velocity        = vec3_zero();
+    f32 temp_move_speed = 50.0f;
+    vec3 velocity       = vec3_zero();
 
     if (input_is_key_down('W'))
     {

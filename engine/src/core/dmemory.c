@@ -14,13 +14,15 @@ struct memory_stats
     u64 tagged_allocations[MEMORY_TAG_MAX_TAGS];
 };
 
-static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {"UNKNOWN    ", "ARRAY      ", "LINEAR_ALLC", "DARRAY     ", "DICT       ", "RING_QUEUE ", "BST        ", "STRING     ", "APPLICATION",
-                                                              "JOB        ", "TEXTURE    ", "MAT_INST   ", "RENDERER   ", "GAME       ", "TRANSFORM  ", "ENTITY     ", "ENTITY_NODE", "SCENE      "};
+static const char *memory_tag_strings[MEMORY_TAG_MAX_TAGS] = {
+    "UNKNOWN    ", "ARRAY      ", "LINEAR_ALLC", "DARRAY     ", "DICT       ", "RING_QUEUE ",
+    "BST        ", "STRING     ", "APPLICATION", "JOB        ", "TEXTURE    ", "MAT_INST   ",
+    "RENDERER   ", "GAME       ", "TRANSFORM  ", "ENTITY     ", "ENTITY_NODE", "SCENE      "};
 
 typedef struct memory_system_state
 {
     struct memory_stats stats;
-    u64                 alloc_count;
+    u64 alloc_count;
 } memory_system_state;
 
 // Pointer to system state.
@@ -102,11 +104,11 @@ char *get_memory_usage_str()
     const u64 kib = 1024;
 
     char buffer[8000] = "System memory use (tagged):\n";
-    u64  offset       = strlen(buffer);
+    u64 offset        = strlen(buffer);
     for (u32 i = 0; i < MEMORY_TAG_MAX_TAGS; ++i)
     {
-        char  unit[4] = "XiB";
-        float amount  = 1.0f;
+        char unit[4] = "XiB";
+        float amount = 1.0f;
         if (state_ptr->stats.tagged_allocations[i] >= gib)
         {
             unit[0] = 'G';

@@ -172,4 +172,3 @@ b8 filesystem_write(file_handle *handle, u64 data_size, const void *data, u64 *o
     }
     return false;
 }
-

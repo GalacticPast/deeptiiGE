@@ -5,7 +5,7 @@
 
 typedef struct registered_event
 {
-    void        *listener;
+    void *listener;
     PFN_on_event callback;
 } registered_event;
 

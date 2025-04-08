@@ -29,7 +29,7 @@ typedef struct material_uniform_object
 
 typedef struct geometry_render_data
 {
-    mat4      model;
+    mat4 model;
     geometry *geometry;
 } geometry_render_data;
 
@@ -55,7 +55,8 @@ typedef struct renderer_backend
     b8 (*create_material)(struct material *material);
     void (*destroy_material)(struct material *material);
 
-    b8 (*create_geometry)(geometry *geometry, u32 vertex_count, const vertex_3d *vertices, u32 index_count, const u32 *indices);
+    b8 (*create_geometry)(geometry *geometry, u32 vertex_count, const vertex_3d *vertices, u32 index_count,
+                          const u32 *indices);
     void (*destroy_geometry)(geometry *geometry);
 } renderer_backend;
 
@@ -63,6 +64,6 @@ typedef struct render_packet
 {
     f32 delta_time;
 
-    u32                   geometry_count;
+    u32 geometry_count;
     geometry_render_data *geometries;
 } render_packet;

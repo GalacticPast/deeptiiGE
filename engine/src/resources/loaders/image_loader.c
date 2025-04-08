@@ -17,7 +17,7 @@ b8 image_loader_load(struct resource_loader *self, const char *name, resource *o
         return false;
     }
 
-    char     *format_str             = "%s/%s/%s%s";
+    char *format_str                 = "%s/%s/%s%s";
     const s32 required_channel_count = 4;
     stbi_set_flip_vertically_on_load(true);
     char full_file_path[512];

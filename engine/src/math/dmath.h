@@ -493,7 +493,8 @@ DINLINE f32 vec3_dot(vec3 vector_0, vec3 vector_1)
  */
 DINLINE vec3 vec3_cross(vec3 vector_0, vec3 vector_1)
 {
-    return (vec3){vector_0.y * vector_1.z - vector_0.z * vector_1.y, vector_0.z * vector_1.x - vector_0.x * vector_1.z, vector_0.x * vector_1.y - vector_0.y * vector_1.x};
+    return (vec3){vector_0.y * vector_1.z - vector_0.z * vector_1.y, vector_0.z * vector_1.x - vector_0.x * vector_1.z,
+                  vector_0.x * vector_1.y - vector_0.y * vector_1.x};
 }
 
 /**
@@ -768,15 +769,16 @@ DINLINE mat4 mat4_mul(mat4 matrix_0, mat4 matrix_1)
 {
     mat4 out_matrix = mat4_identity();
 
-    const f32 *m1_ptr  = matrix_0.data;
-    const f32 *m2_ptr  = matrix_1.data;
-    f32       *dst_ptr = out_matrix.data;
+    const f32 *m1_ptr = matrix_0.data;
+    const f32 *m2_ptr = matrix_1.data;
+    f32 *dst_ptr      = out_matrix.data;
 
     for (s32 i = 0; i < 4; ++i)
     {
         for (s32 j = 0; j < 4; ++j)
         {
-            *dst_ptr = m1_ptr[0] * m2_ptr[0 + j] + m1_ptr[1] * m2_ptr[4 + j] + m1_ptr[2] * m2_ptr[8 + j] + m1_ptr[3] * m2_ptr[12 + j];
+            *dst_ptr = m1_ptr[0] * m2_ptr[0 + j] + m1_ptr[1] * m2_ptr[4 + j] + m1_ptr[2] * m2_ptr[8 + j] +
+                       m1_ptr[3] * m2_ptr[12 + j];
             dst_ptr++;
         }
         m1_ptr += 4;
@@ -825,7 +827,7 @@ DINLINE mat4 mat4_orthographic(f32 left, f32 right, f32 bottom, f32 top, f32 nea
  */
 DINLINE mat4 mat4_perspective(f32 fov_radians, f32 aspect_ratio, f32 near_clip, f32 far_clip)
 {
-    f32  half_tan_fov = dtan(fov_radians * 0.5f);
+    f32 half_tan_fov = dtan(fov_radians * 0.5f);
     mat4 out_matrix;
     dzero_memory(out_matrix.data, sizeof(f32) * 16);
     out_matrix.data[0]  = 1.0f / (aspect_ratio * half_tan_fov);
@@ -997,8 +999,8 @@ DINLINE mat4 mat4_scale(vec3 scale)
 DINLINE mat4 mat4_euler_x(f32 angle_radians)
 {
     mat4 out_matrix = mat4_identity();
-    f32  c          = dcos(angle_radians);
-    f32  s          = dsin(angle_radians);
+    f32 c           = dcos(angle_radians);
+    f32 s           = dsin(angle_radians);
 
     out_matrix.data[5]  = c;
     out_matrix.data[6]  = s;
@@ -1009,8 +1011,8 @@ DINLINE mat4 mat4_euler_x(f32 angle_radians)
 DINLINE mat4 mat4_euler_y(f32 angle_radians)
 {
     mat4 out_matrix = mat4_identity();
-    f32  c          = dcos(angle_radians);
-    f32  s          = dsin(angle_radians);
+    f32 c           = dcos(angle_radians);
+    f32 s           = dsin(angle_radians);
 
     out_matrix.data[0]  = c;
     out_matrix.data[2]  = -s;
@@ -1241,8 +1243,8 @@ DINLINE mat4 quat_to_rotation_matrix(quat q, vec3 center)
 DINLINE quat quat_from_axis_angle(vec3 axis, f32 angle, b8 normalize)
 {
     const f32 half_angle = 0.5f * angle;
-    f32       s          = dsin(half_angle);
-    f32       c          = dcos(half_angle);
+    f32 s                = dsin(half_angle);
+    f32 c                = dcos(half_angle);
 
     quat q = (quat){s * axis.x, s * axis.y, s * axis.z, c};
     if (normalize)
@@ -1282,7 +1284,8 @@ DINLINE quat quat_slerp(quat q_0, quat q_1, f32 percentage)
     {
         // If the inputs are too close for comfort, linearly interpolate
         // and normalize the result.
-        out_quaternion = (quat){v0.x + ((v1.x - v0.x) * percentage), v0.y + ((v1.y - v0.y) * percentage), v0.z + ((v1.z - v0.z) * percentage), v0.w + ((v1.w - v0.w) * percentage)};
+        out_quaternion = (quat){v0.x + ((v1.x - v0.x) * percentage), v0.y + ((v1.y - v0.y) * percentage),
+                                v0.z + ((v1.z - v0.z) * percentage), v0.w + ((v1.w - v0.w) * percentage)};
 
         return quat_normalize(out_quaternion);
     }
@@ -1296,7 +1299,8 @@ DINLINE quat quat_slerp(quat q_0, quat q_1, f32 percentage)
     f32 s0 = dcos(theta) - dot * sin_theta / sin_theta_0; // == sin(theta_0 - theta) / sin(theta_0)
     f32 s1 = sin_theta / sin_theta_0;
 
-    return (quat){(v0.x * s0) + (v1.x * s1), (v0.y * s0) + (v1.y * s1), (v0.z * s0) + (v1.z * s1), (v0.w * s0) + (v1.w * s1)};
+    return (quat){(v0.x * s0) + (v1.x * s1), (v0.y * s0) + (v1.y * s1), (v0.z * s0) + (v1.z * s1),
+                  (v0.w * s0) + (v1.w * s1)};
 }
 
 /**

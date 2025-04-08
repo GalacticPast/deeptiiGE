@@ -12,7 +12,7 @@
 typedef struct resource_system_state
 {
     resource_system_config config;
-    resource_loader       *registered_loaders;
+    resource_loader *registered_loaders;
 } resource_system_state;
 
 static resource_system_state *state_ptr = 0;
@@ -79,12 +79,17 @@ b8 resource_system_register_loader(resource_loader loader)
             {
                 if (l->type == loader.type)
                 {
-                    DERROR("resource_system_register_loader - Loader of type %d already exists and will not be registered.", loader.type);
+                    DERROR("resource_system_register_loader - Loader of type %d already exists and will not be "
+                           "registered.",
+                           loader.type);
                     return false;
                 }
-                else if (loader.custom_type && string_length(loader.custom_type) > 0 && strings_equali(l->custom_type, loader.custom_type))
+                else if (loader.custom_type && string_length(loader.custom_type) > 0 &&
+                         strings_equali(l->custom_type, loader.custom_type))
                 {
-                    DERROR("resource_system_register_loader - Loader of custom type %s already exists and will not be registered.", loader.custom_type);
+                    DERROR("resource_system_register_loader - Loader of custom type %s already exists and will not be "
+                           "registered.",
+                           loader.custom_type);
                     return false;
                 }
             }

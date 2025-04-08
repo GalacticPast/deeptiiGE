@@ -31,7 +31,7 @@ typedef enum log_level
  * @param state 0 if just requesting memory requirement, otherwise allocated block of memory.
  * @return b8 True on success; otherwise false.
  */
-b8   initialize_logging(u64 *memory_requirement, void *state);
+b8 initialize_logging(u64 *memory_requirement, void *state);
 void shutdown_logging(void *state);
 
 DAPI void log_output(log_level level, const char *message, ...);

@@ -41,7 +41,7 @@ b8 linear_allocator_single_allocation_all_space()
 
 b8 linear_allocator_multi_allocation_all_space()
 {
-    u64              max_allocs = 1024;
+    u64 max_allocs = 1024;
     linear_allocator alloc;
     linear_allocator_create(sizeof(u64) * max_allocs, 0, &alloc);
 
@@ -62,7 +62,7 @@ b8 linear_allocator_multi_allocation_all_space()
 
 b8 linear_allocator_multi_allocation_over_allocate()
 {
-    u64              max_allocs = 3;
+    u64 max_allocs = 3;
     linear_allocator alloc;
     linear_allocator_create(sizeof(u64) * max_allocs, 0, &alloc);
 
@@ -91,7 +91,7 @@ b8 linear_allocator_multi_allocation_over_allocate()
 
 b8 linear_allocator_multi_allocation_all_space_then_free()
 {
-    u64              max_allocs = 1024;
+    u64 max_allocs = 1024;
     linear_allocator alloc;
     linear_allocator_create(sizeof(u64) * max_allocs, 0, &alloc);
 
@@ -116,9 +116,13 @@ b8 linear_allocator_multi_allocation_all_space_then_free()
 
 void linear_allocator_register_tests()
 {
-    test_manager_register_test(linear_allocator_should_create_and_destroy, "linear allocator should create and destroy");
-    test_manager_register_test(linear_allocator_single_allocation_all_space, "Linear allocator single alloc for all space");
-    test_manager_register_test(linear_allocator_multi_allocation_all_space, "Linear allocator multi alloc for all space");
+    test_manager_register_test(linear_allocator_should_create_and_destroy,
+                               "linear allocator should create and destroy");
+    test_manager_register_test(linear_allocator_single_allocation_all_space,
+                               "Linear allocator single alloc for all space");
+    test_manager_register_test(linear_allocator_multi_allocation_all_space,
+                               "Linear allocator multi alloc for all space");
     test_manager_register_test(linear_allocator_multi_allocation_over_allocate, "Linear allocator try over allocate");
-    test_manager_register_test(linear_allocator_multi_allocation_all_space_then_free, "Linear allocator allocated should be 0 after free_all");
+    test_manager_register_test(linear_allocator_multi_allocation_all_space_then_free,
+                               "Linear allocator allocated should be 0 after free_all");
 }

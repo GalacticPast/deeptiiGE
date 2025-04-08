@@ -8,7 +8,7 @@
 typedef struct test_entry
 {
     PFN_test func;
-    char    *desc;
+    char *desc;
 } test_entry;
 
 static test_entry *tests;
@@ -61,7 +61,8 @@ void test_manager_run_tests()
         char status[20];
         string_format(status, failed ? "*** %d FAILED ***" : "SUCCESS", failed);
         clock_update(&total_time);
-        DINFO("Executed %d of %d (skipped %d) %s (%.6f sec / %.6f sec total", i + 1, count, skipped, status, test_time.elapsed, total_time.elapsed);
+        DINFO("Executed %d of %d (skipped %d) %s (%.6f sec / %.6f sec total", i + 1, count, skipped, status,
+              test_time.elapsed, total_time.elapsed);
     }
 
     clock_stop(&total_time);
